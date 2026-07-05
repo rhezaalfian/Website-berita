@@ -546,10 +546,10 @@
   .tldr { background: var(--accent-tint); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); border-radius: 14px; padding: 15px 18px; margin: 0 0 22px; }
   .tldr-h { font-weight: 800; font-size: .9rem; color: var(--accent-dark); margin-bottom: 8px; letter-spacing: -.01em; }
   .tldr ul { margin: 0; padding-left: 20px; } .tldr li { margin: 5px 0; color: var(--ink-soft); font-size: .95rem; line-height: 1.5; }
-  /* Aksi baca (dengarkan / kutipan) */
+  /* Aksi baca (dengarkan) */
   .read-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 22px; }
-  .listen-btn, .quote-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; font-size: .85rem; cursor: pointer; font-family: inherit; transition: .16s; }
-  .listen-btn:hover, .quote-btn:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .listen-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; font-size: .85rem; cursor: pointer; font-family: inherit; transition: .16s; }
+  .listen-btn:hover { border-color: var(--accent); color: var(--accent-dark); }
   /* Diperbarui / koreksi */
   .correction { background: color-mix(in srgb, #f0872f 12%, var(--surface)); border-left: 3px solid #f0872f; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: .84rem; color: var(--ink-soft); margin: 16px 0; }
   /* Reaksi emoji */
@@ -986,7 +986,7 @@ function renderArticle(id){
     <div class="layout"><main><article class="article">${chip(n.tag)}<h1>${n.title}</h1><p class="lede">${n.excerpt}</p>
       <div class="a-meta">${authorAv(n.author)}<div><div class="who aulink" data-author="${n.author}">${n.author}</div><div class="sub">${fmtLong(n.date)}, ${n.jam} WIB · ${readTime(content)} menit baca</div></div></div>
       ${CORRECTIONS[n.id]?`<div class="correction">✎ ${esc(CORRECTIONS[n.id])}</div>`:""}
-      <div class="read-actions"><button class="listen-btn" id="tts-btn" data-tts="${n.id}">🔊 Dengarkan</button><button class="quote-btn" data-quote="${n.id}">❝ Bagikan kutipan</button></div>
+      <div class="read-actions"><button class="listen-btn" id="tts-btn" data-tts="${n.id}">🔊 Dengarkan</button></div>
       <div class="article-media"><img src="${n.image}" alt="${n.title}"></div><div class="cap">Ilustrasi: ${n.tag} · kabar</div>
       ${tldrBox(n)}
       <div class="fs-control"><span class="fs-label">Ukuran teks</span><div class="fs-seg">
@@ -1191,17 +1191,6 @@ function openStats(){ const wk=Object.keys(stats.days).filter(d=>(Date.now()-new
   ${(follows.tags.length||follows.authors.length)?`<h4 style="margin:16px 0 8px">Diikuti</h4><div class="badges">${follows.tags.map(t=>`<span class="badge">#${t}</span>`).join("")}${follows.authors.map(a=>`<span class="badge">${a}</span>`).join("")}</div>`:""}</div>`;
   openGen(); }
 
-// -- Kartu kutipan share-able
-function wrapLines(str,max){ const w=(str||"").split(" "); const out=[]; let cur=""; for(const word of w){ if((cur+" "+word).trim().length>max){ if(cur)out.push(cur.trim()); cur=word; } else cur=(cur+" "+word).trim(); } if(cur)out.push(cur); return out; }
-function quoteImg(n){ const lines=wrapLines(n.excerpt||n.title,26).slice(0,6); const startY=440-(lines.length*66)/2;
-  const tspans=lines.map((l,i)=>`<tspan x='96' y='${Math.round(startY+i*66)}'>${esc(l)}</tspan>`).join("");
-  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='1080' height='1080'><defs><linearGradient id='q' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#12b866'/><stop offset='1' stop-color='#0a7a46'/></linearGradient></defs><rect width='1080' height='1080' fill='url(#q)'/><text x='80' y='260' font-family='Georgia, serif' font-size='210' fill='rgba(255,255,255,.22)' font-weight='700'>&#8220;</text><text font-family='Segoe UI, Helvetica, Arial, sans-serif' font-size='52' font-weight='700' fill='#ffffff'>${tspans}</text><text x='96' y='956' font-family='Segoe UI, Arial, sans-serif' font-size='34' fill='rgba(255,255,255,.9)'>&#8212; ${esc(n.author)}</text><text x='96' y='1010' font-family='Segoe UI, Arial, sans-serif' font-size='40' font-weight='800' fill='#ffffff'>kabar<tspan fill='#bff3d6'>.</tspan></text></svg>`;
-  return "data:image/svg+xml,"+encodeURIComponent(svg).replace(/'/g,"%27").replace(/\(/g,"%28").replace(/\)/g,"%29"); }
-function svgToPng(uri,cb){ const im=new Image(); im.onload=()=>{ try{ const c=document.createElement("canvas"); c.width=1080;c.height=1080; c.getContext("2d").drawImage(im,0,0); cb(c.toDataURL("image/png")); }catch(e){ cb(uri); } }; im.onerror=()=>cb(uri); im.src=uri; }
-function quoteCard(n){ const svg=quoteImg(n);
-  document.getElementById("gen-body").innerHTML=`<div style="padding:22px"><h2 style="font-size:1.2rem;font-weight:800;margin-bottom:2px">❝ Bagikan kutipan</h2><p style="color:var(--muted);font-size:.85rem;margin-bottom:14px">Simpan gambar ini untuk Status/Story.</p><img id="qc-img" src="${svg}" alt="kartu kutipan" style="width:100%;border-radius:14px;border:1px solid var(--line);display:block"><a class="quote-btn" id="qc-dl" href="${svg}" download="kabar-kutipan.png" style="margin-top:14px;justify-content:center;width:100%">⬇ Unduh gambar</a></div>`;
-  openGen(); svgToPng(svg,png=>{ const im=document.getElementById("qc-img"),dl=document.getElementById("qc-dl"); if(im)im.src=png; if(dl)dl.href=png; }); }
-
 // -- Komentar (demo)
 let comments=LS.get("kabar_comments",{});
 function seedComments(id){ return [["Mira","Infonya jelas banget, makasih 🙌","2 jam lalu"],["Adit","Ini yang aku tunggu.","5 jam lalu"],["Nabila","Semoga tindak lanjutnya cepat.","kemarin"]].slice(0,(id%3)+1); }
@@ -1368,7 +1357,6 @@ document.addEventListener("click", e=>{
   const rb=e.target.closest("[data-react]"); if(rb){ setReaction(rb.dataset.rid,rb.dataset.react); return; }
   const fl=e.target.closest("[data-follow]"); if(fl){ toggleFollow(fl.dataset.follow,fl.dataset.fval); const on=isFollowing(fl.dataset.follow,fl.dataset.fval); fl.classList.toggle("on",on); fl.textContent=on?"✓ Diikuti":"+ Ikuti"; return; }
   const ttb=e.target.closest("[data-tts]"); if(ttb){ ttsToggle(ttb.dataset.tts); return; }
-  const qb=e.target.closest("[data-quote]"); if(qb){ const n=NEWS.find(x=>x.id===+qb.dataset.quote); if(n) quoteCard(n); return; }
   if(e.target.closest("#um-stats")||e.target.closest("#mega-stats")){ closeMega(); openStats(); return; }
   if(e.target.closest("#um-push")||e.target.closest("#mega-push")){ togglePush(); return; }
   if(e.target.id==="clear-saved"){ saved=[]; LS.set("kabar_saved",saved); updateSavedBadge(); go({page:"saved"}); return; }
