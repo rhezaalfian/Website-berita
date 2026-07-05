@@ -1278,6 +1278,15 @@ function artHref(n){ return `#/${slugify(n.tag)}/${(n.date||"").replace(/-/g,"")
 function tagHref(t){ return `#/tags/${slugify(t)}`; }
 function secHref(s){ return `#/${slugify(s)}`; }
 function authorHref(a){ return `#/penulis/${slugify(a)}`; }
+// -- Foto & waktu untuk JSON-LD / share (SEO)
+// Foto asli per artikel. Kosong -> pakai path konvensi (diisi CMS saat deploy). id -> URL .jpg
+const IMG = { /* contoh: 1:"https://kabar.id/img/foto-stimulus.jpg" */ };
+// Waktu pembaruan (dateModified) kalau beda dari terbit. Format "YYYY-MM-DD HH.MM" (WIB).
+const UPDATED = { 4:"2026-06-30 22.10" };
+function isoWIB(dateStr,jam){ return `${dateStr}T${(jam||"00.00").replace(".",":")}:00+07:00`; }
+function pubISO(n){ return isoWIB(n.date,n.jam); }
+function modISO(n){ const u=UPDATED[n.id]; if(!u) return pubISO(n); const sp=u.split(" "); return isoWIB(sp[0],sp[1]); }
+function shareImg(n){ return IMG[n.id] || `${SITE_URL}/img/${slugify(n.tag)}/${(n.date||"").replace(/-/g,"")}/${slugify(n.title)}-1200x675.jpg`; }
 function routePath(r){
   if(r.page==="article"){ const n=NEWS.find(x=>x.id===r.id); return n?artHref(n).slice(1):"/"; }
   if(r.page==="tag") return `/tags/${slugify(r.tag)}`;
@@ -1304,9 +1313,14 @@ function _headMeta(key,val,attr){ attr=attr||"name"; let m=document.head.querySe
 function _headCanon(url){ let l=document.head.querySelector('link[rel="canonical"]'); if(!l){ l=document.createElement("link"); l.setAttribute("rel","canonical"); document.head.appendChild(l);} l.setAttribute("href",url); }
 function _headLd(obj){ let s=document.getElementById("ld-json"); if(!s){ s=document.createElement("script"); s.type="application/ld+json"; s.id="ld-json"; document.head.appendChild(s);} s.textContent=obj?JSON.stringify(obj):"{}"; }
 function ldType(kind){ return kind==="lembaga"?"Organization":kind==="orang"?"Person":"Thing"; }
-function updateHead(r){ const url=SITE_URL+routePath(r); let title="kabar — portal berita", desc="Portal berita ringkas dengan liputan yang enak dibaca.", ld=null, ogtype="website";
-  if(r.page==="article"){ const n=NEWS.find(x=>x.id===r.id); if(n){ title=n.title+" — kabar"; desc=n.excerpt; ogtype="article";
-    ld={"@context":"https://schema.org","@type":"NewsArticle","headline":n.title,"description":n.excerpt,"datePublished":n.date,"dateModified":n.date,"articleSection":n.tag,"image":[n.image],"author":{"@type":"Person","name":n.author},"publisher":{"@type":"Organization","name":"kabar"},"mainEntityOfPage":url,
+function updateHead(r){ const url=SITE_URL+routePath(r); let title="kabar — portal berita", desc="Portal berita ringkas dengan liputan yang enak dibaca.", ld=null, ogtype="website", ogImage="";
+  if(r.page==="article"){ const n=NEWS.find(x=>x.id===r.id); if(n){ title=n.title+" — kabar"; desc=n.excerpt; ogtype="article"; ogImage=shareImg(n);
+    ld={"@context":"https://schema.org","@type":"NewsArticle","headline":n.title,"description":n.excerpt,
+      "datePublished":pubISO(n),"dateModified":modISO(n),"articleSection":n.tag,
+      "image":{"@type":"ImageObject","url":shareImg(n),"width":1200,"height":675},
+      "author":{"@type":"Person","name":n.author,"url":SITE_URL+"/penulis/"+slugify(n.author)},
+      "publisher":{"@type":"Organization","name":"kabar","logo":{"@type":"ImageObject","url":SITE_URL+"/logo.png","width":512,"height":60}},
+      "mainEntityOfPage":url,
       "about":(n.kw||[]).filter(k=>ENTITIES[k]).map(k=>({"@type":ldType(ENTITIES[k].kind),"name":k}))}; } }
   else if(r.page==="tag"){ const e=ENTITIES[r.tag]; title=r.tag+" — kabar"; desc=e&&e.desc?e.desc:`Kumpulan berita dan informasi mengenai ${r.tag}.`;
     if(e&&e.kind==="orang") ld={"@context":"https://schema.org","@type":"Person","name":r.tag,"jobTitle":e.sub||"","description":e.desc,"url":url};
@@ -1320,6 +1334,7 @@ function updateHead(r){ const url=SITE_URL+routePath(r); let title="kabar — po
   document.title=title;
   _headMeta("description",desc);
   _headMeta("og:title",title,"property"); _headMeta("og:description",desc,"property"); _headMeta("og:url",url,"property"); _headMeta("og:type",ogtype,"property"); _headMeta("og:site_name","kabar","property");
+  _headMeta("og:image",ogImage,"property");
   _headCanon(url); _headLd(ld);
 }
 let _suppressHash=false;
