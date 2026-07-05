@@ -6,13 +6,17 @@ Portal berita statis satu file (SPA) yang responsif, dibangun dengan HTML, CSS, 
 
 - **Beranda**: hero editorial, carousel "Berita utama" (kartu ala Google News), dan feed "Terbaru".
 - **Kategori & pencarian**: filter per kategori dan cari judul/ringkasan.
-- **Halaman artikel**: progress bar baca, tombol berbagi, dan **"Baca Juga" inline** (setelah paragraf ke-4 & ke-8) yang ditarik dari berita sekategori.
-- **Jajak Pendapat (polling)** interaktif di tiap artikel — hasil bar persen, tersimpan di browser.
+- **Halaman artikel**: progress bar baca, tombol berbagi, **"Baca Juga" inline**, **TL;DR "Baca cepat"**, dan **dengarkan artikel (text-to-speech)**.
+- **URL ala portal berita** (mirip periskop): artikel `#/{kanal}/{tanggal}/{slug}`, tag `#/tags/{slug}` — bisa deep-link, back/forward jalan, plus **title/meta/canonical dinamis** dan **JSON-LD** (NewsArticle, Person/Organization) untuk SEO.
+- **Halaman tag pintar**: nama orang/lembaga tampil sebagai **kartu mini-wiki** dengan entitas ter-link otomatis di body; tag topik menampilkan **kronologi** peristiwa.
+- **Fitur Gen Z / milenial**: Stories, reaksi emoji, kartu kutipan yang bisa dibagikan, ikuti topik, riwayat baca & badge.
 - **Kuis berskor**: halaman khusus **dan** pop-up otomatis setelah selesai membaca artikel.
 - **Simpan / Baca-nanti** (bookmark) + halaman **Tersimpan**, tersimpan di `localStorage`.
 - **Login Google** (UI demo — lihat catatan di bawah).
 - **Dark mode**, tombol kembali ke atas, dan transisi halus.
 - **Responsif penuh** 320px–1280px (feed "Terbaru" di mobile bergaya Flash News).
+
+> Jajak pendapat (polling) tersedia di kode tapi disembunyikan (`SHOW_POLL=false`); set `true` untuk memunculkan lagi.
 
 ## 🚀 Menjalankan
 
@@ -45,4 +49,4 @@ Login saat ini adalah **UI demo** (sesi disimpan di `localStorage`, belum terhub
 
 ## 🛠️ Mengganti Data Berita
 
-Semua data ada di array `RAW` di dalam `index.html`. Setiap item: `[judul, kategori, penulis, tanggal, unggulan, ringkasan, [paragraf...]]`. Gambar dibuat otomatis sebagai SVG (tanpa perlu koneksi internet) — ganti fungsi `img()` bila ingin memakai foto asli.
+Semua data ada di array `RAW` di dalam `index.html`. Setiap item: `[judul, kategori, penulis, tanggal, unggulan, breaking, ringkasan, [paragraf...]]`. Kata kunci/entitas per artikel diatur di objek `KW`, dan profil entitas (orang/lembaga) di `ENTITIES`. Gambar dibuat otomatis sebagai SVG (tanpa perlu koneksi internet) — ganti fungsi `img()` bila ingin memakai foto asli.
