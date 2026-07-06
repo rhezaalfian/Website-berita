@@ -670,6 +670,15 @@
   .cat-sub:last-child { border-bottom: none; }
   .cat-sub-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
   .cat-sub-head h2 { font-size: 1.4rem; font-weight: 800; letter-spacing: -.015em; }
+  /* SHEroes: tone pink / girly (recolor aksen di halaman ini saja) */
+  .sheroes-theme { --accent: #e0518c; --accent-dark: #c23b78; --accent-tint: color-mix(in srgb, #e0518c 14%, transparent); }
+  @media (prefers-color-scheme: dark) { .sheroes-theme { --accent: #ec6ba4; --accent-dark: #f49cc4; } }
+  :root[data-theme="light"] .sheroes-theme { --accent: #e0518c; --accent-dark: #c23b78; }
+  :root[data-theme="dark"] .sheroes-theme { --accent: #ec6ba4; --accent-dark: #f49cc4; }
+  .sheroes-theme .cat-head { background: linear-gradient(180deg, color-mix(in srgb, #e0518c 9%, transparent), transparent); border: 1px solid color-mix(in srgb, #e0518c 24%, var(--line)); border-radius: 16px; padding: 20px 22px 22px; }
+  .sheroes-theme .cat-head p { color: color-mix(in srgb, var(--accent-dark) 55%, var(--muted)); }
+  .sheroes-theme .cat-hero, .sheroes-theme .cat-sub { border-bottom-color: color-mix(in srgb, #e0518c 26%, var(--line)); }
+  .sheroes-theme .sub-i { border-color: color-mix(in srgb, #e0518c 40%, var(--line)); }
   .sub-title { position: relative; display: inline-flex; align-items: center; gap: 9px; }
   .sub-i { width: 19px; height: 19px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); font-size: .74rem; font-weight: 700; font-style: italic; font-family: Georgia, "Times New Roman", serif; cursor: pointer; display: inline-grid; place-items: center; line-height: 1; transition: .16s; flex-shrink: 0; padding: 0; }
   .sub-i:hover, .sub-i[aria-expanded="true"] { border-color: var(--accent); color: var(--accent-dark); }
@@ -1120,7 +1129,7 @@ function renderCategory(section){
     return `<section class="cat-sub"><div class="cat-sub-head"><div class="sub-title"><h2>${tag}</h2>${info}</div><a class="more" href="${tagHref(tag)}" data-tag="${tag}">Lebih banyak →</a></div>
       <div class="carousel">${items.map(card).join("")}</div></section>`;
   }).join("");
-  view.innerHTML=`<div class="cat-page">
+  view.innerHTML=`<div class="cat-page${section==="SHEroes"?" sheroes-theme":""}">
     <div class="cat-head"><h1><span class="dot" style="background:${SECTION_COLOR[section]}"></span>${section}</h1><p>${SECTION_DESC[section]||""}</p></div>
     ${hero}${subs||`<div class="empty"><h3>Belum ada berita di kanal ini</h3><p>Coba kanal lain.</p></div>`}
   </div>`;
