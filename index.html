@@ -997,7 +997,6 @@ function renderArticle(id){
       <div id="read-end" aria-hidden="true" style="height:1px"></div>
       <div class="editor-credit">Editor: <b>${EDITOR_NAME}</b></div>
       <div class="tag-narasi">Baca berita dan informasi lainnya mengenai ${(()=>{const L=[`<a class="ntag" href="#/tags/${slugify(n.tag)}" data-tag="${n.tag}">${n.tag}</a>`,...n.kw.map(k=>`<a class="ntag" href="#/tags/${slugify(k)}" data-kw="${k}">${k}</a>`)];return L.length<=1?L[0]:L.length===2?L.join(" dan "):L.slice(0,-1).join(", ")+", dan "+L[L.length-1];})()} dengan mengeklik tautan.</div>
-      <div class="follow-strip">Ikuti topik ini: ${followBtn("tags",n.tag)}${n.kw.slice(0,2).map(k=>` ${followBtn("tags",k)}`).join("")}</div>
       ${reactionBar(n.id)}
       <div class="share"><button class="save-pill ${isSaved(n.id)?'saved':''}" data-bm="${n.id}">${BM_SVG}<span class="bmlabel">${isSaved(n.id)?'Tersimpan':'Simpan'}</span></button><span class="artbar-div"></span>${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
         <div class="follow-row"><a class="follow-btn" data-ext="gnews">${G_SVG}<span>Ikuti di Google News</span></a><a class="follow-link" data-ext="pref"><span class="star">★</span> Jadikan sumber pilihan di Google</a></div>
