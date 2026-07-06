@@ -206,7 +206,7 @@
 
   /* Follow (Google News + sumber pilihan — dua pil senada) */
   .follow-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0; }
-  .gnews-block { margin-top: 18px; text-align: center; }
+  .gnews-block { text-align: center; }
   .gnews-label { display: block; font-size: .82rem; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
   .follow-btn { display: inline-flex; align-items: center; gap: 9px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
     background: var(--surface); color: var(--ink); font-size: .85rem; font-weight: 600; cursor: pointer; transition: border-color .16s, background .16s; }
@@ -215,7 +215,7 @@
   .follow-link { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
     background: transparent; color: var(--muted); font-size: .85rem; font-weight: 600; cursor: pointer; transition: border-color .16s, color .16s; }
   .follow-link:hover { border-color: var(--accent); color: var(--accent-dark); }
-  .follow-link .star { color: #f5a623; }
+  .follow-link svg { width: 16px; height: 16px; }
   .foot-follow { margin-top: 16px; }
   @media (max-width: 560px) { .artbar-div { display: none; } .share { gap: 8px; } }
 
@@ -317,7 +317,7 @@
   .ntag:hover { color: var(--accent); text-decoration-thickness: 2px; }
 
   .share-zone { margin: 22px 0 24px; padding-top: 22px; border-top: 1px solid var(--line); }
-  .share { display: flex; gap: 8px; align-items: center; margin: 0; flex-wrap: wrap; }
+  .share { display: flex; gap: 8px; align-items: center; margin: 20px 0 0; flex-wrap: wrap; }
   .artbar-div { width: 1px; height: 22px; background: var(--line); margin: 0 4px; }
   .save-pill { height: 38px; padding: 0 15px; border-radius: 999px; border: 1px solid var(--line); font-size: .84rem; font-weight: 600; cursor: pointer; transition: .16s; background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; gap: 7px; font-family: inherit; }
   .save-pill svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
@@ -1002,8 +1002,8 @@ function renderArticle(id){
       <div class="tag-narasi">Baca berita dan informasi lainnya mengenai ${(()=>{const L=[`<a class="ntag" href="#/tags/${slugify(n.tag)}" data-tag="${n.tag}">${n.tag}</a>`,...n.kw.map(k=>`<a class="ntag" href="#/tags/${slugify(k)}" data-kw="${k}">${k}</a>`)];return L.length<=1?L[0]:L.length===2?L.join(" dan "):L.slice(0,-1).join(", ")+", dan "+L[L.length-1];})()} dengan mengeklik tautan.</div>
       ${reactionBar(n.id)}
       <div class="share-zone">
+        <div class="gnews-block"><span class="gnews-label">Ikuti kabar di Google, biar tak ketinggalan berita terbaru.</span><div class="follow-row"><a class="follow-btn" data-ext="gnews">${GNEWS_SVG}<span>Ikuti di Google News</span></a><a class="follow-link" data-ext="pref">${G_SVG}<span>Jadikan sumber pilihan di Google</span></a></div></div>
         <div class="share"><button class="save-pill ${isSaved(n.id)?'saved':''}" data-bm="${n.id}">${BM_SVG}<span class="bmlabel">${isSaved(n.id)?'Tersimpan':'Simpan'}</span></button><span class="artbar-div"></span>${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
-        <div class="gnews-block"><span class="gnews-label">Ikuti kabar di Google, biar tak ketinggalan berita terbaru.</span><div class="follow-row"><a class="follow-btn" data-ext="gnews">${G_SVG}<span>Ikuti di Google News</span></a><a class="follow-link" data-ext="pref"><span class="star">★</span> Jadikan sumber pilihan di Google</a></div></div>
       </div>
       ${ad("ad-inarticle","In-article · 300×250")}
       ${SHOW_POLL?pollWidget(n.id):""}
@@ -1124,6 +1124,7 @@ let user=LS.get("kabar_user",null);
 const AV=["#0fa958","#2f7bf0","#f0872f","#b34fe0","#0fb0a5","#e0524f"];
 function avColor(s){ let h=0; for(const c of (s||"x")) h=(h*31+c.charCodeAt(0))>>>0; return AV[h%AV.length]; }
 const G_SVG=`<svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.9 0 6.6 1.7 8.1 3.1l5.9-5.8C34.6 3.2 29.8 1 24 1 14.6 1 6.5 6.4 2.6 14.3l6.9 5.4C11.4 13.6 17.2 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-2.8-.4-4H24v7.6h12.7c-.3 2.1-1.6 5.2-4.6 7.3l7.1 5.5c4.2-3.9 7.3-9.6 7.3-16.4z"/><path fill="#FBBC05" d="M9.5 28.3c-.5-1.4-.8-2.9-.8-4.3s.3-3 .7-4.3l-6.9-5.4C1 17.1 0 20.4 0 24s1 6.9 2.6 9.7l6.9-5.4z"/><path fill="#34A853" d="M24 47c6.5 0 11.9-2.1 15.9-5.8l-7.1-5.5c-1.9 1.3-4.5 2.3-8.8 2.3-6.8 0-12.6-4.1-14.5-9.9l-6.9 5.4C6.5 41.6 14.6 47 24 47z"/></svg>`;
+const GNEWS_SVG=`<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".4"/><rect x="6" y="7" width="6.5" height="5" rx=".8" fill="#4285F4"/><rect x="13.5" y="7.2" width="4.5" height="1.5" rx=".6" fill="#EA4335"/><rect x="13.5" y="10.3" width="4.5" height="1.5" rx=".6" fill="#FBBC05"/><rect x="6" y="14" width="12" height="1.5" rx=".6" fill="#34A853"/><rect x="6" y="16.5" width="12" height="1.5" rx=".6" fill="currentColor" opacity=".55"/></svg>`;
 const DEMO_ACCOUNTS=[{name:"Rheza Alfian",email:"rhezaalfian18@gmail.com"},{name:"Sinta Dewi",email:"sinta.demo@gmail.com"}];
 function renderAuthSlot(){ const slot=document.getElementById("auth-slot"); if(!slot) return;
   if(user){ slot.innerHTML=`<div class="user-wrap"><button class="user-btn" id="user-btn" aria-label="Akun"><span class="avatar" style="background:${avColor(user.email)}">${initials(user.name)}</span></button><div class="user-menu" id="user-menu"><div class="user-info"><span class="avatar" style="background:${avColor(user.email)}">${initials(user.name)}</span><div><div class="un">${user.name}</div><div class="ue">${user.email}</div></div></div><button class="um-item" data-nav="saved">🔖 Tersimpan</button><button class="um-item" id="um-stats">📊 Aktivitas baca</button><button class="um-item" id="um-push">🔔 Notifikasi</button><button class="um-item" id="logout">↩ Keluar</button></div></div>`; }
