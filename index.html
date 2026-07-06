@@ -654,6 +654,11 @@
   .cat-sub:last-child { border-bottom: none; }
   .cat-sub-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
   .cat-sub-head h2 { font-size: 1.4rem; font-weight: 800; letter-spacing: -.015em; }
+  .sub-title { position: relative; display: inline-flex; align-items: center; gap: 9px; }
+  .sub-i { width: 19px; height: 19px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); font-size: .74rem; font-weight: 700; font-style: italic; font-family: Georgia, "Times New Roman", serif; cursor: pointer; display: inline-grid; place-items: center; line-height: 1; transition: .16s; flex-shrink: 0; padding: 0; }
+  .sub-i:hover, .sub-i[aria-expanded="true"] { border-color: var(--accent); color: var(--accent-dark); }
+  .sub-pop { position: absolute; top: calc(100% + 8px); left: 0; z-index: 40; width: max-content; max-width: 300px; background: var(--surface); border: 1px solid var(--line); border-radius: 11px; box-shadow: 0 10px 30px -10px rgba(20,30,40,.28); padding: 12px 15px; font-size: .86rem; font-weight: 500; line-height: 1.45; color: var(--ink-soft); display: none; }
+  .sub-pop.show { display: block; }
   .cat-sub-head .more { font-size: .84rem; font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
   .cat-sub-head .more:hover { text-decoration: underline; }
   .cat-sub .carousel { margin-top: 2px; }
@@ -1055,6 +1060,29 @@ const SECTION_DESC = {
   SHEroes: "Ruang perempuan — dari langkah kecil, persaudaraan, sampai cerita dan curahan yang jujur.",
   HALALive: "Gaya hidup halal — dari kuliner dan wisata sampai keuangan syariah dan Ramadan."
 };
+// Pengertian tiap sub-kategori — muncul saat ikon ⓘ diklik di landing. Isi/ubah sesuka hati.
+const SUB_DESC = {
+  Politik:"Dinamika kekuasaan, pemerintahan, dan kebijakan publik.",
+  Hukum:"Peristiwa dan isu seputar hukum, peradilan, dan keadilan.",
+  Keamanan:"Isu keamanan, pertahanan, dan ketertiban masyarakat.",
+  Peristiwa:"Kejadian dan peristiwa penting yang sedang terjadi.",
+  Ekonomi:"Kondisi ekonomi makro, kebijakan fiskal, dan daya beli.",
+  Bisnis:"Dunia usaha, korporasi, dan startup.",
+  Moneter:"Kebijakan bank sentral, suku bunga, dan nilai tukar.",
+  Perdagangan:"Ekspor, impor, dan arus perdagangan barang & jasa.",
+  Industri:"Sektor manufaktur, hilirisasi, dan tenaga kerja.",
+  "Little Step":"Langkah-langkah kecil menuju hidup yang lebih baik.",
+  Sisterhood:"Solidaritas dan persaudaraan antarperempuan.",
+  Persona:"Sosok dan kisah perempuan yang menginspirasi.",
+  "Spill the Bills":"Obrolan jujur soal uang dan keuangan perempuan.",
+  Drama:"Cerita dan dinamika kehidupan sehari-hari.",
+  "Slow Mode":"Merawat diri dan menjalani hidup dengan lebih pelan.",
+  "Dear You":"Ruang curhat dan nasihat yang menguatkan.",
+  "Kuliner Halal":"Kuliner dan produk bersertifikat halal.",
+  "Wisata Halal":"Destinasi dan layanan wisata ramah muslim.",
+  "Keuangan Syariah":"Investasi dan produk keuangan berbasis syariah.",
+  Ramadan:"Persiapan, ibadah, dan cerita seputar Ramadan."
+};
 function renderCategory(section){
   const secArts=NEWS.filter(n=>n.section===section);
   const lead=secArts.find(n=>n.featured)||secArts[0];
@@ -1070,7 +1098,8 @@ function renderCategory(section){
   const subs=SECTION_TAGS[section].map(tag=>{
     const items=NEWS.filter(n=>n.tag===tag).slice(0,8);
     if(!items.length) return "";
-    return `<section class="cat-sub"><div class="cat-sub-head"><h2>${tag}</h2><a class="more" href="${tagHref(tag)}" data-tag="${tag}">Lebih banyak →</a></div>
+    const info=SUB_DESC[tag]?`<button class="sub-i" data-subinfo="${slugify(tag)}" aria-label="Tentang ${tag}" aria-expanded="false">i</button><span class="sub-pop" id="subpop-${slugify(tag)}" role="tooltip">${SUB_DESC[tag]}</span>`:"";
+    return `<section class="cat-sub"><div class="cat-sub-head"><div class="sub-title"><h2>${tag}</h2>${info}</div><a class="more" href="${tagHref(tag)}" data-tag="${tag}">Lebih banyak →</a></div>
       <div class="carousel">${items.map(card).join("")}</div></section>`;
   }).join("");
   view.innerHTML=`<div class="cat-page">
@@ -1468,6 +1497,12 @@ document.addEventListener("click", e=>{
   const stn=e.target.closest("[data-st]"); if(stn){ stn.dataset.st==="next"?storyNext():storyPrev(); return; }
   const sdot=e.target.closest("[data-story]"); if(sdot){ openStories(+sdot.dataset.story); return; }
   const fq=e.target.closest(".faq-q"); if(fq){ fq.closest(".faq-item").classList.toggle("open"); return; }
+  const si=e.target.closest("[data-subinfo]");
+  if(si){ e.preventDefault(); const pop=document.getElementById("subpop-"+si.dataset.subinfo); const wasOpen=pop&&pop.classList.contains("show");
+    document.querySelectorAll(".sub-pop.show").forEach(p=>p.classList.remove("show"));
+    document.querySelectorAll('.sub-i[aria-expanded="true"]').forEach(b=>b.setAttribute("aria-expanded","false"));
+    if(pop&&!wasOpen){ pop.classList.add("show"); si.setAttribute("aria-expanded","true"); } return; }
+  if(!e.target.closest(".sub-pop")){ document.querySelectorAll(".sub-pop.show").forEach(p=>p.classList.remove("show")); document.querySelectorAll('.sub-i[aria-expanded="true"]').forEach(b=>b.setAttribute("aria-expanded","false")); }
   if(e.target.closest("[data-quiz-from-faq]")){ closeFaqModal(); openQuizModal(); return; }
   if(e.target.id==="bn-close"){ document.getElementById("breaking-slot").innerHTML=""; setHeadH(); return; }
   if(e.target.id==="mega-overlay"||e.target.id==="mega-close"){ closeMega(); return; }
