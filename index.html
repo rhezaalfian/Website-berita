@@ -443,7 +443,7 @@
   .ad-dim { font-size: .72rem; }
   .ad-leaderboard { height: 96px; margin: 18px 0 2px; }
   .ad-infeed { height: 108px; margin: 6px 0; }
-  .ad-feedbig { min-height: 250px; margin: 8px 0; }
+  .ad-feed { height: 165px; margin: 12px 0; }
   /* Indeks: filter + paginasi */
   .idx-filter { display: flex; flex-wrap: wrap; gap: 12px 14px; align-items: flex-end; margin: 2px 0 24px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
   .idx-field { display: flex; flex-direction: column; gap: 6px; }
@@ -1001,6 +1001,8 @@ function inlineRead(n){ return `<aside class="baca-juga" data-article="${n.id}">
   <div class="bj-item"><div class="bj-thumb"><img src="${n.image}" alt="${n.title}" loading="lazy"></div>
   <div><div class="bj-title">${n.title}</div><div class="bj-date">${fmtLong(n.date)}</div></div></div></aside>`; }
 function ad(cls, dim){ return `<div class="ad ${cls}"><span class="ad-tag">Iklan</span><span class="ad-dim">${dim}</span></div>`; }
+// Susun daftar berita + iklan in-feed di baris ke-4 & ke-8 (dipakai beranda & indeks)
+function feedRows(list){ const items=list.map(listItem); if(items.length>3) items.splice(3,0,ad("ad-feed","In-feed")); if(items.length>7) items.splice(7,0,ad("ad-feed","In-feed")); return items.join(""); }
 function adParallax(n){ const im=imgParallax(n?n.id:7); return `<div class="ad-parallax"><div class="px-layer" data-parallax style="background-image:url('${im}')"></div><div class="px-scrim"></div><div class="px-cap"><span class="px-badge"><span class="ad-tag">Iklan</span><span class="ad-dim">Parallax · 970×300</span></span></div></div>`; }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
   return `<aside><div class="rail"><div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
@@ -1058,7 +1060,7 @@ function renderHome(){
     ${(()=>{ if(!user) return ""; const fy=forYou(); return fy.length?`<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow">Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`:""; })()}
     ${(()=>{ if(!user) return ""; const rr=recentRead(); return rr.length?`<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow">Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`:""; })()}
     <div class="layout"><main><div class="sec-head"><h2>Terbaru</h2><span class="eyebrow">Update harian</span></div>
-      <div class="list">${(()=>{ const items=feed.slice(0,8).map(listItem); if(items.length>3) items.splice(3,0,ad("ad-feedbig","Display · 300×250")); if(items.length>7) items.splice(7,0,ad("ad-feedbig","Display · 300×250")); return items.join(""); })()}</div>
+      <div class="list">${feedRows(feed.slice(0,8))}</div>
       <a class="loadmore" href="#/indeks" data-nav="index">Berita lainnya →</a></main>${railHtml()}</div>`;
   heroCount=heroItems.length; heroSetup();
 }
@@ -1145,10 +1147,10 @@ function idxPager(pages){
   return `<div class="pager"><button class="pg nav" data-idxpage="${idxState.page-1}" ${idxState.page===1?"disabled":""} aria-label="Sebelumnya">‹</button>${btns}<button class="pg nav" data-idxpage="${idxState.page+1}" ${idxState.page===pages?"disabled":""} aria-label="Berikutnya">›</button></div>`;
 }
 function renderIndex(){
-  const all=idxFiltered(), per=10, pages=Math.max(1,Math.ceil(all.length/per));
+  const all=idxFiltered(), per=8, pages=Math.max(1,Math.ceil(all.length/per));
   if(idxState.page>pages) idxState.page=pages;
   const pageItems=all.slice((idxState.page-1)*per, (idxState.page-1)*per+per);
-  const rows=[]; pageItems.forEach((n,i)=>{ rows.push(listItem(n)); if(i===4 && pageItems.length>5) rows.push(ad("ad-feedbig","Display · 300×250")); });
+  const rows=feedRows(pageItems);
   const catOpts=`<option value="">Semua kategori</option>`+SECTIONS.map(s=>`<optgroup label="${s}">`+SECTION_TAGS[s].map(t=>`<option value="${t}" ${idxState.cat===t?"selected":""}>${t}</option>`).join("")+`</optgroup>`).join("");
   const hasFilter=idxState.cat||idxState.from||idxState.to;
   const bar=`<div class="idx-filter">
@@ -1156,7 +1158,7 @@ function renderIndex(){
       <div class="idx-field"><label for="idx-from">Dari tanggal</label><input type="date" id="idx-from" value="${idxState.from}"></div>
       <div class="idx-field"><label for="idx-to">Sampai tanggal</label><input type="date" id="idx-to" value="${idxState.to}"></div>
       ${hasFilter?`<button class="idx-reset" id="idx-reset">✕ Reset</button>`:""}</div>`;
-  const body=all.length?`<div class="list">${rows.join("")}</div>${idxPager(pages)}`:`<div class="empty"><h3>Tidak ada berita yang cocok</h3><p>Coba ubah kategori atau rentang tanggalnya.</p></div>`;
+  const body=all.length?`<div class="list">${rows}</div>${idxPager(pages)}`:`<div class="empty"><h3>Tidak ada berita yang cocok</h3><p>Coba ubah kategori atau rentang tanggalnya.</p></div>`;
   view.innerHTML=`<div class="layout"><main><div class="sec-head"><h2>Indeks Berita</h2><span class="eyebrow">${all.length} berita${hasFilter?" (terfilter)":""}</span></div>${bar}${body}</main>${railHtml()}</div>`;
   window.scrollTo(0,0);
 }
