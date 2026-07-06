@@ -204,15 +204,15 @@
   .sh-btn svg { width: 18px; height: 18px; }
   .sh-btn:hover { background: var(--brand); border-color: var(--brand); color: #fff; transform: translateY(-2px); }
 
-  /* Follow (Google News + sumber pilihan sebagai tautan) */
-  .follow-row { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; margin: 6px 0 8px; }
+  /* Follow (Google News + sumber pilihan — dua pil senada) */
+  .follow-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 18px 0 24px; }
   .follow-btn { display: inline-flex; align-items: center; gap: 9px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
     background: var(--surface); color: var(--ink); font-size: .85rem; font-weight: 600; cursor: pointer; transition: border-color .16s, background .16s; }
   .follow-btn svg { width: 17px; height: 17px; }
   .follow-btn:hover { border-color: var(--accent); background: var(--panel); }
-  .follow-link { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-soft); font-size: .85rem; font-weight: 600;
-    cursor: pointer; text-decoration: underline; text-underline-offset: 3px; transition: color .16s; }
-  .follow-link:hover { color: var(--accent-dark); }
+  .follow-link { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
+    background: transparent; color: var(--muted); font-size: .85rem; font-weight: 600; cursor: pointer; transition: border-color .16s, color .16s; }
+  .follow-link:hover { border-color: var(--accent); color: var(--accent-dark); }
   .follow-link .star { color: #f5a623; }
   .foot-follow { margin-top: 16px; }
   @media (max-width: 560px) { .artbar-div { display: none; } .share { gap: 8px; } }
@@ -314,7 +314,7 @@
   .ntag { color: var(--accent-dark); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px; cursor: pointer; transition: color .16s; }
   .ntag:hover { color: var(--accent); text-decoration-thickness: 2px; }
 
-  .share { display: flex; gap: 8px; align-items: center; margin: 22px 0 10px; flex-wrap: wrap; }
+  .share { display: flex; gap: 8px; align-items: center; margin: 18px 0 0; flex-wrap: wrap; }
   .artbar-div { width: 1px; height: 22px; background: var(--line); margin: 0 4px; }
   .save-pill { height: 38px; padding: 0 15px; border-radius: 999px; border: 1px solid var(--line); font-size: .84rem; font-weight: 600; cursor: pointer; transition: .16s; background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; gap: 7px; font-family: inherit; }
   .save-pill svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
@@ -553,7 +553,7 @@
   /* Diperbarui / koreksi */
   .correction { background: color-mix(in srgb, #f0872f 12%, var(--surface)); border-left: 3px solid #f0872f; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: .84rem; color: var(--ink-soft); margin: 16px 0; }
   /* Reaksi emoji */
-  .reactions { margin: 26px 0 8px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .reactions { margin: 24px 0 0; padding-top: 22px; border-top: 1px solid var(--line); }
   .rx-label { font-size: .85rem; color: var(--muted); font-weight: 600; display: block; margin-bottom: 10px; }
   .rx-row { display: flex; gap: 10px; flex-wrap: wrap; }
   .react-btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 13px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; cursor: pointer; font-family: inherit; transition: .16s; }
