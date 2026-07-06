@@ -205,7 +205,9 @@
   .sh-btn:hover { background: var(--brand); border-color: var(--brand); color: #fff; transform: translateY(-2px); }
 
   /* Follow (Google News + sumber pilihan — dua pil senada) */
-  .follow-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 22px 0 24px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .follow-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0; }
+  .gnews-block { margin-top: 18px; }
+  .gnews-label { display: block; font-size: .82rem; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
   .follow-btn { display: inline-flex; align-items: center; gap: 9px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
     background: var(--surface); color: var(--ink); font-size: .85rem; font-weight: 600; cursor: pointer; transition: border-color .16s, background .16s; }
   .follow-btn svg { width: 17px; height: 17px; }
@@ -314,7 +316,8 @@
   .ntag { color: var(--accent-dark); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px; cursor: pointer; transition: color .16s; }
   .ntag:hover { color: var(--accent); text-decoration-thickness: 2px; }
 
-  .share { display: flex; gap: 8px; align-items: center; margin: 22px 0 0; padding-top: 22px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .share-zone { margin: 22px 0 24px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .share { display: flex; gap: 8px; align-items: center; margin: 0; flex-wrap: wrap; }
   .artbar-div { width: 1px; height: 22px; background: var(--line); margin: 0 4px; }
   .save-pill { height: 38px; padding: 0 15px; border-radius: 999px; border: 1px solid var(--line); font-size: .84rem; font-weight: 600; cursor: pointer; transition: .16s; background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; gap: 7px; font-family: inherit; }
   .save-pill svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
@@ -998,8 +1001,10 @@ function renderArticle(id){
       <div class="editor-credit">Editor: <b>${EDITOR_NAME}</b></div>
       <div class="tag-narasi">Baca berita dan informasi lainnya mengenai ${(()=>{const L=[`<a class="ntag" href="#/tags/${slugify(n.tag)}" data-tag="${n.tag}">${n.tag}</a>`,...n.kw.map(k=>`<a class="ntag" href="#/tags/${slugify(k)}" data-kw="${k}">${k}</a>`)];return L.length<=1?L[0]:L.length===2?L.join(" dan "):L.slice(0,-1).join(", ")+", dan "+L[L.length-1];})()} dengan mengeklik tautan.</div>
       ${reactionBar(n.id)}
-      <div class="share"><button class="save-pill ${isSaved(n.id)?'saved':''}" data-bm="${n.id}">${BM_SVG}<span class="bmlabel">${isSaved(n.id)?'Tersimpan':'Simpan'}</span></button><span class="artbar-div"></span>${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
-        <div class="follow-row"><a class="follow-btn" data-ext="gnews">${G_SVG}<span>Ikuti di Google News</span></a><a class="follow-link" data-ext="pref"><span class="star">★</span> Jadikan sumber pilihan di Google</a></div>
+      <div class="share-zone">
+        <div class="share"><button class="save-pill ${isSaved(n.id)?'saved':''}" data-bm="${n.id}">${BM_SVG}<span class="bmlabel">${isSaved(n.id)?'Tersimpan':'Simpan'}</span></button><span class="artbar-div"></span>${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
+        <div class="gnews-block"><span class="gnews-label">Ikuti kabar di Google, biar tak ketinggalan berita terbaru.</span><div class="follow-row"><a class="follow-btn" data-ext="gnews">${G_SVG}<span>Ikuti di Google News</span></a><a class="follow-link" data-ext="pref"><span class="star">★</span> Jadikan sumber pilihan di Google</a></div></div>
+      </div>
       ${ad("ad-inarticle","In-article · 300×250")}
       ${SHOW_POLL?pollWidget(n.id):""}
       ${rel.length?`<section class="rec-reads"><div class="sec-head"><h2>Rekomendasi untukmu</h2><span class="eyebrow">Geser →</span></div>
