@@ -1003,7 +1003,7 @@ function renderArticle(id){
       ${reactionBar(n.id)}
       <div class="share-zone">
         <div class="share"><button class="save-pill ${isSaved(n.id)?'saved':''}" data-bm="${n.id}">${BM_SVG}<span class="bmlabel">${isSaved(n.id)?'Tersimpan':'Simpan'}</span></button><span class="artbar-div"></span>${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
-        <div class="gnews-block"><span class="gnews-label">Ikuti kabar di Google, biar tak ketinggalan berita terbaru.</span><div class="follow-row"><a class="follow-link" data-ext="pref">${G_SVG}<span>Jadikan sumber pilihan di Google</span></a><a class="follow-btn" data-ext="gnews">${GNEWS_SVG}<span>Ikuti di Google News</span></a></div></div>
+        <div class="gnews-block"><span class="gnews-label">Suka baca di kabar? Jadikan kami sumber pilihanmu di Google.</span><div class="follow-row"><a class="follow-link" data-ext="pref">${G_SVG}<span>Jadikan sumber pilihan di Google</span></a></div></div>
       </div>
       ${ad("ad-inarticle","In-article · 300×250")}
       ${SHOW_POLL?pollWidget(n.id):""}
@@ -1048,7 +1048,7 @@ function renderTrending(){
 }
 function renderFooter(){
   const ff=document.getElementById("foot-follow");
-  if(ff) ff.innerHTML=`<a class="follow-btn" data-ext="gnews">${G_SVG}<span>Ikuti di Google News</span></a>`;
+  if(ff) ff.innerHTML=`<a class="follow-btn" data-ext="gnews">${GNEWS_SVG}<span>Ikuti di Google News</span></a>`;
   document.getElementById("foot-links").innerHTML=SECTIONS.map(s=>{
     const tags=SECTION_TAGS[s].map(t=>`<a href="#/tags/${slugify(t)}" data-tag="${t}">${t}</a>`).join("");
     return `<div class="foot-col"><a href="#/${slugify(s)}" data-section="${s}">${s}</a>${tags}</div>`;
