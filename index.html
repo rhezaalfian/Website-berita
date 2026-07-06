@@ -628,6 +628,48 @@
   .kr-thumb { border-radius: 10px; overflow: hidden; aspect-ratio: 4/3; background: var(--panel); }
   .kr-thumb img { width: 100%; height: 100%; object-fit: cover; }
   @media (max-width: 560px) { .kr-item { grid-template-columns: 14px 1fr 92px; gap: 12px; } .kr-title { font-size: 1.02rem; } }
+  /* ===== Halaman kategori (landing) ===== */
+  .cat-head { padding: 4px 0 20px; border-bottom: 1px solid var(--line); margin-bottom: 26px; }
+  .cat-head h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.05; display: flex; align-items: center; gap: 11px; }
+  .cat-head h1 .dot { width: 13px; height: 13px; border-radius: 4px; flex-shrink: 0; }
+  .cat-head p { color: var(--muted); margin-top: 9px; max-width: 62ch; font-size: 1rem; line-height: 1.5; }
+  .cat-hero { display: grid; grid-template-columns: 1.12fr .88fr; gap: 36px; padding-bottom: 32px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .ch-lead { display: flex; flex-direction: column; gap: 14px; cursor: pointer; }
+  .ch-lead-media { aspect-ratio: 16/9; overflow: hidden; border-radius: 3px; }
+  .ch-lead-media img, .ci-ph img, .cc-ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.22,.61,.36,1); }
+  .ch-lead:hover .ch-lead-media img { transform: scale(1.04); }
+  .ch-lead-body h2 { font-size: clamp(1.45rem, 2.5vw, 2.05rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.12; margin: 6px 0 0; text-wrap: balance; }
+  .ch-lead:hover .ch-lead-body h2 { color: var(--accent-dark); }
+  .ch-lead-body p { color: var(--muted); margin-top: 10px; font-size: .98rem; line-height: 1.5; max-width: 52ch; }
+  .ch-lead-body .src { margin-top: 14px; }
+  .ch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 20px; align-content: start; }
+  .ch-item { display: flex; flex-direction: column; gap: 9px; cursor: pointer; }
+  .ci-ph { aspect-ratio: 16/9; overflow: hidden; border-radius: 3px; }
+  .ch-item:hover .ci-ph img { transform: scale(1.04); }
+  .ch-item h3 { font-size: 1.02rem; font-weight: 700; line-height: 1.26; letter-spacing: -.01em; }
+  .ch-item:hover h3 { color: var(--accent-dark); }
+  .cc-meta { display: flex; align-items: center; gap: 8px; }
+  .cc-time { font-size: .74rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .cat-sub { padding: 28px 0 8px; border-bottom: 1px solid var(--line); }
+  .cat-sub:last-child { border-bottom: none; }
+  .cat-sub-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .cat-sub-head h2 { font-size: 1.4rem; font-weight: 800; letter-spacing: -.015em; }
+  .cat-sub-head .more { font-size: .84rem; font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
+  .cat-sub-head .more:hover { text-decoration: underline; }
+  .cat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px 20px; }
+  .cat-cell { display: flex; flex-direction: column; gap: 9px; cursor: pointer; }
+  .cc-ph { aspect-ratio: 16/10; overflow: hidden; border-radius: 3px; }
+  .cat-cell:hover .cc-ph img { transform: scale(1.04); }
+  .cat-cell h3 { font-size: .95rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; }
+  .cat-cell:hover h3 { color: var(--accent-dark); }
+  @media (max-width: 900px) {
+    .cat-hero { grid-template-columns: 1fr; gap: 26px; }
+    .cat-row { grid-template-columns: repeat(3, 1fr); gap: 18px 14px; }
+  }
+  @media (max-width: 560px) {
+    .cat-row { grid-template-columns: repeat(2, 1fr); }
+    .ch-grid { gap: 18px 14px; }
+  }
 </style>
 
 <header class="site-top" id="site-top">
@@ -967,6 +1009,37 @@ function renderList(title,sub,items,docTitle,dotColor){
   view.innerHTML=`<div class="layout"><main><div class="sec-head"><h2>${dot}${title}</h2><span class="eyebrow">${sub}</span></div>${extra}${body}</main>${railHtml()}</div>`;
   document.title=docTitle;
 }
+// ===== Halaman kategori (landing ala portal) =====
+const SECTION_DESC = {
+  News: "Kabar utama dari politik, ekonomi, olahraga, hingga teknologi — dirangkum ringkas dan enak dibaca.",
+  SHEroes: "Ruang perempuan: karier, relasi, kesehatan, dan kecantikan, dengan sudut pandang yang membumi.",
+  HALALive: "Gaya hidup halal — dari kuliner dan wisata sampai keuangan syariah dan Ramadan."
+};
+function catCell(n){ return `<article class="cat-cell" data-article="${n.id}"><div class="cc-ph"><img src="${n.image}" alt="${n.title}" loading="lazy"></div><div class="cc-meta">${chip(n.tag)}<span class="cc-time">${relTime(n.mins)}</span></div><h3>${n.title}</h3></article>`; }
+function renderCategory(section){
+  const secArts=NEWS.filter(n=>n.section===section);
+  const lead=secArts.find(n=>n.featured)||secArts[0];
+  const grid=lead?secArts.filter(n=>n.id!==lead.id).slice(0,4):[];
+  const hero=lead?`<section class="cat-hero">
+      <article class="ch-lead" data-article="${lead.id}">
+        <div class="ch-lead-media"><img src="${lead.image}" alt="${lead.title}" loading="lazy"></div>
+        <div class="ch-lead-body">${chip(lead.tag)}<h2>${lead.title}</h2><p>${lead.excerpt}</p>
+          <div class="src">${authorAv(lead.author)}<span class="srcname aulink" data-author="${lead.author}">${lead.author}</span><span class="li-sep">·</span><span class="li-time">${relTime(lead.mins)}</span></div></div>
+      </article>
+      <div class="ch-grid">${grid.map(n=>`<article class="ch-item" data-article="${n.id}"><div class="ci-ph"><img src="${n.image}" alt="${n.title}" loading="lazy"></div><div class="cc-meta">${chip(n.tag)}<span class="cc-time">${relTime(n.mins)}</span></div><h3>${n.title}</h3></article>`).join("")}</div>
+    </section>`:"";
+  const subs=SECTION_TAGS[section].map(tag=>{
+    const items=NEWS.filter(n=>n.tag===tag).slice(0,5);
+    if(!items.length) return "";
+    return `<section class="cat-sub"><div class="cat-sub-head"><h2>${tag}</h2><a class="more" href="${tagHref(tag)}" data-tag="${tag}">Lebih banyak →</a></div>
+      <div class="cat-row">${items.map(catCell).join("")}</div></section>`;
+  }).join("");
+  view.innerHTML=`<div class="cat-page">
+    <div class="cat-head"><h1><span class="dot" style="background:${SECTION_COLOR[section]}"></span>${section}</h1><p>${SECTION_DESC[section]||""}</p></div>
+    ${hero}${subs||`<div class="empty"><h3>Belum ada berita di kanal ini</h3><p>Coba kanal lain.</p></div>`}
+  </div>`;
+  window.scrollTo(0,0);
+}
 function renderSaved(){
   const items=saved.map(id=>NEWS.find(n=>n.id===id)).filter(Boolean);
   const body=items.length?`<div class="list">${items.map(listItem).join("")}</div><button class="loadmore" id="clear-saved" style="margin-top:22px">Hapus semua simpanan</button>`:`<div class="empty"><h3>Belum ada yang disimpan</h3><p>Ketuk ikon 🔖 di kartu atau artikel mana pun untuk menyimpannya.</p></div>`;
@@ -1059,7 +1132,7 @@ function closeMega(){ document.getElementById("mega-overlay").classList.remove("
 
 function go(r){ route=r; updateHead(r); syncHash(r); renderNav(); heroStop(); ttsStop();
   if(r.page==="home") renderHome();
-  else if(r.page==="section") renderList(r.section,"Kanal",NEWS.filter(n=>n.section===r.section),r.section+" — kabar",SECTION_COLOR[r.section]);
+  else if(r.page==="section") renderCategory(r.section);
   else if(r.page==="tag") renderTag(r.tag);
   else if(r.page==="search"){ const q=r.q.toLowerCase(); renderList(`“${r.q}”`,"Hasil pencarian",NEWS.filter(n=>(n.title+n.excerpt+n.tag+n.section).toLowerCase().includes(q)),"Cari — kabar"); }
   else if(r.page==="saved") renderSaved();
