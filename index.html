@@ -443,6 +443,7 @@
   .ad-dim { font-size: .72rem; }
   .ad-leaderboard { height: 96px; margin: 18px 0 2px; }
   .ad-infeed { height: 108px; margin: 6px 0; }
+  .ad-feedbig { min-height: 250px; margin: 8px 0; }
   .ad-inarticle { height: 118px; margin: 28px 0; }
   .ad-rail { height: 250px; }
   .ad-sky { position: fixed; top: 118px; width: 160px; height: 600px; z-index: 40; display: none; }
@@ -1042,8 +1043,8 @@ function renderHome(){
     ${(()=>{ if(!user) return ""; const fy=forYou(); return fy.length?`<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow">Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`:""; })()}
     ${(()=>{ if(!user) return ""; const rr=recentRead(); return rr.length?`<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow">Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`:""; })()}
     <div class="layout"><main><div class="sec-head"><h2>Terbaru</h2><span class="eyebrow">Update harian</span></div>
-      <div class="list">${(()=>{ const items=feed.map(listItem); if(items.length>4) items.splice(4,0,ad("ad-infeed","In-feed · 728×90")); return items.join(""); })()}</div>
-      <button class="loadmore">Muat lebih banyak</button></main>${railHtml()}</div>`;
+      <div class="list">${(()=>{ const items=feed.slice(0,8).map(listItem); if(items.length>3) items.splice(3,0,ad("ad-feedbig","Display · 300×250")); if(items.length>7) items.splice(7,0,ad("ad-feedbig","Display · 300×250")); return items.join(""); })()}</div>
+      <a class="loadmore" href="#/indeks" data-nav="index">Berita lainnya →</a></main>${railHtml()}</div>`;
   heroCount=heroItems.length; heroSetup();
 }
 function renderList(title,sub,items,docTitle,dotColor){
@@ -1113,6 +1114,11 @@ function renderSaved(){
   const body=items.length?`<div class="list">${items.map(listItem).join("")}</div><button class="loadmore" id="clear-saved" style="margin-top:22px">Hapus semua simpanan</button>`:`<div class="empty"><h3>Belum ada yang disimpan</h3><p>Ketuk ikon 🔖 di kartu atau artikel mana pun untuk menyimpannya.</p></div>`;
   view.innerHTML=`<div class="layout"><main><div class="sec-head"><h2>Tersimpan</h2><span class="eyebrow">${items.length} artikel</span></div>${body}</main>${railHtml()}</div>`;
   document.title="Tersimpan — kabar";
+}
+function renderIndex(){
+  const rows=[]; NEWS.forEach((n,i)=>{ rows.push(listItem(n)); if((i+1)%6===0 && i<NEWS.length-1) rows.push(ad("ad-feedbig","Display · 300×250")); });
+  view.innerHTML=`<div class="layout"><main><div class="sec-head"><h2>Indeks Berita</h2><span class="eyebrow">Semua berita terbaru</span></div><div class="list">${rows.join("")}</div></main>${railHtml()}</div>`;
+  window.scrollTo(0,0);
 }
 function renderArticle(id){
   const n=NEWS.find(x=>x.id===id);
@@ -1204,6 +1210,7 @@ function go(r){ route=r; updateHead(r); syncHash(r); renderNav(); heroStop(); tt
   else if(r.page==="tag") renderTag(r.tag);
   else if(r.page==="search"){ const q=r.q.toLowerCase(); renderList(`“${r.q}”`,"Hasil pencarian",NEWS.filter(n=>(n.title+n.excerpt+n.tag+n.section).toLowerCase().includes(q)),"Cari — kabar"); }
   else if(r.page==="saved") renderSaved();
+  else if(r.page==="index") renderIndex();
   else if(r.page==="author") renderAuthor(r.author);
   else if(r.page==="quiz"){ quizEl=view; quiz={stage:"intro"}; renderQuiz(); if(typeof onScroll==="function") onScroll(); return; }
   else if(r.page==="article") renderArticle(r.id);
@@ -1441,6 +1448,7 @@ function routePath(r){
   if(r.page==="search") return `/cari/${slugify(r.q)}`;
   if(r.page==="saved") return "/tersimpan";
   if(r.page==="quiz") return "/kuis";
+  if(r.page==="index") return "/indeks";
   return "/";
 }
 function allTagNames(){ const s=new Set(); Object.values(SECTION_TAGS).forEach(a=>a.forEach(t=>s.add(t))); NEWS.forEach(n=>(n.kw||[]).forEach(k=>s.add(k))); Object.keys(ENTITIES).forEach(k=>s.add(k)); return [...s]; }
@@ -1451,6 +1459,7 @@ function parsePath(hash){ let p=(hash||"").replace(/^#/,"").replace(/^\/+|\/+$/g
   if(g[0]==="cari"&&g[1]) return {page:"search",q:decodeURIComponent(g[1]).replace(/-/g," ")};
   if(g[0]==="tersimpan") return {page:"saved"};
   if(g[0]==="kuis") return {page:"quiz"};
+  if(g[0]==="indeks") return {page:"index"};
   if(g.length>=3){ const n=NEWS.find(x=>slugify(x.title)===g[2]); if(n) return {page:"article",id:n.id}; }
   if(g.length===1){ const s=findBySlug(SECTIONS,g[0]); if(s) return {page:"section",section:s}; const t=findBySlug(allTagNames(),g[0]); if(t) return {page:"tag",tag:t}; }
   return {page:"home"};
@@ -1477,6 +1486,7 @@ function updateHead(r){ const url=SITE_URL+routePath(r); let title="kabar — po
   else if(r.page==="search"){ title=`Cari “${r.q}” — kabar`; desc=`Hasil pencarian untuk ${r.q}.`; }
   else if(r.page==="saved"){ title="Tersimpan — kabar"; }
   else if(r.page==="quiz"){ title="Kuis — kabar"; }
+  else if(r.page==="index"){ title="Indeks Berita — kabar"; desc="Semua berita terbaru dari kabar."; }
   document.title=title;
   _headMeta("description",desc);
   _headMeta("og:title",title,"property"); _headMeta("og:description",desc,"property"); _headMeta("og:url",url,"property"); _headMeta("og:type",ogtype,"property"); _headMeta("og:site_name","kabar","property");
@@ -1529,7 +1539,6 @@ document.addEventListener("click", e=>{
   if(e.target.id==="clear-saved"){ saved=[]; LS.set("kabar_saved",saved); updateSavedBadge(); go({page:"saved"}); return; }
   const bm=e.target.closest("[data-bm]"); if(bm){ e.preventDefault(); e.stopPropagation(); toggleSave(bm.dataset.bm); return; }
   const sh=e.target.closest("[data-share]"); if(sh){ e.preventDefault(); const L={wa:"Dibagikan ke WhatsApp ✓",x:"Dibagikan ke X ✓",fb:"Dibagikan ke Facebook ✓",tg:"Dibagikan ke Telegram ✓",link:"Tautan disalin ✓"}; showToast(L[sh.dataset.share]||"Dibagikan ✓"); return; }
-  const lm=e.target.closest(".loadmore"); if(lm&&lm.id!=="clear-saved"){ lm.textContent="Semua berita sudah tampil ✓"; lm.disabled=true; lm.style.opacity=".6"; return; }
   const hsd=e.target.closest("[data-hs-dot]"); if(hsd){ heroStop(); heroGoTo(+hsd.dataset.hsDot); heroStart(); return; }
   const hsa=e.target.closest("[data-hs]"); if(hsa){ heroStop(); hsa.dataset.hs==="next"?heroNext():heroGoTo(heroIdx-1); heroStart(); return; }
   const au=e.target.closest("[data-author]"); if(au){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"author", author:au.dataset.author}); return; }
