@@ -636,7 +636,7 @@
   .cat-hero { display: grid; grid-template-columns: 1.12fr .88fr; gap: 36px; padding-bottom: 32px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
   .ch-lead { display: flex; flex-direction: column; gap: 14px; cursor: pointer; }
   .ch-lead-media { aspect-ratio: 16/9; overflow: hidden; border-radius: 3px; }
-  .ch-lead-media img, .ci-ph img, .cc-ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.22,.61,.36,1); }
+  .ch-lead-media img, .ci-ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.22,.61,.36,1); }
   .ch-lead:hover .ch-lead-media img { transform: scale(1.04); }
   .ch-lead-body h2 { font-size: clamp(1.45rem, 2.5vw, 2.05rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.12; margin: 6px 0 0; text-wrap: balance; }
   .ch-lead:hover .ch-lead-body h2 { color: var(--accent-dark); }
@@ -656,18 +656,11 @@
   .cat-sub-head h2 { font-size: 1.4rem; font-weight: 800; letter-spacing: -.015em; }
   .cat-sub-head .more { font-size: .84rem; font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
   .cat-sub-head .more:hover { text-decoration: underline; }
-  .cat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px 20px; }
-  .cat-cell { display: flex; flex-direction: column; gap: 9px; cursor: pointer; }
-  .cc-ph { aspect-ratio: 16/10; overflow: hidden; border-radius: 3px; }
-  .cat-cell:hover .cc-ph img { transform: scale(1.04); }
-  .cat-cell h3 { font-size: .95rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; }
-  .cat-cell:hover h3 { color: var(--accent-dark); }
+  .cat-sub .carousel { margin-top: 2px; }
   @media (max-width: 900px) {
     .cat-hero { grid-template-columns: 1fr; gap: 26px; }
-    .cat-row { grid-template-columns: repeat(3, 1fr); gap: 18px 14px; }
   }
   @media (max-width: 560px) {
-    .cat-row { grid-template-columns: repeat(2, 1fr); }
     .ch-grid { gap: 18px 14px; }
   }
 </style>
@@ -728,13 +721,14 @@
 
 <script>
 // ===== Taksonomi: Section -> Tag =====
-const SECTIONS = ["News","SHEroes","HALALive"];
+const SECTIONS = ["News","Neraca","SHEroes","HALALive"];
 const SECTION_TAGS = {
-  News: ["Ekonomi","Olahraga","Teknologi","Politik"],
-  SHEroes: ["Karier","Relasi","Kecantikan","Kesehatan"],
+  News: ["Politik","Hukum","Keamanan","Peristiwa"],
+  Neraca: ["Ekonomi","Bisnis","Moneter","Perdagangan","Industri"],
+  SHEroes: ["Little Step","Sisterhood","Persona","Spill the Bills","Drama","Slow Mode","Dear You"],
   HALALive: ["Kuliner Halal","Wisata Halal","Keuangan Syariah","Ramadan"]
 };
-const SECTION_COLOR = { News:"#0fa958", SHEroes:"#e0518c", HALALive:"#12a594" };
+const SECTION_COLOR = { News:"#0fa958", Neraca:"#2f7bf0", SHEroes:"#e0518c", HALALive:"#12a594" };
 const TAG_SECTION = {}; Object.entries(SECTION_TAGS).forEach(([s,ts])=>ts.forEach(t=>TAG_SECTION[t]=s));
 function tagColor(t){ return SECTION_COLOR[TAG_SECTION[t]] || "#0fa958"; }
 const BREAKING_LABEL = "Breaking News"; // ganti nama di sini bila perlu
@@ -771,12 +765,12 @@ const RAW = [
    ["Pemerintah resmi mengumumkan paket stimulus ekonomi senilai Rp50 triliun yang menyasar sektor riil, UMKM, dan menjaga daya beli masyarakat menjelang paruh kedua tahun ini.",
     "Stimulus mencakup keringanan pajak, subsidi bunga kredit usaha, serta perluasan bantuan sosial yang ditargetkan tepat sasaran. Menteri Keuangan Bramantyo Adhi menegaskan program ini dirancang agar dampaknya cepat terasa, sementara Bank Sentral Nusantara memastikan ruang kebijakan moneter tetap terjaga.",
     "\"Kami ingin memastikan pemulihan ekonomi berjalan inklusif dan menjangkau pelaku usaha kecil,\" ujar Bramantyo Adhi dalam konferensi pers."]],
-  ["Timnas Sepak Bola Raih Kemenangan Dramatis di Menit Akhir","Olahraga","Andi Saputra","2026-07-01",false,false,
+  ["Timnas Sepak Bola Raih Kemenangan Dramatis di Menit Akhir","Peristiwa","Andi Saputra","2026-07-01",false,false,
    "Gol di menit ke-90 memastikan tim nasional lolos ke babak selanjutnya setelah laga yang menegangkan.",
    ["Tim nasional meraih kemenangan dramatis melalui gol yang tercipta di menit ke-90, memastikan langkah ke babak selanjutnya.",
     "Pertandingan berlangsung sengit sejak awal dengan kedua tim saling menciptakan peluang. Kebuntuan baru terpecah di penghujung laga.",
     "Pelatih memuji mental para pemain yang tak menyerah hingga peluit akhir dan menyebut hasil ini sebagai buah kerja keras."]],
-  ["Startup Lokal Kembangkan AI untuk Deteksi Dini Penyakit","Teknologi","Dewi Lestari","2026-07-01",true,false,
+  ["Startup Lokal Kembangkan AI untuk Deteksi Dini Penyakit","Bisnis","Dewi Lestari","2026-07-01",true,false,
    "Kecerdasan buatan ini diklaim mampu mengenali tanda-tanda awal penyakit dengan tingkat akurasi tinggi.",
    ["Sebuah startup kesehatan asal Indonesia mengembangkan sistem kecerdasan buatan yang mampu mendeteksi dini berbagai penyakit dari analisis data medis pasien.",
     "Menurut pendirinya, Raka Mahendra, sistem ini dikembangkan selama tiga tahun bersama tim dokter dan peneliti dengan hasil uji coba yang menjanjikan.",
@@ -791,22 +785,22 @@ const RAW = [
    ["Indeks Harga Saham Gabungan ditutup menguat pada perdagangan hari ini, ditopang penguatan saham sektor teknologi.",
     "Optimisme pelaku pasar meningkat seiring rilis data ekonomi yang membaik dan aliran dana asing yang kembali masuk.",
     "Analis mengingatkan investor untuk tetap mencermati volatilitas jangka pendek meski tren dinilai positif."]],
-  ["Riset: Kepemimpinan Perempuan Dorong Kinerja Perusahaan","Karier","Siti Nurhaliza","2026-07-01",true,true,
+  ["Riset: Kepemimpinan Perempuan Dorong Kinerja Perusahaan","Persona","Siti Nurhaliza","2026-07-01",true,true,
    "Studi terbaru menunjukkan keberagaman gender di posisi kepemimpinan berkorelasi dengan kinerja yang lebih baik.",
    ["Sebuah riset lintas industri menemukan bahwa perusahaan dengan keterwakilan perempuan di posisi kepemimpinan cenderung mencatat kinerja lebih baik.",
     "Peneliti menyoroti gaya kepemimpinan kolaboratif dan pengambilan keputusan yang lebih inklusif sebagai faktor pendorong.",
     "Temuan ini memperkuat dorongan agar organisasi membuka lebih banyak ruang bagi kepemimpinan perempuan."]],
-  ["Menjaga Hubungan Sehat di Tengah Kesibukan Kerja","Relasi","Siti Nurhaliza","2026-06-30",false,false,
+  ["Menjaga Hubungan Sehat di Tengah Kesibukan Kerja","Dear You","Siti Nurhaliza","2026-06-30",false,false,
    "Komunikasi terbuka dan waktu berkualitas jadi kunci menjaga relasi tetap harmonis meski jadwal padat.",
    ["Kesibukan kerja kerap menjadi tantangan dalam menjaga hubungan tetap harmonis. Para ahli menekankan pentingnya komunikasi yang terbuka.",
     "Menyisihkan waktu berkualitas, sekecil apa pun, disebut lebih bermakna dibanding kuantitas pertemuan yang sekadar formalitas.",
     "Saling memahami batas dan kebutuhan masing-masing menjadi fondasi relasi yang sehat dalam jangka panjang."]],
-  ["Tren Perawatan Kulit Alami yang Diminati Tahun Ini","Kecantikan","Dewi Lestari","2026-06-29",true,false,
+  ["Tren Perawatan Kulit Alami yang Diminati Tahun Ini","Slow Mode","Dewi Lestari","2026-06-29",true,false,
    "Bahan alami dan rutinitas sederhana kembali jadi pilihan seiring meningkatnya kesadaran akan kandungan produk.",
    ["Tren perawatan kulit tahun ini bergeser ke arah bahan alami dan rutinitas yang lebih sederhana namun konsisten.",
     "Konsumen semakin cermat membaca kandungan produk dan memilih yang ramah bagi kulit maupun lingkungan.",
     "Ahli dermatologi mengingatkan bahwa kunci utama tetap pada konsistensi dan menyesuaikan produk dengan jenis kulit."]],
-  ["Pentingnya Deteksi Dini Kesehatan bagi Perempuan","Kesehatan","Dr. Budi Santoso","2026-06-28",false,false,
+  ["Pentingnya Deteksi Dini Kesehatan bagi Perempuan","Little Step","Dr. Budi Santoso","2026-06-28",false,false,
    "Pemeriksaan berkala membantu mengenali risiko lebih awal dan meningkatkan peluang penanganan yang efektif.",
    ["Deteksi dini menjadi langkah penting dalam menjaga kesehatan perempuan, memungkinkan pengenalan risiko sejak awal.",
     "Menurut pakar kesehatan masyarakat dr. Anindya Kirana, pemeriksaan berkala dianjurkan agar penanganan dapat dilakukan lebih cepat dan efektif bila diperlukan.",
@@ -830,14 +824,59 @@ const RAW = [
    "Perencanaan ibadah, kesehatan, dan keuangan sejak awal membantu menjalani Ramadan dengan lebih tenang.",
    ["Menyambut Ramadan dengan persiapan sejak dini dinilai membantu menjalani ibadah secara lebih fokus dan bermakna.",
     "Perencanaan mencakup pengaturan pola makan yang sehat, manajemen waktu ibadah, hingga pengelolaan keuangan.",
-    "Dengan persiapan matang, bulan Ramadan diharapkan dapat dijalani dengan lebih tenang dan khusyuk."]]
+    "Dengan persiapan matang, bulan Ramadan diharapkan dapat dijalani dengan lebih tenang dan khusyuk."]],
+  ["Mahkamah Agung Perkuat Aturan Perlindungan Saksi","Hukum","Andi Saputra","2026-07-03",true,false,
+   "Aturan baru diklaim memberi jaminan lebih kuat bagi saksi dan pelapor dalam proses hukum.",
+   ["Mahkamah Agung menerbitkan pedoman baru yang memperkuat perlindungan bagi saksi dan pelapor dalam persidangan.",
+    "Kalangan praktisi menilai langkah ini penting untuk mendorong keberanian masyarakat mengungkap pelanggaran."]],
+  ["Polri Perketat Pengamanan Jelang Agenda Nasional","Keamanan","Andi Saputra","2026-07-02",false,false,
+   "Ribuan personel dikerahkan untuk memastikan kelancaran rangkaian kegiatan berskala nasional.",
+   ["Kepolisian meningkatkan kesiapsiagaan menjelang sejumlah agenda nasional dalam beberapa pekan ke depan.",
+    "Pengamanan difokuskan pada titik-titik keramaian dengan dukungan teknologi pemantauan."]],
+  ["Fraksi di Parlemen Bahas Arah Kebijakan Paruh Kedua","Politik","Andi Saputra","2026-07-02",false,false,
+   "Sejumlah fraksi menyoroti prioritas anggaran dan program strategis untuk semester berikutnya.",
+   ["Fraksi-fraksi di parlemen mulai membahas arah kebijakan untuk paruh kedua tahun ini.",
+    "Isu anggaran, kesejahteraan, dan reformasi birokrasi menjadi sorotan utama dalam pembahasan."]],
+  ["Banjir Rob Landa Pesisir, Warga Diminta Waspada","Peristiwa","Dewi Lestari","2026-07-01",false,true,
+   "Kenaikan muka air laut merendam sejumlah permukiman; petugas menyiagakan posko darurat.",
+   ["Banjir rob kembali melanda kawasan pesisir dan merendam sejumlah permukiman warga.",
+    "Pemerintah daerah menyiagakan posko darurat serta mengimbau warga mewaspadai gelombang tinggi."]],
+  ["Bank Sentral Nusantara Pertahankan Suku Bunga Acuan","Moneter","Rizky Pratama","2026-07-03",true,false,
+   "Keputusan diambil untuk menjaga stabilitas nilai tukar di tengah dinamika ekonomi global.",
+   ["Bank Sentral Nusantara memutuskan mempertahankan suku bunga acuan pada level saat ini.",
+    "Kebijakan ini dinilai sejalan dengan upaya menjaga stabilitas harga dan nilai tukar rupiah."]],
+  ["Ekspor Nonmigas Catat Rekor Baru Kuartal Ini","Perdagangan","Rizky Pratama","2026-07-02",false,false,
+   "Permintaan global yang membaik mendorong kinerja ekspor komoditas unggulan.",
+   ["Nilai ekspor nonmigas mencatat rekor baru pada kuartal ini seiring membaiknya permintaan global.",
+    "Komoditas manufaktur dan pertanian menjadi penopang utama kinerja ekspor."]],
+  ["Kawasan Industri Baru Serap Ribuan Tenaga Kerja","Industri","Dewi Lestari","2026-07-01",true,false,
+   "Investasi di kawasan industri terpadu diproyeksi membuka lapangan kerja dalam jumlah besar.",
+   ["Pengembangan kawasan industri baru diperkirakan menyerap ribuan tenaga kerja lokal.",
+    "Pemerintah mendorong hilirisasi agar nilai tambah produk dalam negeri meningkat."]],
+  ["Startup Fintech Lokal Raih Pendanaan Seri B","Bisnis","Dewi Lestari","2026-06-30",false,false,
+   "Suntikan dana segar akan dipakai memperluas layanan keuangan digital ke daerah.",
+   ["Sebuah startup fintech lokal mengumumkan perolehan pendanaan Seri B dari sejumlah investor.",
+    "Dana tersebut akan digunakan memperluas jangkauan layanan keuangan digital hingga ke pelosok."]],
+  ["Komunitas Perempuan Bangun Jaringan Dukungan Usaha","Sisterhood","Siti Nurhaliza","2026-07-02",true,false,
+   "Solidaritas antarperempuan pelaku usaha membuka akses pasar dan pendampingan bersama.",
+   ["Sejumlah perempuan pelaku usaha membentuk komunitas untuk saling menguatkan dan berbagi peluang.",
+    "Jaringan ini menyediakan pendampingan, akses pasar, hingga dukungan permodalan bagi anggotanya."]],
+  ["Cara Cerdas Atur Keuangan ala Perempuan Mandiri","Spill the Bills","Siti Nurhaliza","2026-07-01",false,false,
+   "Menyusun anggaran, dana darurat, dan investasi kecil bisa dimulai dari langkah sederhana.",
+   ["Mengelola keuangan pribadi menjadi keterampilan penting bagi perempuan yang ingin mandiri secara finansial.",
+    "Perencanaan anggaran, dana darurat, dan investasi kecil dapat dimulai secara bertahap."]],
+  ["Menyikapi Drama Kantor Tanpa Kehilangan Diri","Drama","Siti Nurhaliza","2026-06-30",false,false,
+   "Menjaga batasan sehat membantu tetap profesional di tengah dinamika lingkungan kerja.",
+   ["Dinamika di tempat kerja tak jarang memunculkan gesekan yang menguras energi.",
+    "Menetapkan batasan yang sehat dan fokus pada tujuan membantu menjaga profesionalisme."]]
 ];
 // Tag/kata kunci spesifik per artikel (untuk topik yang sedang hangat)
 const KW = {
   1:["UMKM","Stimulus","Daya Beli","Bramantyo Adhi","Bank Sentral Nusantara"], 2:["Timnas","Sepak Bola","Piala Dunia"], 3:["AI","Startup","Deteksi Dini","Raka Mahendra","Institut Teknologi Nusantara"],
   4:["DPR","Revisi UU"], 5:["IHSG","Saham","Investasi"], 6:["Perempuan","Kepemimpinan","Karier"],
   7:["Relasi","Work-Life Balance"], 8:["Skincare","Perawatan Kulit"], 9:["Kesehatan Perempuan","Deteksi Dini","dr. Anindya Kirana"],
-  10:["Kuliner Halal","UMKM","Sertifikasi Halal"], 11:["Wisata Halal","Pariwisata"], 12:["Investasi Syariah","Reksa Dana"], 13:["Ramadan","Persiapan Ibadah"]
+  10:["Kuliner Halal","UMKM","Sertifikasi Halal"], 11:["Wisata Halal","Pariwisata"], 12:["Investasi Syariah","Reksa Dana"], 13:["Ramadan","Persiapan Ibadah"],
+  14:["Hukum","Perlindungan Saksi"], 16:["DPR","Kebijakan Publik"], 18:["Bank Sentral Nusantara","Suku Bunga","Moneter"], 20:["Industri","Hilirisasi"], 22:["Perempuan","UMKM"]
 };
 const NEWS = RAW.map((r,i)=>({ id:i+1, title:r[0], tag:r[1], section:TAG_SECTION[r[1]], author:r[2], date:r[3],
   featured:r[4], breaking:r[5], excerpt:r[6], content:r[7], image:img(r[0],r[1]), mins: 8 + i*97, kw:(KW[i+1]||[]),
@@ -846,8 +885,8 @@ const NEWS = RAW.map((r,i)=>({ id:i+1, title:r[0], tag:r[1], section:TAG_SECTION
 // Data penulis + foto avatar
 const AUTHORS = {
   "Rizky Pratama":{role:"Jurnalis Ekonomi",bio:"Meliput ekonomi makro, pasar modal, dan UMKM. Bergabung dengan kabar sejak 2019."},
-  "Andi Saputra":{role:"Jurnalis Olahraga & Politik",bio:"Mengulas olahraga nasional dan dinamika politik dalam negeri."},
-  "Dewi Lestari":{role:"Jurnalis Teknologi",bio:"Fokus pada startup, kecerdasan buatan, dan tren gaya hidup digital."},
+  "Andi Saputra":{role:"Jurnalis Politik & Hukum",bio:"Mengulas dinamika politik, hukum, dan keamanan dalam negeri."},
+  "Dewi Lestari":{role:"Jurnalis Bisnis & Industri",bio:"Fokus pada bisnis, startup, industri, dan tren gaya hidup digital."},
   "Siti Nurhaliza":{role:"Jurnalis SHEroes",bio:"Menulis kisah perempuan, karier, relasi, dan budaya."},
   "Dr. Budi Santoso":{role:"Kontributor Kesehatan",bio:"Dokter sekaligus penulis lepas untuk isu kesehatan dan gaya hidup sehat."}
 };
@@ -1011,11 +1050,11 @@ function renderList(title,sub,items,docTitle,dotColor){
 }
 // ===== Halaman kategori (landing ala portal) =====
 const SECTION_DESC = {
-  News: "Kabar utama dari politik, ekonomi, olahraga, hingga teknologi — dirangkum ringkas dan enak dibaca.",
-  SHEroes: "Ruang perempuan: karier, relasi, kesehatan, dan kecantikan, dengan sudut pandang yang membumi.",
+  News: "Kabar utama dalam negeri — politik, hukum, keamanan, dan peristiwa — dirangkum ringkas dan enak dibaca.",
+  Neraca: "Denyut ekonomi: bisnis, moneter, perdagangan, dan industri, dengan analisis yang membumi.",
+  SHEroes: "Ruang perempuan — dari langkah kecil, persaudaraan, sampai cerita dan curahan yang jujur.",
   HALALive: "Gaya hidup halal — dari kuliner dan wisata sampai keuangan syariah dan Ramadan."
 };
-function catCell(n){ return `<article class="cat-cell" data-article="${n.id}"><div class="cc-ph"><img src="${n.image}" alt="${n.title}" loading="lazy"></div><div class="cc-meta">${chip(n.tag)}<span class="cc-time">${relTime(n.mins)}</span></div><h3>${n.title}</h3></article>`; }
 function renderCategory(section){
   const secArts=NEWS.filter(n=>n.section===section);
   const lead=secArts.find(n=>n.featured)||secArts[0];
@@ -1029,10 +1068,10 @@ function renderCategory(section){
       <div class="ch-grid">${grid.map(n=>`<article class="ch-item" data-article="${n.id}"><div class="ci-ph"><img src="${n.image}" alt="${n.title}" loading="lazy"></div><div class="cc-meta">${chip(n.tag)}<span class="cc-time">${relTime(n.mins)}</span></div><h3>${n.title}</h3></article>`).join("")}</div>
     </section>`:"";
   const subs=SECTION_TAGS[section].map(tag=>{
-    const items=NEWS.filter(n=>n.tag===tag).slice(0,5);
+    const items=NEWS.filter(n=>n.tag===tag).slice(0,8);
     if(!items.length) return "";
     return `<section class="cat-sub"><div class="cat-sub-head"><h2>${tag}</h2><a class="more" href="${tagHref(tag)}" data-tag="${tag}">Lebih banyak →</a></div>
-      <div class="cat-row">${items.map(catCell).join("")}</div></section>`;
+      <div class="carousel">${items.map(card).join("")}</div></section>`;
   }).join("");
   view.innerHTML=`<div class="cat-page">
     <div class="cat-head"><h1><span class="dot" style="background:${SECTION_COLOR[section]}"></span>${section}</h1><p>${SECTION_DESC[section]||""}</p></div>
