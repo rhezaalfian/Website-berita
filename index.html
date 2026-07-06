@@ -444,6 +444,21 @@
   .ad-leaderboard { height: 96px; margin: 18px 0 2px; }
   .ad-infeed { height: 108px; margin: 6px 0; }
   .ad-feedbig { min-height: 250px; margin: 8px 0; }
+  /* Indeks: filter + paginasi */
+  .idx-filter { display: flex; flex-wrap: wrap; gap: 12px 14px; align-items: flex-end; margin: 2px 0 24px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+  .idx-field { display: flex; flex-direction: column; gap: 6px; }
+  .idx-field label { font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+  .idx-field select, .idx-field input { height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; color-scheme: light dark; }
+  .idx-field select { min-width: 200px; }
+  .idx-field select:focus, .idx-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .idx-reset { height: 42px; padding: 0 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink-soft); font-weight: 600; font-size: .85rem; cursor: pointer; font-family: inherit; transition: .16s; }
+  .idx-reset:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .pager { display: flex; gap: 6px; justify-content: center; align-items: center; margin: 32px 0 6px; flex-wrap: wrap; }
+  .pg { min-width: 42px; height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font-weight: 700; font-size: .9rem; cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums; transition: .16s; }
+  .pg:hover:not(:disabled):not(.on) { border-color: var(--accent); color: var(--accent-dark); }
+  .pg.on { background: var(--accent); border-color: var(--accent); color: #fff; cursor: default; }
+  .pg:disabled { opacity: .38; cursor: default; }
+  @media (max-width: 560px) { .idx-field, .idx-field select { min-width: 0; width: 100%; } .idx-filter { gap: 10px; } .idx-field { flex: 1 1 42%; } }
   .ad-inarticle { height: 118px; margin: 28px 0; }
   .ad-rail { height: 250px; }
   .ad-sky { position: fixed; top: 118px; width: 160px; height: 600px; z-index: 40; display: none; }
@@ -1115,9 +1130,34 @@ function renderSaved(){
   view.innerHTML=`<div class="layout"><main><div class="sec-head"><h2>Tersimpan</h2><span class="eyebrow">${items.length} artikel</span></div>${body}</main>${railHtml()}</div>`;
   document.title="Tersimpan — kabar";
 }
+let idxState={page:1,cat:"",from:"",to:""};
+function idxFiltered(){
+  return NEWS.filter(n=>{
+    if(idxState.cat && n.tag!==idxState.cat && n.section!==idxState.cat) return false;
+    if(idxState.from && n.date < idxState.from) return false;
+    if(idxState.to && n.date > idxState.to) return false;
+    return true;
+  });
+}
+function idxPager(pages){
+  if(pages<=1) return "";
+  let btns=""; for(let i=1;i<=pages;i++){ btns+=`<button class="pg ${i===idxState.page?'on':''}" data-idxpage="${i}">${i}</button>`; }
+  return `<div class="pager"><button class="pg nav" data-idxpage="${idxState.page-1}" ${idxState.page===1?"disabled":""} aria-label="Sebelumnya">‹</button>${btns}<button class="pg nav" data-idxpage="${idxState.page+1}" ${idxState.page===pages?"disabled":""} aria-label="Berikutnya">›</button></div>`;
+}
 function renderIndex(){
-  const rows=[]; NEWS.forEach((n,i)=>{ rows.push(listItem(n)); if((i+1)%6===0 && i<NEWS.length-1) rows.push(ad("ad-feedbig","Display · 300×250")); });
-  view.innerHTML=`<div class="layout"><main><div class="sec-head"><h2>Indeks Berita</h2><span class="eyebrow">Semua berita terbaru</span></div><div class="list">${rows.join("")}</div></main>${railHtml()}</div>`;
+  const all=idxFiltered(), per=10, pages=Math.max(1,Math.ceil(all.length/per));
+  if(idxState.page>pages) idxState.page=pages;
+  const pageItems=all.slice((idxState.page-1)*per, (idxState.page-1)*per+per);
+  const rows=[]; pageItems.forEach((n,i)=>{ rows.push(listItem(n)); if(i===4 && pageItems.length>5) rows.push(ad("ad-feedbig","Display · 300×250")); });
+  const catOpts=`<option value="">Semua kategori</option>`+SECTIONS.map(s=>`<optgroup label="${s}">`+SECTION_TAGS[s].map(t=>`<option value="${t}" ${idxState.cat===t?"selected":""}>${t}</option>`).join("")+`</optgroup>`).join("");
+  const hasFilter=idxState.cat||idxState.from||idxState.to;
+  const bar=`<div class="idx-filter">
+      <div class="idx-field"><label for="idx-cat">Kategori</label><select id="idx-cat">${catOpts}</select></div>
+      <div class="idx-field"><label for="idx-from">Dari tanggal</label><input type="date" id="idx-from" value="${idxState.from}"></div>
+      <div class="idx-field"><label for="idx-to">Sampai tanggal</label><input type="date" id="idx-to" value="${idxState.to}"></div>
+      ${hasFilter?`<button class="idx-reset" id="idx-reset">✕ Reset</button>`:""}</div>`;
+  const body=all.length?`<div class="list">${rows.join("")}</div>${idxPager(pages)}`:`<div class="empty"><h3>Tidak ada berita yang cocok</h3><p>Coba ubah kategori atau rentang tanggalnya.</p></div>`;
+  view.innerHTML=`<div class="layout"><main><div class="sec-head"><h2>Indeks Berita</h2><span class="eyebrow">${all.length} berita${hasFilter?" (terfilter)":""}</span></div>${bar}${body}</main>${railHtml()}</div>`;
   window.scrollTo(0,0);
 }
 function renderArticle(id){
@@ -1210,7 +1250,7 @@ function go(r){ route=r; updateHead(r); syncHash(r); renderNav(); heroStop(); tt
   else if(r.page==="tag") renderTag(r.tag);
   else if(r.page==="search"){ const q=r.q.toLowerCase(); renderList(`“${r.q}”`,"Hasil pencarian",NEWS.filter(n=>(n.title+n.excerpt+n.tag+n.section).toLowerCase().includes(q)),"Cari — kabar"); }
   else if(r.page==="saved") renderSaved();
-  else if(r.page==="index") renderIndex();
+  else if(r.page==="index"){ idxState={page:1,cat:"",from:"",to:""}; renderIndex(); }
   else if(r.page==="author") renderAuthor(r.author);
   else if(r.page==="quiz"){ quizEl=view; quiz={stage:"intro"}; renderQuiz(); if(typeof onScroll==="function") onScroll(); return; }
   else if(r.page==="article") renderArticle(r.id);
@@ -1539,6 +1579,8 @@ document.addEventListener("click", e=>{
   if(e.target.id==="clear-saved"){ saved=[]; LS.set("kabar_saved",saved); updateSavedBadge(); go({page:"saved"}); return; }
   const bm=e.target.closest("[data-bm]"); if(bm){ e.preventDefault(); e.stopPropagation(); toggleSave(bm.dataset.bm); return; }
   const sh=e.target.closest("[data-share]"); if(sh){ e.preventDefault(); const L={wa:"Dibagikan ke WhatsApp ✓",x:"Dibagikan ke X ✓",fb:"Dibagikan ke Facebook ✓",tg:"Dibagikan ke Telegram ✓",link:"Tautan disalin ✓"}; showToast(L[sh.dataset.share]||"Dibagikan ✓"); return; }
+  const ipg=e.target.closest("[data-idxpage]"); if(ipg){ e.preventDefault(); idxState.page=+ipg.dataset.idxpage; renderIndex(); return; }
+  if(e.target.id==="idx-reset"){ idxState={page:1,cat:"",from:"",to:""}; renderIndex(); return; }
   const hsd=e.target.closest("[data-hs-dot]"); if(hsd){ heroStop(); heroGoTo(+hsd.dataset.hsDot); heroStart(); return; }
   const hsa=e.target.closest("[data-hs]"); if(hsa){ heroStop(); hsa.dataset.hs==="next"?heroNext():heroGoTo(heroIdx-1); heroStart(); return; }
   const au=e.target.closest("[data-author]"); if(au){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"author", author:au.dataset.author}); return; }
@@ -1550,6 +1592,11 @@ document.addEventListener("click", e=>{
   else if(a2){ closeStories(); closeMega(); go({page:"article", id:+a2.dataset.article}); }
   else if(nv){ closeMega(); window.scrollTo(0,0); go({page: nv.dataset.nav}); }
   if(!e.target.closest(".user-wrap")){ const um=document.getElementById("user-menu"); if(um) um.classList.remove("open"); }
+});
+document.addEventListener("change", e=>{
+  if(e.target.id==="idx-cat"){ idxState.cat=e.target.value; idxState.page=1; renderIndex(); }
+  else if(e.target.id==="idx-from"){ idxState.from=e.target.value; idxState.page=1; renderIndex(); }
+  else if(e.target.id==="idx-to"){ idxState.to=e.target.value; idxState.page=1; renderIndex(); }
 });
 document.addEventListener("submit", e=>{ e.preventDefault();
   if(e.target.id==="search-form"||e.target.id==="mega-search-form"){ const q=e.target.querySelector("input").value.trim(); if(q){ closeMega(); window.scrollTo(0,0); go({page:"search", q}); } }
