@@ -679,6 +679,11 @@
   .sheroes-theme .cat-head p { color: color-mix(in srgb, var(--accent-dark) 55%, var(--muted)); }
   .sheroes-theme .cat-hero, .sheroes-theme .cat-sub { border-bottom-color: color-mix(in srgb, #e0518c 26%, var(--line)); }
   .sheroes-theme .sub-i { border-color: color-mix(in srgb, #e0518c 40%, var(--line)); }
+  /* Animasi reveal (fade + naik) — GPU-friendly, hormati reduced-motion */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .55s cubic-bezier(.22,.61,.36,1), transform .55s cubic-bezier(.22,.61,.36,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .cat-hero.reveal { transition-delay: .07s; }
+  @media (prefers-reduced-motion: reduce) { .reveal, .reveal.in { opacity: 1 !important; transform: none !important; transition: none !important; } }
   .sub-title { position: relative; display: inline-flex; align-items: center; gap: 9px; }
   .sub-i { width: 19px; height: 19px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); font-size: .74rem; font-weight: 700; font-style: italic; font-family: Georgia, "Times New Roman", serif; cursor: pointer; display: inline-grid; place-items: center; line-height: 1; transition: .16s; flex-shrink: 0; padding: 0; }
   .sub-i:hover, .sub-i[aria-expanded="true"] { border-color: var(--accent); color: var(--accent-dark); }
@@ -1111,10 +1116,11 @@ const SUB_DESC = {
   Ramadan:"Persiapan, ibadah, dan cerita seputar Ramadan."
 };
 function renderCategory(section){
+  const rv=section==="SHEroes"?" reveal":"";
   const secArts=NEWS.filter(n=>n.section===section);
   const lead=secArts.find(n=>n.featured)||secArts[0];
   const grid=lead?secArts.filter(n=>n.id!==lead.id).slice(0,4):[];
-  const hero=lead?`<section class="cat-hero">
+  const hero=lead?`<section class="cat-hero${rv}">
       <article class="ch-lead" data-article="${lead.id}">
         <div class="ch-lead-media"><img src="${lead.image}" alt="${lead.title}" loading="lazy"></div>
         <div class="ch-lead-body">${chip(lead.tag)}<h2>${lead.title}</h2><p>${lead.excerpt}</p>
@@ -1126,14 +1132,23 @@ function renderCategory(section){
     const items=NEWS.filter(n=>n.tag===tag).slice(0,8);
     if(!items.length) return "";
     const info=SUB_DESC[tag]?`<button class="sub-i" data-subinfo="${slugify(tag)}" aria-label="Tentang ${tag}" aria-expanded="false">i</button><span class="sub-pop" id="subpop-${slugify(tag)}" role="tooltip">${SUB_DESC[tag]}</span>`:"";
-    return `<section class="cat-sub"><div class="cat-sub-head"><div class="sub-title"><h2>${tag}</h2>${info}</div><a class="more" href="${tagHref(tag)}" data-tag="${tag}">Lebih banyak →</a></div>
+    return `<section class="cat-sub${rv}"><div class="cat-sub-head"><div class="sub-title"><h2>${tag}</h2>${info}</div><a class="more" href="${tagHref(tag)}" data-tag="${tag}">Lebih banyak →</a></div>
       <div class="carousel">${items.map(card).join("")}</div></section>`;
   }).join("");
   view.innerHTML=`<div class="cat-page${section==="SHEroes"?" sheroes-theme":""}">
-    <div class="cat-head"><h1><span class="dot" style="background:${SECTION_COLOR[section]}"></span>${section}</h1><p>${SECTION_DESC[section]||""}</p></div>
+    <div class="cat-head${rv}"><h1><span class="dot" style="background:${SECTION_COLOR[section]}"></span>${section}</h1><p>${SECTION_DESC[section]||""}</p></div>
     ${hero}${subs||`<div class="empty"><h3>Belum ada berita di kanal ini</h3><p>Coba kanal lain.</p></div>`}
   </div>`;
   window.scrollTo(0,0);
+  if(rv) setupReveal();
+}
+let _revealIO=null;
+function setupReveal(){
+  const els=document.querySelectorAll(".reveal:not(.in)");
+  if(!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches){ els.forEach(el=>el.classList.add("in")); return; }
+  if(_revealIO) _revealIO.disconnect();
+  _revealIO=new IntersectionObserver((ents,obs)=>{ ents.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); obs.unobserve(e.target); } }); }, {rootMargin:"0px 0px -8% 0px", threshold:.06});
+  els.forEach(el=>_revealIO.observe(el));
 }
 function renderSaved(){
   const items=saved.map(id=>NEWS.find(n=>n.id===id)).filter(Boolean);
