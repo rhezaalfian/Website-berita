@@ -1503,14 +1503,7 @@ function openFaqModal(id){
     <p class="sub">Poin penting dari artikel ini. Ketuk pertanyaan untuk lihat jawabannya.</p>
     ${items}
     <div class="faq-reveal" id="faq-reveal">
-      <div class="faq-share" id="faq-share">
-        <button class="faq-share-x" id="faq-share-x" aria-label="Tutup">✕</button>
-        <div class="fs-ic">🙌</div>
-        <p class="fs-t">Kalau tulisan ini bermanfaat…</p>
-        <p class="fs-s">Bagikan ke temanmu, atau jadikan <b>kabar</b> sumber pilihanmu di Google.</p>
-        <div class="fs-row">${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
-        <a class="follow-link fs-pref" data-ext="pref">${G_SVG}<span>Jadikan sumber pilihan di Google</span></a>
-      </div>
+      ${shareBlockHtml(true)}
       <div class="faq-foot">Masih ingat isinya? <a data-quiz-from-faq>Uji ingatanmu →</a></div>
     </div></div>`;
   const m=document.getElementById("faq-modal"); m.classList.add("show"); m.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden";
@@ -1531,24 +1524,55 @@ const GEN_QUIZ=[
   {q:"Prinsip utama keuangan syariah antara lain?",opts:["Bunga majemuk","Bagi hasil","Spekulasi tinggi","Denda berlipat"],a:1},
   {q:"Sertifikasi yang menjadi nilai tambah produk kuliner muslim adalah?",opts:["ISO 9001","Sertifikat Halal","Paten","SNI Wajib"],a:1}
 ];
-// Susun pertanyaan "Uji Ingatan" langsung dari isi berita yang barusan dibaca.
+// "Uji Ingatan": isian rumpang — pertanyaan & pilihan 100% dari isi berita ini.
 function quizShuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function quizMCQ(q, correct, pool){ const d=quizShuffle(pool.filter(x=>x&&x!==correct)).slice(0,3); const opts=quizShuffle([correct,...d]); return { q, opts, a:opts.indexOf(correct) }; }
-function quizTrim(s){ s=(s||"").trim(); return s.length>120 ? s.slice(0,117).replace(/\s+\S*$/,"")+"…" : s; }
-function quizForArticle(n){
-  const qs=[];
-  // Distraktor: ringkasan & paragraf dari berita LAIN (bukan rubrik/penulis).
-  const otherExc=NEWS.filter(x=>x.id!==n.id).map(x=>quizTrim(x.excerpt));
-  const otherBody=NEWS.filter(x=>x.id!==n.id).flatMap(x=>(x.content||[])).filter(p=>p&&p.length>40).map(quizTrim);
-  const pool=[...new Set(otherExc.concat(otherBody))];
-  // 1. Inti berita
-  qs.push(quizMCQ("Mana kalimat yang paling menggambarkan inti berita ini?", quizTrim(n.excerpt), pool));
-  // 2–3. Pernyataan dari isi berita (lewati paragraf pembuka yang mirip ringkasan)
-  const body=(n.content||[]).slice(1).filter(p=>p&&p.length>40).map(quizTrim);
-  const labels=["Pernyataan mana yang sesuai isi berita ini?","Pernyataan mana lagi yang benar menurut berita ini?"];
-  body.slice(0,2).forEach((p,i)=>{ qs.push(quizMCQ(labels[i], p, pool)); });
-  return qs;
+function reEsc(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); }
+// Ambil "kata kunci" (nama diri, akronim, angka) dari teks berita.
+function quizTerms(text){
+  const t=new Set();
+  (text.match(/\b[A-Z]{2,}\b/g)||[]).forEach(x=>t.add(x));
+  (text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b/g)||[]).forEach(x=>t.add(x));
+  (text.match(/Rp\s?\d[\d.,]*\s?(?:triliun|miliar|juta|ribu)?/gi)||[]).forEach(x=>t.add(x.trim()));
+  (text.match(/\bmenit ke-\d+\b/gi)||[]).forEach(x=>t.add(x));
+  (text.match(/\b\d+(?:[.,]\d+)?\s?(?:persen|%|triliun|miliar|juta|ribu|menit|tahun|hari|jam|pemain)\b/gi)||[]).forEach(x=>t.add(x));
+  return [...t];
 }
+const QUIZ_STOP=new Set("dengan untuk yang sebagai dalam tanpa lebih sangat adalah tersebut mereka namun karena sehingga antara hingga setelah masih akan tidak pada dari ini itu agar oleh serta juga sudah telah bahwa dapat kepada tetapi ketika sejumlah".split(" "));
+function quizWords(text){ return [...new Set(String(text).replace(/[^A-Za-zÀ-ſ\- ]/g," ").split(/\s+/).filter(w=>w.length>=6 && !QUIZ_STOP.has(w.toLowerCase())))]; }
+function quizForArticle(n){
+  const sents=[];
+  [n.excerpt, ...(n.content||[])].forEach(txt=>String(txt||"").split(/(?<=[.!?"”])\s+/).forEach(s=>{ s=s.trim(); if(s.length>25) sents.push(s); }));
+  const allText=[n.excerpt, ...(n.content||[])].join(" ");
+  const terms=[...new Set(quizTerms(allText).concat(n.kw||[]))].filter(x=>x&&x.length>=3);
+  const words=quizWords(allText);
+  const inS=(s,x)=>new RegExp("(^|\\W)"+reEsc(x)+"($|\\W)","i").test(s);
+  // Kandidat rumpang, prioritas: nama diri/angka dulu, lalu kata terpanjang tiap kalimat.
+  const cands=[];
+  terms.forEach(t=>{ const s=sents.find(x=>inS(x,t)); if(s) cands.push({t,s}); });
+  sents.forEach(s=>{ quizWords(s).sort((a,b)=>b.length-a.length).slice(0,3).forEach(w=>cands.push({t:w,s})); });
+  const qs=[], usedS=new Set(), usedT=new Set();
+  for(const c of cands){ if(qs.length>=3) break;
+    if(usedS.has(c.s)||usedT.has(c.t.toLowerCase())) continue;
+    const isTerm=terms.some(t=>t.toLowerCase()===c.t.toLowerCase());
+    let d=(isTerm?terms:words).filter(x=>x.toLowerCase()!==c.t.toLowerCase() && !inS(c.s,x));
+    if(d.length<3){ const extra=terms.concat(words).filter(x=>x.toLowerCase()!==c.t.toLowerCase() && !inS(c.s,x) && !d.some(y=>y.toLowerCase()===x.toLowerCase())); d=d.concat(extra); }
+    if(d.length<2) continue;
+    usedS.add(c.s); usedT.add(c.t.toLowerCase());
+    const rx=new RegExp(reEsc(c.t),"i");
+    qs.push(quizMCQ("Lengkapi bagian rumpang dari kalimat di berita ini: “"+c.s.replace(rx,"_____")+"”", c.t, [c.t,...d]));
+  }
+  return qs.slice(0,3);
+}
+// Blok ajakan berbagi — dipakai di rangkuman & di akhir Uji Ingatan.
+function shareBlockHtml(withX){ return `<div class="faq-share"${withX?` id="faq-share"`:""}>
+  ${withX?`<button class="faq-share-x" id="faq-share-x" aria-label="Tutup">✕</button>`:""}
+  <div class="fs-ic">🙌</div>
+  <p class="fs-t">Kalau tulisan ini bermanfaat…</p>
+  <p class="fs-s">Bagikan ke temanmu, atau jadikan <b>kabar</b> sumber pilihanmu di Google.</p>
+  <div class="fs-row">${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
+  <a class="follow-link fs-pref" data-ext="pref">${G_SVG}<span>Jadikan sumber pilihan di Google</span></a>
+</div>`; }
 function quizBest(){ return LS.get("kabar_quizbest",0); }
 function paint(html){ view.innerHTML=html; view.classList.remove("in"); void view.offsetWidth; view.classList.add("in"); }
 function quizQs(){ return (quiz&&quiz.qs)||GEN_QUIZ; }
@@ -1565,7 +1589,11 @@ function quizPlay(){ const Q=quizQs(); const it=Q[quiz.i], ans=quiz.picked!=null
 function quizResult(){ const t=quizQs().length,s=quiz.score,pct=Math.round(s/t*100),art=quiz&&quiz.article,best=quizBest(); const msg=pct===100?"Sempurna! 🏆":pct>=60?"Mantap, kamu nyimak! 👏":pct>=40?"Lumayan, sedikit lagi. 🙂":"Yuk baca lagi, pasti naik! 💪";
   const rekor=art?"":`<p class="sub">Skor ${pct}% · 🏆 Rekor terbaik: ${Math.max(best,s)}/${GEN_QUIZ.length}</p>`;
   const scoreSub=art?`<p class="sub">Skor ${pct}%</p>`:rekor;
-  return `<div class="quiz"><div class="quiz-card quiz-score"><div class="emoji">🎯</div><div class="big">${s}/${t}</div><p>${msg}</p>${scoreSub}<div class="quiz-actions"><button class="quiz-next" data-quiz="restart">Ulangi</button>${quiz.modal?`<button class="quiz-ghost" data-quiz="close">Tutup</button>`:`<button class="quiz-ghost" data-nav="home">Baca berita</button>`}</div></div></div>`; }
+  // Setelah menjawab, kembalikan ke pilihan berbagi.
+  const share=art?shareBlockHtml(false):"";
+  const actions=art?`<div class="quiz-actions"><button class="quiz-ghost" data-quiz="restart">Ulangi</button>${quiz.modal?`<button class="quiz-ghost" data-quiz="close">Tutup</button>`:`<button class="quiz-ghost" data-nav="home">Baca berita</button>`}</div>`
+    :`<div class="quiz-actions"><button class="quiz-next" data-quiz="restart">Ulangi</button>${quiz.modal?`<button class="quiz-ghost" data-quiz="close">Tutup</button>`:`<button class="quiz-ghost" data-nav="home">Baca berita</button>`}</div>`;
+  return `<div class="quiz"><div class="quiz-card quiz-score"><div class="emoji">🎯</div><div class="big">${s}/${t}</div><p>${msg}</p>${scoreSub}${share}${actions}</div></div>`; }
 function renderQuiz(){ const html=(!quiz||quiz.stage==="intro")?quizIntro():(quiz.stage==="result"?quizResult():quizPlay()); const el=quizEl||view; if(el===view){ document.title=(quiz&&quiz.article?"Uji Ingatan":"Kuis")+" — kabar"; paint(html); } else el.innerHTML=html; }
 function openQuizModal(id){ quizEl=document.getElementById("modal-body"); const n=id?NEWS.find(x=>x.id===id):null; const qs=n?quizForArticle(n):GEN_QUIZ; quiz={stage:"intro",modal:true,article:!!n,qs}; renderQuiz(); const m=document.getElementById("quiz-modal"); m.classList.add("show"); m.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
 function closeQuizModal(){ const m=document.getElementById("quiz-modal"); m.classList.remove("show"); m.setAttribute("aria-hidden","true"); document.body.style.overflow=""; quizEl=null; quiz=null; }
