@@ -1471,7 +1471,7 @@ function go(r){ route=r; updateHead(r); syncHash(r); renderNav(); heroStop(); tt
   else if(r.page==="foto") renderFotoIndex();
   else if(r.page==="foto-essay") renderPhotoEssay(r.id);
   else if(r.page==="author") renderAuthor(r.author);
-  else if(r.page==="quiz"){ quizEl=view; quiz={stage:"intro"}; renderQuiz(); if(typeof onScroll==="function") onScroll(); return; }
+  else if(r.page==="quiz"){ quizEl=view; quiz={stage:"intro",qs:GEN_QUIZ,article:false}; renderQuiz(); if(typeof onScroll==="function") onScroll(); return; }
   else if(r.page==="article") renderArticle(r.id);
   view.classList.remove("in"); void view.offsetWidth; view.classList.add("in");
   if(typeof onScroll==="function") onScroll();
@@ -1488,7 +1488,7 @@ function faqFor(n){
 }
 function openFaqModal(id){
   const n=NEWS.find(x=>x.id===id); if(!n) return;
-  faqRevealShown=false; clearTimeout(faqRevealTimer);
+  faqArtId=id; faqRevealShown=false; clearTimeout(faqRevealTimer);
   const items=faqFor(n).map((f,i)=>`<div class="faq-item" data-fi="${i}">
     <button class="faq-q"><span>${f.q}</span><span class="ico">+</span></button>
     <div class="faq-a"><div class="inner">${f.a}</div></div></div>`).join("");
@@ -1505,42 +1505,65 @@ function openFaqModal(id){
         <div class="fs-row">${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
         <a class="follow-link fs-pref" data-ext="pref">${G_SVG}<span>Jadikan sumber pilihan di Google</span></a>
       </div>
-      <div class="faq-foot">Sudah paham? <a data-quiz-from-faq>Uji dengan kuis →</a></div>
+      <div class="faq-foot">Masih ingat isinya? <a data-quiz-from-faq>Uji ingatanmu →</a></div>
     </div></div>`;
   const m=document.getElementById("faq-modal"); m.classList.add("show"); m.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden";
 }
 // Setelah pembaca membuka pertanyaan ke-3, tunggu beberapa detik baru munculkan
 // ajakan berbagi / jadikan sumber pilihan, lalu tautan kuis.
-let faqRevealTimer=null, faqRevealShown=false;
+let faqRevealTimer=null, faqRevealShown=false, faqArtId=null;
 function armFaqReveal(){ if(faqRevealShown) return; const rv=document.getElementById("faq-reveal"); if(!rv) return;
   clearTimeout(faqRevealTimer); faqRevealTimer=setTimeout(()=>{ faqRevealShown=true; rv.classList.add("show"); }, 1800); }
 function closeFaqModal(){ const m=document.getElementById("faq-modal"); m.classList.remove("show"); m.setAttribute("aria-hidden","true"); document.body.style.overflow=""; }
 
-// ===== Kuis =====
+// ===== Uji Ingatan / Kuis =====
 let quiz=null, quizEl=null, quizAutoShown=false;
-const QUIZ=[
+const GEN_QUIZ=[
   {q:"UMKM adalah singkatan dari?",opts:["Usaha Mikro, Kecil, dan Menengah","Unit Manajemen Keuangan Masyarakat","Usaha Mandiri Koperasi Milenial","Usaha Menengah Kredit Modal"],a:0},
   {q:"Dalam sepak bola, satu tim menurunkan berapa pemain di lapangan?",opts:["9","10","11","12"],a:2},
   {q:"AI yang sering dibahas di berita teknologi adalah singkatan dari?",opts:["Automatic Internet","Artificial Intelligence","Advanced Interface","Applied Information"],a:1},
   {q:"Prinsip utama keuangan syariah antara lain?",opts:["Bunga majemuk","Bagi hasil","Spekulasi tinggi","Denda berlipat"],a:1},
   {q:"Sertifikasi yang menjadi nilai tambah produk kuliner muslim adalah?",opts:["ISO 9001","Sertifikat Halal","Paten","SNI Wajib"],a:1}
 ];
+// Susun pertanyaan "Uji Ingatan" langsung dari isi berita yang barusan dibaca.
+function quizShuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function quizMCQ(q, correct, pool){ const d=quizShuffle(pool.filter(x=>x&&x!==correct)).slice(0,3); const opts=quizShuffle([correct,...d]); return { q, opts, a:opts.indexOf(correct) }; }
+function quizForArticle(n){
+  const qs=[];
+  const tags=[...new Set(NEWS.map(x=>x.tag))];
+  qs.push(quizMCQ("Berita ini masuk rubrik apa?", n.tag, tags));
+  const authors=[...new Set(NEWS.map(x=>x.author))];
+  qs.push(quizMCQ("Siapa yang menulis berita ini?", n.author, authors));
+  const excs=NEWS.filter(x=>x.id!==n.id).map(x=>x.excerpt);
+  qs.push(quizMCQ("Mana kalimat yang paling menggambarkan inti berita ini?", n.excerpt, excs));
+  const kws=(n.kw||[]);
+  if(kws.length){ const others=[...new Set(NEWS.flatMap(x=>x.id===n.id?[]:(x.kw||[])))].filter(k=>!kws.includes(k));
+    if(others.length>=3) qs.push(quizMCQ("Topik mana yang dibahas di berita ini?", kws[0], [kws[0],...others])); }
+  return qs;
+}
 function quizBest(){ return LS.get("kabar_quizbest",0); }
 function paint(html){ view.innerHTML=html; view.classList.remove("in"); void view.offsetWidth; view.classList.add("in"); }
-function quizIntro(){ const best=quizBest(); const m=quiz&&quiz.modal; return `<div class="quiz"><div class="quiz-card quiz-intro"><div class="emoji">🧠</div><h1>${m?"Selesai baca? 🎉":"Kuis Kabar"}</h1><p>${m?"Sekalian uji pemahamanmu, yuk.":"Seberapa update kamu hari ini?"} ${QUIZ.length} pertanyaan singkat.</p>${best?`<p class="sub">🏆 Rekor terbaikmu: ${best}/${QUIZ.length}</p>`:""}<button class="quiz-next" data-quiz="start" style="max-width:260px;margin-left:auto;margin-right:auto">Mulai kuis →</button></div></div>`; }
-function quizPlay(){ const it=QUIZ[quiz.i], ans=quiz.picked!=null;
-  const bars=QUIZ.map((_,k)=>`<span class="${(k<quiz.i)||(k===quiz.i&&ans)?"done":""}"></span>`).join("");
+function quizQs(){ return (quiz&&quiz.qs)||GEN_QUIZ; }
+function quizIntro(){ const best=quizBest(); const m=quiz&&quiz.modal; const art=quiz&&quiz.article; const len=quizQs().length;
+  const h1=art?"Masih ingat isinya? 🧠":(m?"Selesai baca? 🎉":"Kuis Kabar");
+  const sub=art?"Uji ingatanmu soal berita yang barusan kamu baca.":(m?"Sekalian uji pemahamanmu, yuk.":"Seberapa update kamu hari ini?");
+  const cta=art?"Mulai uji →":"Mulai kuis →";
+  return `<div class="quiz"><div class="quiz-card quiz-intro"><div class="emoji">🧠</div><h1>${h1}</h1><p>${sub} ${len} pertanyaan singkat.</p>${(best&&!art)?`<p class="sub">🏆 Rekor terbaikmu: ${best}/${GEN_QUIZ.length}</p>`:""}<button class="quiz-next" data-quiz="start" style="max-width:260px;margin-left:auto;margin-right:auto">${cta}</button></div></div>`; }
+function quizPlay(){ const Q=quizQs(); const it=Q[quiz.i], ans=quiz.picked!=null;
+  const bars=Q.map((_,k)=>`<span class="${(k<quiz.i)||(k===quiz.i&&ans)?"done":""}"></span>`).join("");
   const opts=it.opts.map((o,i)=>{ let c="",mk=""; if(ans){ if(i===it.a){c="correct";mk="✓";} else if(i===quiz.picked){c="wrong";mk="✕";} } return `<button class="quiz-opt ${c}" data-quiz-ans="${i}" ${ans?"disabled":""}>${o}<span class="mk">${mk}</span></button>`; }).join("");
-  const last=quiz.i===QUIZ.length-1, nx=ans?`<button class="quiz-next" data-quiz="next">${last?"Lihat hasil":"Lanjut"} →</button>`:"";
-  return `<div class="quiz"><div class="quiz-card"><div class="quiz-head"><span>Pertanyaan ${quiz.i+1} dari ${QUIZ.length}</span><span>Skor: ${quiz.score}</span></div><div class="quiz-progress">${bars}</div><div class="quiz-q">${it.q}</div><div class="quiz-opts">${opts}</div>${nx}</div></div>`; }
-function quizResult(){ const t=QUIZ.length,s=quiz.score,pct=Math.round(s/t*100),best=quizBest(); const msg=pct===100?"Sempurna! 🏆":pct>=60?"Mantap, wawasanmu oke! 👏":pct>=40?"Lumayan, sedikit lagi. 🙂":"Yuk baca lagi, pasti naik! 💪";
-  return `<div class="quiz"><div class="quiz-card quiz-score"><div class="emoji">🎯</div><div class="big">${s}/${t}</div><p>${msg}</p><p class="sub">Skor ${pct}% · 🏆 Rekor terbaik: ${Math.max(best,s)}/${t}</p><div class="quiz-actions"><button class="quiz-next" data-quiz="restart">Ulangi kuis</button>${quiz.modal?`<button class="quiz-ghost" data-quiz="close">Tutup</button>`:`<button class="quiz-ghost" data-nav="home">Baca berita</button>`}</div></div></div>`; }
-function renderQuiz(){ const html=(!quiz||quiz.stage==="intro")?quizIntro():(quiz.stage==="result"?quizResult():quizPlay()); const el=quizEl||view; if(el===view){ document.title="Kuis — kabar"; paint(html); } else el.innerHTML=html; }
-function openQuizModal(){ quizEl=document.getElementById("modal-body"); quiz={stage:"intro",modal:true}; renderQuiz(); const m=document.getElementById("quiz-modal"); m.classList.add("show"); m.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
+  const last=quiz.i===Q.length-1, nx=ans?`<button class="quiz-next" data-quiz="next">${last?"Lihat hasil":"Lanjut"} →</button>`:"";
+  return `<div class="quiz"><div class="quiz-card"><div class="quiz-head"><span>Pertanyaan ${quiz.i+1} dari ${Q.length}</span><span>Skor: ${quiz.score}</span></div><div class="quiz-progress">${bars}</div><div class="quiz-q">${it.q}</div><div class="quiz-opts">${opts}</div>${nx}</div></div>`; }
+function quizResult(){ const t=quizQs().length,s=quiz.score,pct=Math.round(s/t*100),art=quiz&&quiz.article,best=quizBest(); const msg=pct===100?"Sempurna! 🏆":pct>=60?"Mantap, kamu nyimak! 👏":pct>=40?"Lumayan, sedikit lagi. 🙂":"Yuk baca lagi, pasti naik! 💪";
+  const rekor=art?"":`<p class="sub">Skor ${pct}% · 🏆 Rekor terbaik: ${Math.max(best,s)}/${GEN_QUIZ.length}</p>`;
+  const scoreSub=art?`<p class="sub">Skor ${pct}%</p>`:rekor;
+  return `<div class="quiz"><div class="quiz-card quiz-score"><div class="emoji">🎯</div><div class="big">${s}/${t}</div><p>${msg}</p>${scoreSub}<div class="quiz-actions"><button class="quiz-next" data-quiz="restart">Ulangi</button>${quiz.modal?`<button class="quiz-ghost" data-quiz="close">Tutup</button>`:`<button class="quiz-ghost" data-nav="home">Baca berita</button>`}</div></div></div>`; }
+function renderQuiz(){ const html=(!quiz||quiz.stage==="intro")?quizIntro():(quiz.stage==="result"?quizResult():quizPlay()); const el=quizEl||view; if(el===view){ document.title=(quiz&&quiz.article?"Uji Ingatan":"Kuis")+" — kabar"; paint(html); } else el.innerHTML=html; }
+function openQuizModal(id){ quizEl=document.getElementById("modal-body"); const n=id?NEWS.find(x=>x.id===id):null; const qs=n?quizForArticle(n):GEN_QUIZ; quiz={stage:"intro",modal:true,article:!!n,qs}; renderQuiz(); const m=document.getElementById("quiz-modal"); m.classList.add("show"); m.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
 function closeQuizModal(){ const m=document.getElementById("quiz-modal"); m.classList.remove("show"); m.setAttribute("aria-hidden","true"); document.body.style.overflow=""; quizEl=null; quiz=null; }
-function quizStart(){ const im=!!(quizEl&&quizEl.id==="modal-body"); quiz={stage:"play",i:0,score:0,picked:null,modal:im}; if(!im) window.scrollTo(0,0); renderQuiz(); }
-function quizAnswer(i){ if(!quiz||quiz.picked!=null) return; quiz.picked=i; if(i===QUIZ[quiz.i].a) quiz.score++; renderQuiz(); }
-function quizNext(){ if(quiz.i>=QUIZ.length-1){ quiz.stage="result"; if(quiz.score>quizBest()) LS.set("kabar_quizbest",quiz.score); } else { quiz.i++; quiz.picked=null; } if(!quiz.modal) window.scrollTo(0,0); renderQuiz(); if(quiz&&quiz.modal){ const mb=document.getElementById("modal-body"); if(mb) mb.parentElement.scrollTop=0; } }
+function quizStart(){ const im=!!(quizEl&&quizEl.id==="modal-body"); const qs=(quiz&&quiz.qs)||GEN_QUIZ; const art=!!(quiz&&quiz.article); quiz={stage:"play",i:0,score:0,picked:null,modal:im,qs,article:art}; if(!im) window.scrollTo(0,0); renderQuiz(); }
+function quizAnswer(i){ if(!quiz||quiz.picked!=null) return; quiz.picked=i; if(i===quizQs()[quiz.i].a) quiz.score++; renderQuiz(); }
+function quizNext(){ if(quiz.i>=quizQs().length-1){ quiz.stage="result"; if(!quiz.article && quiz.score>quizBest()) LS.set("kabar_quizbest",quiz.score); } else { quiz.i++; quiz.picked=null; } if(!quiz.modal) window.scrollTo(0,0); renderQuiz(); if(quiz&&quiz.modal){ const mb=document.getElementById("modal-body"); if(mb) mb.parentElement.scrollTop=0; } }
 
 // ===== Login (demo) =====
 let user=LS.get("kabar_user",null);
@@ -1802,7 +1825,7 @@ document.addEventListener("click", e=>{
     document.querySelectorAll('.sub-i[aria-expanded="true"]').forEach(b=>b.setAttribute("aria-expanded","false"));
     if(pop&&!wasOpen){ pop.classList.add("show"); si.setAttribute("aria-expanded","true"); } return; }
   if(!e.target.closest(".sub-pop")){ document.querySelectorAll(".sub-pop.show").forEach(p=>p.classList.remove("show")); document.querySelectorAll('.sub-i[aria-expanded="true"]').forEach(b=>b.setAttribute("aria-expanded","false")); }
-  if(e.target.closest("[data-quiz-from-faq]")){ closeFaqModal(); openQuizModal(); return; }
+  if(e.target.closest("[data-quiz-from-faq]")){ closeFaqModal(); openQuizModal(faqArtId); return; }
   if(e.target.id==="bn-close"){ document.getElementById("breaking-slot").innerHTML=""; setHeadH(); return; }
   if(e.target.id==="mega-overlay"||e.target.id==="mega-close"){ closeMega(); return; }
   if(e.target.closest("#mega-btn")){ openMega(); return; }
