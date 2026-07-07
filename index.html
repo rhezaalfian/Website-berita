@@ -497,6 +497,20 @@
   .faq-item.open .faq-a { max-height: 420px; }
   .faq-foot { margin-top: 18px; font-size: .8rem; color: var(--muted); text-align: center; }
   .faq-foot a { color: var(--accent-dark); font-weight: 600; cursor: pointer; }
+  .faq-reveal { display: none; }
+  .faq-reveal.show { display: block; animation: faqUp .45s cubic-bezier(.22,.61,.36,1); }
+  @keyframes faqUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .faq-share { position: relative; margin-top: 20px; padding: 20px 18px 18px; text-align: center;
+    background: var(--accent-tint); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); border-radius: 14px; }
+  .faq-share.hide { display: none; }
+  .faq-share-x { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; border: none;
+    background: transparent; color: var(--muted); font-size: .82rem; cursor: pointer; display: grid; place-items: center; transition: .16s; }
+  .faq-share-x:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
+  .faq-share .fs-ic { font-size: 1.7rem; line-height: 1; }
+  .faq-share .fs-t { font-weight: 800; font-size: 1.05rem; letter-spacing: -.02em; margin-top: 6px; }
+  .faq-share .fs-s { color: var(--muted); font-size: .88rem; margin-top: 4px; line-height: 1.45; }
+  .faq-share .fs-row { display: flex; justify-content: center; gap: 10px; margin: 14px 0 12px; }
+  .faq-share .fs-pref { display: inline-flex; }
 
   footer { margin-top: 64px; border-top: 1px solid var(--line); background: var(--surface); padding: 44px 0 38px; }
   .foot { display: flex; justify-content: space-between; gap: 34px; flex-wrap: wrap; }
@@ -1474,16 +1488,32 @@ function faqFor(n){
 }
 function openFaqModal(id){
   const n=NEWS.find(x=>x.id===id); if(!n) return;
-  const items=faqFor(n).map(f=>`<div class="faq-item">
+  faqRevealShown=false; clearTimeout(faqRevealTimer);
+  const items=faqFor(n).map((f,i)=>`<div class="faq-item" data-fi="${i}">
     <button class="faq-q"><span>${f.q}</span><span class="ico">+</span></button>
     <div class="faq-a"><div class="inner">${f.a}</div></div></div>`).join("");
   document.getElementById("faq-body").innerHTML=`<div class="faq">
     <div class="emoji">📝</div><h2>Rangkuman Tanya-Jawab</h2>
     <p class="sub">Poin penting dari artikel ini. Ketuk pertanyaan untuk lihat jawabannya.</p>
     ${items}
-    <div class="faq-foot">Sudah paham? <a data-quiz-from-faq>Uji dengan kuis →</a></div></div>`;
+    <div class="faq-reveal" id="faq-reveal">
+      <div class="faq-share" id="faq-share">
+        <button class="faq-share-x" id="faq-share-x" aria-label="Tutup">✕</button>
+        <div class="fs-ic">🙌</div>
+        <p class="fs-t">Kalau tulisan ini bermanfaat…</p>
+        <p class="fs-s">Bagikan ke temanmu, atau jadikan <b>kabar</b> sumber pilihanmu di Google.</p>
+        <div class="fs-row">${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
+        <a class="follow-link fs-pref" data-ext="pref">${G_SVG}<span>Jadikan sumber pilihan di Google</span></a>
+      </div>
+      <div class="faq-foot">Sudah paham? <a data-quiz-from-faq>Uji dengan kuis →</a></div>
+    </div></div>`;
   const m=document.getElementById("faq-modal"); m.classList.add("show"); m.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden";
 }
+// Setelah pembaca membuka pertanyaan ke-3, tunggu beberapa detik baru munculkan
+// ajakan berbagi / jadikan sumber pilihan, lalu tautan kuis.
+let faqRevealTimer=null, faqRevealShown=false;
+function armFaqReveal(){ if(faqRevealShown) return; const rv=document.getElementById("faq-reveal"); if(!rv) return;
+  clearTimeout(faqRevealTimer); faqRevealTimer=setTimeout(()=>{ faqRevealShown=true; rv.classList.add("show"); }, 3000); }
 function closeFaqModal(){ const m=document.getElementById("faq-modal"); m.classList.remove("show"); m.setAttribute("aria-hidden","true"); document.body.style.overflow=""; }
 
 // ===== Kuis =====
@@ -1763,7 +1793,9 @@ document.addEventListener("click", e=>{
   if(e.target.closest("#st-close")){ closeStories(); return; }
   const stn=e.target.closest("[data-st]"); if(stn){ stn.dataset.st==="next"?storyNext():storyPrev(); return; }
   const sdot=e.target.closest("[data-story]"); if(sdot){ openStories(+sdot.dataset.story); return; }
-  const fq=e.target.closest(".faq-q"); if(fq){ fq.closest(".faq-item").classList.toggle("open"); return; }
+  if(e.target.id==="faq-share-x"){ const s=document.getElementById("faq-share"); if(s) s.classList.add("hide"); return; }
+  const fq=e.target.closest(".faq-q"); if(fq){ const it=fq.closest(".faq-item"); it.classList.toggle("open");
+    if(it.dataset.fi==="2" && it.classList.contains("open")) armFaqReveal(); return; }
   const si=e.target.closest("[data-subinfo]");
   if(si){ e.preventDefault(); const pop=document.getElementById("subpop-"+si.dataset.subinfo); const wasOpen=pop&&pop.classList.contains("show");
     document.querySelectorAll(".sub-pop.show").forEach(p=>p.classList.remove("show"));
@@ -1848,7 +1880,7 @@ function setupFaqTrigger(id){
   // DAN pembaca berhenti di situ ~1,2 detik — bukan sekadar baris terakhir nongol.
   faqObserver=new IntersectionObserver(es=>{ es.forEach(e=>{
     if(quizAutoShown) return;
-    if(e.isIntersecting){ if(!faqDwell) faqDwell=setTimeout(()=>{ if(!quizAutoShown){ quizAutoShown=true; openFaqModal(id); faqObserver.disconnect(); } }, 1200); }
+    if(e.isIntersecting){ if(!faqDwell) faqDwell=setTimeout(()=>{ if(!quizAutoShown){ quizAutoShown=true; openFaqModal(id); faqObserver.disconnect(); } }, 2500); }
     else { clearTimeout(faqDwell); faqDwell=null; }
   }); }, { rootMargin: "0px 0px -45% 0px", threshold: 0 });
   faqObserver.observe(s);
