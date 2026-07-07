@@ -790,9 +790,14 @@
   @media (max-width: 560px) { .home-foto { padding: 18px 16px 22px; border-radius: 14px; } }
   /* Di HP, esai foto di beranda digeser ke samping (bukan menumpuk ke bawah) */
   @media (max-width: 640px) {
-    .home-foto .fe-grid { display: flex; grid-template-columns: none; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; scrollbar-width: none; }
+    .home-foto .fe-grid { display: flex; grid-template-columns: none; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; scrollbar-width: none; }
     .home-foto .fe-grid::-webkit-scrollbar { display: none; }
-    .home-foto .fe-card { min-width: 82%; scroll-snap-align: start; }
+    .home-foto .fe-card { min-width: 70%; scroll-snap-align: start; }
+    .home-foto .fe-ph { aspect-ratio: 16/9; }
+    .home-foto .fe-count { padding: 3px 8px; font-size: .68rem; }
+    .home-foto .fe-body { padding: 10px 12px 12px; }
+    .home-foto .fe-body h3 { font-size: 1rem; line-height: 1.26; }
+    .home-foto .fe-meta { margin-top: 6px; font-size: .74rem; }
   }
   @media (max-width: 820px) { .lb-essay { display: none; } }
   @media (max-width: 900px) { .pe-layout { grid-template-columns: 1fr; gap: 24px; } .pe-photo { max-height: 58vh; } }
