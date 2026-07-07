@@ -329,10 +329,10 @@
   .rec-reads .sec-head { margin-bottom: 16px; }
   .rec-reads .sec-head h2 { font-size: 1.3rem; }
   /* slide seperti Berita utama, tapi kartu diramping agar pas ~3 terlihat utuh */
-  .rec-reads .carousel .ncard, .cat-sub .carousel .ncard { min-width: 216px; max-width: 216px; }
-  .rec-reads .carousel .ncard h3, .cat-sub .carousel .ncard h3 { font-size: 1.04rem; }
-  .rec-reads .carousel .ncard .cbody, .cat-sub .carousel .ncard .cbody { padding: 12px 13px 13px; }
-  .rec-reads .carousel .ncard .src .srcname, .cat-sub .carousel .ncard .src .srcname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rec-reads .carousel .ncard, .cat-sub .carousel .ncard, .carousel.sm-cards .ncard { min-width: 216px; max-width: 216px; }
+  .rec-reads .carousel .ncard h3, .cat-sub .carousel .ncard h3, .carousel.sm-cards .ncard h3 { font-size: 1.04rem; }
+  .rec-reads .carousel .ncard .cbody, .cat-sub .carousel .ncard .cbody, .carousel.sm-cards .ncard .cbody { padding: 12px 13px 13px; }
+  .rec-reads .carousel .ncard .src .srcname, .cat-sub .carousel .ncard .src .srcname, .carousel.sm-cards .ncard .src .srcname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* Baca Juga inline */
   .baca-juga { position: relative; border: 1px solid var(--line); border-radius: 14px; padding: 24px 18px 18px; margin: 28px 0; }
@@ -693,6 +693,64 @@
   @media (max-width: 560px) {
     .ch-grid { gap: 18px 14px; }
   }
+  /* ===== Esai Foto ===== */
+  .fe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
+  .fe-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; cursor: pointer; transition: box-shadow .18s, transform .18s, border-color .18s; }
+  .fe-card:hover { box-shadow: var(--card-shadow); transform: translateY(-2px); border-color: transparent; }
+  .fe-ph { position: relative; aspect-ratio: 16/10; overflow: hidden; background: var(--panel); }
+  .fe-ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.22,.61,.36,1); }
+  .fe-card:hover .fe-ph img { transform: scale(1.05); }
+  .fe-count { position: absolute; left: 10px; bottom: 10px; background: rgba(0,0,0,.62); color: #fff; font-size: .74rem; font-weight: 700; padding: 4px 9px; border-radius: 6px; letter-spacing: .02em; }
+  .fe-body { padding: 14px 15px 16px; }
+  .fe-body h3 { font-size: 1.08rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; }
+  .fe-card:hover h3 { color: #c24e26; }
+  .fe-meta { margin-top: 9px; font-size: .8rem; color: var(--muted); }
+  .pe-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 34px; align-items: start; }
+  .pe-back { display: inline-block; font-size: .85rem; font-weight: 600; color: var(--muted); margin-bottom: 14px; }
+  .pe-back:hover { color: #c24e26; }
+  .pe-stage { position: relative; background: #0b0d0f; border-radius: 12px; overflow: hidden; }
+  .pe-photo { display: block; width: 100%; max-height: 74vh; object-fit: contain; cursor: zoom-in; background: #0b0d0f; }
+  .pe-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(0,0,0,.42); color: #fff; font-size: 1.5rem; line-height: 1; cursor: pointer; display: grid; place-items: center; transition: background .16s; z-index: 2; }
+  .pe-nav:hover { background: rgba(0,0,0,.7); }
+  .pe-nav.prev { left: 12px; } .pe-nav.next { right: 12px; }
+  .pe-counter { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,.6); color: #fff; font-size: .78rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-variant-numeric: tabular-nums; z-index: 2; }
+  .pe-zoombtn { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,.6); color: #fff; border: none; font-size: .78rem; font-weight: 600; padding: 6px 11px; border-radius: 7px; cursor: pointer; z-index: 2; font-family: inherit; }
+  .pe-zoombtn:hover { background: rgba(0,0,0,.82); }
+  .pe-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 16px 13px; background: linear-gradient(180deg, transparent, rgba(0,0,0,.82)); color: #fff; font-size: .86rem; line-height: 1.42; z-index: 1; }
+  .pe-cnum { color: #ffb38f; margin-right: 6px; font-variant-numeric: tabular-nums; }
+  .pe-thumbs { display: flex; gap: 9px; overflow-x: auto; padding: 12px 2px 4px; }
+  .pe-thumb { flex: 0 0 auto; width: 96px; height: 62px; border-radius: 8px; overflow: hidden; border: 2px solid transparent; background: var(--panel); cursor: pointer; padding: 0; opacity: .6; transition: opacity .16s, border-color .16s; }
+  .pe-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .pe-thumb:hover { opacity: .85; }
+  .pe-thumb.on { opacity: 1; border-color: #e8663a; }
+  .pe-side h1 { font-size: 1.5rem; font-weight: 800; line-height: 1.18; letter-spacing: -.02em; text-wrap: balance; }
+  .pe-pub { font-size: .8rem; color: var(--muted); margin: 8px 0 14px; }
+  .pe-desc { font-size: .95rem; line-height: 1.6; color: var(--ink-soft); }
+  .pe-photog { margin: 18px 0 4px; }
+  .pe-lbl { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .pe-name { font-size: .95rem; font-weight: 700; margin-top: 2px; }
+  .pe-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 6px; }
+  .pe-tag { font-size: .8rem; font-weight: 600; color: var(--ink-soft); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; }
+  .pe-side-head { font-size: .82rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--ink); margin: 24px 0 12px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .ft-list { display: flex; flex-direction: column; gap: 12px; }
+  .ft-item { display: flex; gap: 11px; align-items: center; cursor: pointer; }
+  .ft-ph { position: relative; flex: 0 0 auto; width: 84px; height: 58px; border-radius: 8px; overflow: hidden; background: var(--panel); }
+  .ft-ph img { width: 100%; height: 100%; object-fit: cover; }
+  .ft-n { position: absolute; right: 5px; bottom: 5px; background: rgba(0,0,0,.65); color: #fff; font-size: .64rem; font-weight: 700; padding: 1px 6px; border-radius: 5px; }
+  .ft-t { font-size: .88rem; font-weight: 600; line-height: 1.3; }
+  .ft-item:hover .ft-t { color: #c24e26; }
+  .pe-lightbox { position: fixed; inset: 0; z-index: 3000; background: rgba(8,9,11,.94); display: none; align-items: center; justify-content: center; }
+  .pe-lightbox.show { display: flex; }
+  .lb-img { max-width: 92vw; max-height: 82vh; object-fit: contain; border-radius: 4px; }
+  .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 52px; height: 52px; border-radius: 50%; border: none; background: rgba(255,255,255,.1); color: #fff; font-size: 1.8rem; cursor: pointer; display: grid; place-items: center; }
+  .lb-nav:hover { background: rgba(255,255,255,.22); }
+  .lb-nav.prev { left: 3vw; } .lb-nav.next { right: 3vw; }
+  .lb-close { position: absolute; top: 18px; right: 22px; width: 42px; height: 42px; border-radius: 50%; border: none; background: rgba(255,255,255,.12); color: #fff; font-size: 1.1rem; cursor: pointer; }
+  .lb-close:hover { background: rgba(255,255,255,.24); }
+  .lb-bar { position: absolute; left: 0; right: 0; bottom: 0; padding: 20px 6vw; text-align: center; color: #fff; font-size: .9rem; background: linear-gradient(180deg, transparent, rgba(0,0,0,.6)); }
+  .lb-counter { color: #ffb38f; margin-right: 10px; font-variant-numeric: tabular-nums; }
+  .lb-cap { color: #e9edf1; }
+  @media (max-width: 900px) { .pe-layout { grid-template-columns: 1fr; gap: 24px; } .pe-photo { max-height: 58vh; } }
 </style>
 
 <header class="site-top" id="site-top">
@@ -748,6 +806,7 @@
 <div class="modal-overlay" id="faq-modal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-label="Rangkuman"><button class="modal-close" id="faq-close" aria-label="Tutup">✕</button><div id="faq-body"></div></div></div>
 <div class="modal-overlay" id="gen-modal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true"><button class="modal-close" id="gen-close" aria-label="Tutup">✕</button><div id="gen-body"></div></div></div>
 <div class="stories-modal" id="stories-modal" aria-hidden="true"></div>
+<div class="pe-lightbox" id="pe-lightbox" aria-hidden="true"></div>
 
 <script>
 // ===== Taksonomi: Section -> Tag =====
@@ -912,6 +971,41 @@ const NEWS = RAW.map((r,i)=>({ id:i+1, title:r[0], tag:r[1], section:TAG_SECTION
   featured:r[4], breaking:r[5], excerpt:r[6], content:r[7], image:img(r[0],r[1]), mins: 8 + i*97, kw:(KW[i+1]||[]),
   jam: `${String(7+(i*5)%14).padStart(2,"0")}.${String((i*13)%60).padStart(2,"0")}` }));
 
+// ===== Esai Foto (rubrik foto) =====
+const PHOTO_ESSAYS = [
+  { id:1, title:"Kunjungan Kenegaraan PM India ke Indonesia", photographer:"Bayu Pratama", date:"2026-07-06", jam:"20.32",
+    desc:"Rangkaian penyambutan Perdana Menteri India Narendra Modi dalam kunjungan kenegaraan ke Indonesia, memenuhi undangan Presiden Prabowo Subianto sebagai kunjungan balasan.",
+    tags:["Presiden Prabowo","PM India Narendra Modi","Diplomasi"],
+    photos:[
+      "Presiden Prabowo Subianto (kiri) menyambut kedatangan Perdana Menteri India Narendra Modi (kanan) di Lanud Halim Perdanakusuma, Jakarta.",
+      "Kedua pemimpin berjalan bersama melewati barisan pasukan kehormatan di landasan.",
+      "Anak-anak sekolah melambaikan bendera nasional Indonesia dan India saat iring-iringan kendaraan melintas.",
+      "Iring-iringan kendaraan kenegaraan membawa PM Narendra Modi menuju Istana Merdeka.",
+      "Upacara penyambutan resmi digelar di halaman Istana Merdeka, Jakarta.",
+      "Pertemuan bilateral membahas penguatan kerja sama pertahanan, kesehatan, dan pendidikan.",
+      "Penandatanganan sejumlah nota kesepahaman antara kedua negara.",
+      "Kedua pemimpin memberikan keterangan pers bersama seusai pertemuan." ] },
+  { id:2, title:"Semarak Pesta Rakyat di Ibu Kota", photographer:"Sari Melati", date:"2026-07-04", jam:"18.05",
+    desc:"Warga memadati pusat kota merayakan festival budaya tahunan dengan beragam pertunjukan seni tradisional dan kuliner.",
+    tags:["Budaya","Festival","Jakarta"],
+    photos:[
+      "Penari mengenakan kostum tradisional membuka pawai budaya di jalan utama.",
+      "Warga antusias menyaksikan parade dari tepi jalan.",
+      "Aneka jajanan tradisional dijajakan di sepanjang area festival.",
+      "Pertunjukan musik daerah menghibur pengunjung hingga malam hari.",
+      "Lampion warna-warni menghiasi langit kota saat perayaan puncak." ] },
+  { id:3, title:"Geliat Pelabuhan di Pagi Hari", photographer:"Rendra Wijaya", date:"2026-07-02", jam:"06.40",
+    desc:"Aktivitas bongkar muat dan para nelayan di pelabuhan tradisional saat matahari mulai terbit.",
+    tags:["Ekonomi","Pelabuhan","Nelayan"],
+    photos:[
+      "Perahu nelayan bersandar saat fajar menyingsing di pelabuhan.",
+      "Buruh angkut memindahkan hasil tangkapan laut ke darat.",
+      "Pedagang memilih ikan segar di pasar pelabuhan.",
+      "Nelayan memperbaiki jaring sebelum kembali melaut.",
+      "Siluet kapal-kapal dengan latar matahari terbit." ] }
+];
+PHOTO_ESSAYS.forEach(e=>{ e.cover=img("foto-"+e.id+"-"+e.title,"Foto"); e.imgs=e.photos.map((c,i)=>img("foto-"+e.id+"-"+i,"Foto")); });
+
 // Data penulis + foto avatar
 const AUTHORS = {
   "Rizky Pratama":{role:"Jurnalis Ekonomi",bio:"Meliput ekonomi makro, pasar modal, dan UMKM. Bergabung dengan kabar sejak 2019."},
@@ -1065,7 +1159,7 @@ function renderHome(){
       <div class="hs-dots">${dots}</div>
     </section>
     <section><div class="sec-head"><h2>Berita utama</h2><span class="eyebrow">Geser untuk lihat →</span></div>
-      <div class="carousel">${utama.map(card).join("")}</div></section>
+      <div class="carousel sm-cards">${utama.map(card).join("")}</div></section>
     ${(()=>{ if(!user) return ""; const fy=forYou(); return fy.length?`<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow">Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`:""; })()}
     ${(()=>{ if(!user) return ""; const rr=recentRead(); return rr.length?`<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow">Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`:""; })()}
     <div class="layout"><main><div class="sec-head"><h2>Terbaru</h2><span class="eyebrow">Update harian</span></div>
@@ -1134,6 +1228,71 @@ function renderCategory(section){
     ${hero}${subs||`<div class="empty"><h3>Belum ada berita di kanal ini</h3><p>Coba kanal lain.</p></div>`}
   </div>`;
   window.scrollTo(0,0);
+}
+// ===== Esai Foto: index, detail (galeri + sidebar), lightbox =====
+function peHref(e){ return `#/foto/${slugify(e.title)}`; }
+function peFindSlug(slug){ return PHOTO_ESSAYS.find(e=>slugify(e.title)===slug); }
+let peState={essay:null, idx:0, zoom:false};
+function renderFotoIndex(){
+  const cards=PHOTO_ESSAYS.map(e=>`<a class="fe-card" href="${peHref(e)}" data-essay="${e.id}">
+     <div class="fe-ph"><img src="${e.cover}" alt="${e.title}" loading="lazy"><span class="fe-count">▦ ${e.photos.length} foto</span></div>
+     <div class="fe-body"><h3>${e.title}</h3><div class="fe-meta">📷 ${e.photographer} · ${fmtLong(e.date)}</div></div></a>`).join("");
+  view.innerHTML=`<div class="cat-page"><div class="cat-head"><h1><span class="dot" style="background:#e8663a"></span>Esai Foto</h1><p>Cerita dalam bingkai — liputan foto pilihan redaksi.</p></div>
+    <div class="fe-grid">${cards}</div></div>`;
+  window.scrollTo(0,0);
+}
+function renderPhotoEssay(id){
+  const e=PHOTO_ESSAYS.find(x=>x.id===id); if(!e){ renderFotoIndex(); return; }
+  peState={essay:e, idx:0, zoom:false};
+  const n=e.photos.length;
+  const thumbs=e.imgs.map((src,i)=>`<button class="pe-thumb ${i===0?'on':''}" data-pethumb="${i}" aria-label="Foto ${i+1}"><img src="${src}" alt="" loading="lazy"></button>`).join("");
+  const tags=e.tags.map(t=>`<span class="pe-tag">${t}</span>`).join("");
+  const others=PHOTO_ESSAYS.map(o=>`<a class="ft-item" href="${peHref(o)}" data-essay="${o.id}"><div class="ft-ph"><img src="${o.cover}" alt="" loading="lazy"><span class="ft-n">${o.photos.length}</span></div><div class="ft-t">${o.title}</div></a>`).join("");
+  view.innerHTML=`<div class="pe-layout">
+    <main class="pe-main">
+      <a class="pe-back" href="#/foto" data-nav="foto">‹ Kembali ke Esai Foto</a>
+      <div class="pe-stage">
+        <button class="pe-nav prev" data-pe="prev" aria-label="Sebelumnya">‹</button>
+        <img class="pe-photo" id="pe-photo" src="${e.imgs[0]}" alt="${esc(e.photos[0])}" data-pezoom>
+        <button class="pe-nav next" data-pe="next" aria-label="Berikutnya">›</button>
+        <span class="pe-counter" id="pe-counter">1/${n}</span>
+        <button class="pe-zoombtn" data-pezoom aria-label="Perbesar foto">⛶ Zoom</button>
+        <div class="pe-caption" id="pe-caption"><b class="pe-cnum">1/${n}</b> ${esc(e.photos[0])}</div>
+      </div>
+      <div class="pe-thumbs">${thumbs}</div>
+    </main>
+    <aside class="pe-side">
+      <h1>${e.title}</h1>
+      <div class="pe-pub">Diterbitkan ${fmtLong(e.date)}, ${e.jam} WIB</div>
+      <p class="pe-desc">${e.desc}</p>
+      <div class="pe-photog"><span class="pe-lbl">Fotografer</span><div class="pe-name">${e.photographer}</div></div>
+      <div class="pe-tags">${tags}</div>
+      <div class="pe-side-head">Foto Terkini</div>
+      <div class="ft-list">${others}</div>
+    </aside>
+  </div>`;
+  window.scrollTo(0,0);
+}
+function peGo(i){
+  const e=peState.essay; if(!e) return; const n=e.photos.length; i=((i%n)+n)%n; peState.idx=i;
+  const src=e.imgs[i], cap=e.photos[i], c=`${i+1}/${n}`;
+  const ph=document.getElementById("pe-photo"); if(ph){ ph.src=src; ph.alt=cap; }
+  const cp=document.getElementById("pe-caption"); if(cp) cp.innerHTML=`<b class="pe-cnum">${c}</b> ${esc(cap)}`;
+  const cn=document.getElementById("pe-counter"); if(cn) cn.textContent=c;
+  document.querySelectorAll(".pe-thumb").forEach((t,ti)=>t.classList.toggle("on",ti===i));
+  const on=document.querySelector(".pe-thumb.on"); if(on) on.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});
+  if(peState.zoom){ const li=document.getElementById("lb-img"); if(li){ li.src=src; li.alt=cap; } const lc=document.getElementById("lb-cap"); if(lc) lc.textContent=cap; const ln=document.getElementById("lb-counter"); if(ln) ln.textContent=c; }
+}
+function peZoom(open){
+  const lb=document.getElementById("pe-lightbox"); if(!lb) return; peState.zoom=open;
+  if(open){ const e=peState.essay, i=peState.idx;
+    lb.innerHTML=`<button class="lb-close" data-lbclose aria-label="Tutup">✕</button>
+      <button class="lb-nav prev" data-lb="prev" aria-label="Sebelumnya">‹</button>
+      <img class="lb-img" id="lb-img" src="${e.imgs[i]}" alt="${esc(e.photos[i])}">
+      <button class="lb-nav next" data-lb="next" aria-label="Berikutnya">›</button>
+      <div class="lb-bar"><b class="lb-counter" id="lb-counter">${i+1}/${e.photos.length}</b><span class="lb-cap" id="lb-cap">${esc(e.photos[i])}</span></div>`;
+    lb.classList.add("show"); lb.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden";
+  } else { lb.classList.remove("show"); lb.setAttribute("aria-hidden","true"); document.body.style.overflow=""; lb.innerHTML=""; }
 }
 function renderSaved(){
   const items=saved.map(id=>NEWS.find(n=>n.id===id)).filter(Boolean);
@@ -1224,10 +1383,11 @@ function renderAuthor(name){
   document.title=name+" — kabar"; window.scrollTo(0,0);
 }
 function renderNav(){
+  const fotoOn=route.page==="foto"||route.page==="foto-essay";
   document.getElementById("nav-secs").innerHTML=SECTIONS.map(s=>{
     const active=(route.page==="section"&&route.section===s)||(route.page==="tag"&&TAG_SECTION[route.tag]===s);
     return `<a href="#/${slugify(s)}" data-section="${s}" class="${active?"active":""}" style="${active?`background:${SECTION_COLOR[s]}`:""}">${s}</a>`;
-  }).join("");
+  }).join("")+`<a href="#/foto" data-nav="foto" class="${fotoOn?"active":""}" style="${fotoOn?"background:#e8663a":""}">Foto</a>`;
 }
 function renderMega(){
   document.getElementById("mega-grid").innerHTML=SECTIONS.map(s=>{
@@ -1262,6 +1422,8 @@ function go(r){ route=r; updateHead(r); syncHash(r); renderNav(); heroStop(); tt
   else if(r.page==="search"){ const q=r.q.toLowerCase(); renderList(`“${r.q}”`,"Hasil pencarian",NEWS.filter(n=>(n.title+n.excerpt+n.tag+n.section).toLowerCase().includes(q)),"Cari — kabar"); }
   else if(r.page==="saved") renderSaved();
   else if(r.page==="index"){ idxState={page:1,cat:"",from:"",to:""}; renderIndex(); }
+  else if(r.page==="foto") renderFotoIndex();
+  else if(r.page==="foto-essay") renderPhotoEssay(r.id);
   else if(r.page==="author") renderAuthor(r.author);
   else if(r.page==="quiz"){ quizEl=view; quiz={stage:"intro"}; renderQuiz(); if(typeof onScroll==="function") onScroll(); return; }
   else if(r.page==="article") renderArticle(r.id);
@@ -1500,6 +1662,8 @@ function routePath(r){
   if(r.page==="saved") return "/tersimpan";
   if(r.page==="quiz") return "/kuis";
   if(r.page==="index") return "/indeks";
+  if(r.page==="foto") return "/foto";
+  if(r.page==="foto-essay"){ const e=PHOTO_ESSAYS.find(x=>x.id===r.id); return e?"/foto/"+slugify(e.title):"/foto"; }
   return "/";
 }
 function allTagNames(){ const s=new Set(); Object.values(SECTION_TAGS).forEach(a=>a.forEach(t=>s.add(t))); NEWS.forEach(n=>(n.kw||[]).forEach(k=>s.add(k))); Object.keys(ENTITIES).forEach(k=>s.add(k)); return [...s]; }
@@ -1511,6 +1675,8 @@ function parsePath(hash){ let p=(hash||"").replace(/^#/,"").replace(/^\/+|\/+$/g
   if(g[0]==="tersimpan") return {page:"saved"};
   if(g[0]==="kuis") return {page:"quiz"};
   if(g[0]==="indeks") return {page:"index"};
+  if(g[0]==="foto"&&g[1]){ const e=peFindSlug(g[1]); return e?{page:"foto-essay",id:e.id}:{page:"foto"}; }
+  if(g[0]==="foto") return {page:"foto"};
   if(g.length>=3){ const n=NEWS.find(x=>slugify(x.title)===g[2]); if(n) return {page:"article",id:n.id}; }
   if(g.length===1){ const s=findBySlug(SECTIONS,g[0]); if(s) return {page:"section",section:s}; const t=findBySlug(allTagNames(),g[0]); if(t) return {page:"tag",tag:t}; }
   return {page:"home"};
@@ -1538,6 +1704,8 @@ function updateHead(r){ const url=SITE_URL+routePath(r); let title="kabar — po
   else if(r.page==="saved"){ title="Tersimpan — kabar"; }
   else if(r.page==="quiz"){ title="Kuis — kabar"; }
   else if(r.page==="index"){ title="Indeks Berita — kabar"; desc="Semua berita terbaru dari kabar."; }
+  else if(r.page==="foto"){ title="Esai Foto — kabar"; desc="Liputan foto pilihan redaksi kabar."; }
+  else if(r.page==="foto-essay"){ const e=PHOTO_ESSAYS.find(x=>x.id===r.id); if(e){ title=e.title+" — Esai Foto — kabar"; desc=e.desc; ogImage=e.cover; } }
   document.title=title;
   _headMeta("description",desc);
   _headMeta("og:title",title,"property"); _headMeta("og:description",desc,"property"); _headMeta("og:url",url,"property"); _headMeta("og:type",ogtype,"property"); _headMeta("og:site_name","kabar","property");
@@ -1554,6 +1722,12 @@ document.addEventListener("click", e=>{
   if(e.target.id==="auth-close"||e.target.id==="auth-modal"){ closeAuthModal(); return; }
   if(e.target.id==="faq-close"||e.target.id==="faq-modal"){ closeFaqModal(); return; }
   if(e.target.id==="gen-close"||e.target.id==="gen-modal"){ closeGen(); return; }
+  if(e.target.closest("[data-lbclose]")||e.target.id==="pe-lightbox"){ peZoom(false); return; }
+  const _lb=e.target.closest("[data-lb]"); if(_lb){ peGo(peState.idx+(_lb.dataset.lb==="next"?1:-1)); return; }
+  const _pth=e.target.closest("[data-pethumb]"); if(_pth){ peGo(+_pth.dataset.pethumb); return; }
+  const _pe=e.target.closest("[data-pe]"); if(_pe){ peGo(peState.idx+(_pe.dataset.pe==="next"?1:-1)); return; }
+  if(e.target.closest("[data-pezoom]")){ peZoom(true); return; }
+  const _fes=e.target.closest("[data-essay]"); if(_fes){ e.preventDefault(); closeMega(); window.scrollTo(0,0); go({page:"foto-essay", id:+_fes.dataset.essay}); return; }
   if(e.target.closest("#st-close")){ closeStories(); return; }
   const stn=e.target.closest("[data-st]"); if(stn){ stn.dataset.st==="next"?storyNext():storyPrev(); return; }
   const sdot=e.target.closest("[data-story]"); if(sdot){ openStories(+sdot.dataset.story); return; }
@@ -1603,6 +1777,12 @@ document.addEventListener("click", e=>{
   else if(a2){ closeStories(); closeMega(); go({page:"article", id:+a2.dataset.article}); }
   else if(nv){ closeMega(); window.scrollTo(0,0); go({page: nv.dataset.nav}); }
   if(!e.target.closest(".user-wrap")){ const um=document.getElementById("user-menu"); if(um) um.classList.remove("open"); }
+});
+document.addEventListener("keydown", e=>{
+  if(route.page!=="foto-essay") return;
+  if(e.key==="ArrowRight") peGo(peState.idx+1);
+  else if(e.key==="ArrowLeft") peGo(peState.idx-1);
+  else if(e.key==="Escape"&&peState.zoom) peZoom(false);
 });
 document.addEventListener("change", e=>{
   if(e.target.id==="idx-cat"){ idxState.cat=e.target.value; idxState.page=1; renderIndex(); }
