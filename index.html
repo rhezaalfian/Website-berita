@@ -1513,7 +1513,7 @@ function openFaqModal(id){
 // ajakan berbagi / jadikan sumber pilihan, lalu tautan kuis.
 let faqRevealTimer=null, faqRevealShown=false;
 function armFaqReveal(){ if(faqRevealShown) return; const rv=document.getElementById("faq-reveal"); if(!rv) return;
-  clearTimeout(faqRevealTimer); faqRevealTimer=setTimeout(()=>{ faqRevealShown=true; rv.classList.add("show"); }, 3000); }
+  clearTimeout(faqRevealTimer); faqRevealTimer=setTimeout(()=>{ faqRevealShown=true; rv.classList.add("show"); }, 1800); }
 function closeFaqModal(){ const m=document.getElementById("faq-modal"); m.classList.remove("show"); m.setAttribute("aria-hidden","true"); document.body.style.overflow=""; }
 
 // ===== Kuis =====
