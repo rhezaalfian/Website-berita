@@ -152,11 +152,11 @@
   .hs-slide { min-width: 100%; }
   .hs-slide .hero { padding-bottom: 0; margin: 26px 0 0; border-bottom: none; }
   .hs-arrow { position: absolute; top: 46%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 50%;
-    border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter: blur(4px);
+    border: 1px solid color-mix(in srgb, var(--line) 45%, transparent); background: color-mix(in srgb, var(--surface) 22%, transparent); backdrop-filter: blur(2px);
     color: var(--ink); font-size: 1.5rem; line-height: 1; cursor: pointer; z-index: 3; display: grid; place-items: center;
     opacity: 0; transition: opacity .18s, background .16s, border-color .16s; }
   .hero-slider:hover .hs-arrow { opacity: 1; }
-  .hs-arrow:hover { background: var(--surface); border-color: var(--accent); color: var(--accent-dark); }
+  .hs-arrow:hover { background: color-mix(in srgb, var(--surface) 70%, transparent); border-color: var(--accent); color: var(--accent-dark); }
   .hs-arrow.prev { left: 4px; } .hs-arrow.next { right: 4px; }
   .hs-dots { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; z-index: 3; }
   .hs-dot { width: 9px; height: 9px; border-radius: 50%; border: none; background: var(--line); cursor: pointer; padding: 0; transition: width .25s, background .25s; }
@@ -836,7 +836,7 @@ const SECTION_TAGS = {
 };
 const SECTION_COLOR = { News:"#0fa958", Neraca:"#2f7bf0", SHEroes:"#e0518c", HALALive:"#12a594" };
 const TAG_SECTION = {}; Object.entries(SECTION_TAGS).forEach(([s,ts])=>ts.forEach(t=>TAG_SECTION[t]=s));
-function tagColor(t){ return SECTION_COLOR[TAG_SECTION[t]] || (t==="Tajuk" ? "#7c5cbf" : "#0fa958"); }
+function tagColor(t){ return SECTION_COLOR[TAG_SECTION[t]] || (t==="Editorial" ? "#7c5cbf" : "#0fa958"); }
 const BREAKING_LABEL = "Breaking News"; // ganti nama di sini bila perlu
 const EDITOR_NAME = "Rheza Alfian"; // di CMS: isi otomatis dari field nama editor
 const SHOW_POLL = false; // jajak pendapat disembunyikan dulu; set true untuk memunculkan lagi
@@ -975,7 +975,7 @@ const RAW = [
    "Menjaga batasan sehat membantu tetap profesional di tengah dinamika lingkungan kerja.",
    ["Dinamika di tempat kerja tak jarang memunculkan gesekan yang menguras energi.",
     "Menetapkan batasan yang sehat dan fokus pada tujuan membantu menjaga profesionalisme."]],
-  ["Stimulus Rp50 Triliun: Ujian Sebenarnya Ada di Eksekusi","Tajuk","Redaksi kabar","2026-07-02",false,false,
+  ["Stimulus Rp50 Triliun: Ujian Sebenarnya Ada di Eksekusi","Editorial","Redaksi kabar","2026-07-02",false,false,
    "Angka besar mudah diumumkan. Yang menentukan adalah apakah bantuan benar-benar sampai ke UMKM dan rumah tangga yang paling membutuhkan.",
    ["Pengumuman paket stimulus Rp50 triliun disambut sebagai sinyal bahwa pemerintah tidak tinggal diam menghadapi tekanan daya beli. Namun sejarah kebijakan fiskal kita mengingatkan satu hal: masalah jarang ada pada besaran anggaran, melainkan pada bagaimana ia dieksekusi.",
     "Keringanan pajak dan subsidi bunga kredit hanya bermakna bila menjangkau pelaku usaha kecil yang selama ini terbentur akses. Bantuan sosial hanya adil bila datanya rapi dan penyalurannya bersih dari kebocoran. Di titik inilah kredibilitas sebuah program diuji — bukan di podium konferensi pers.",
@@ -1035,7 +1035,7 @@ const AUTHORS = {
   "Dewi Lestari":{role:"Jurnalis Bisnis & Industri",bio:"Fokus pada bisnis, startup, industri, dan tren gaya hidup digital."},
   "Siti Nurhaliza":{role:"Jurnalis SHEroes",bio:"Menulis kisah perempuan, karier, relasi, dan budaya."},
   "Dr. Budi Santoso":{role:"Kontributor Kesehatan",bio:"Dokter sekaligus penulis lepas untuk isu kesehatan dan gaya hidup sehat."},
-  "Redaksi kabar":{role:"Tajuk — Pandangan Redaksi",bio:"Sikap resmi redaksi kabar atas isu yang sedang menjadi perhatian publik."}
+  "Redaksi kabar":{role:"Editorial — Pandangan Redaksi",bio:"Sikap resmi redaksi kabar atas isu yang sedang menjadi perhatian publik."}
 };
 function authorMeta(name){ return AUTHORS[name] || {role:"Jurnalis kabar", bio:"Kontributor kabar."}; }
 function authorPhoto(name){
@@ -1131,8 +1131,8 @@ function ad(cls, dim){ return `<div class="ad ${cls}"><span class="ad-tag">Iklan
 function feedRows(list){ const items=list.map(listItem); if(items.length>3) items.splice(3,0,ad("ad-feed","In-feed")); if(items.length>7) items.splice(7,0,ad("ad-feed","In-feed")); return items.join(""); }
 function adParallax(n){ const im=imgParallax(n?n.id:7); return `<div class="ad-parallax"><div class="px-layer" data-parallax style="background-image:url('${im}')"></div><div class="px-scrim"></div><div class="px-cap"><span class="px-badge"><span class="ad-tag">Iklan</span><span class="ad-dim">Parallax · 970×300</span></span></div></div>`; }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
-  const ed=NEWS.find(n=>n.tag==="Tajuk");
-  const tajuk=ed?`<div class="rail-box rail-tajuk"><h4>Tajuk <span class="tajuk-sub">Pandangan Redaksi</span></h4>${card(ed)}</div>`:"";
+  const ed=NEWS.find(n=>n.tag==="Editorial");
+  const tajuk=ed?`<div class="rail-box rail-tajuk"><h4>Editorial <span class="tajuk-sub">Pandangan Redaksi</span></h4>${card(ed)}</div>`:"";
   return `<aside><div class="rail"><div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
     ${tajuk}
     ${ad("ad-rail","Sidebar · 300×250")}
@@ -1334,7 +1334,7 @@ function renderSaved(){
 let idxState={page:1,cat:"",from:"",to:""};
 function idxFiltered(){
   return NEWS.filter(n=>{
-    if(n.tag==="Tajuk") return false;
+    if(n.tag==="Editorial") return false;
     if(idxState.cat && n.tag!==idxState.cat && n.section!==idxState.cat) return false;
     if(idxState.from && n.date < idxState.from) return false;
     if(idxState.to && n.date > idxState.to) return false;
