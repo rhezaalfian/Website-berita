@@ -262,6 +262,9 @@
   /* Rail */
   .rail { position: sticky; top: calc(var(--head-h, 62px) + 16px); display: flex; flex-direction: column; gap: 30px; }
   .rail-box h4 { font-size: 1.12rem; padding-bottom: 12px; margin-bottom: 4px; border-bottom: 2px solid var(--accent); }
+  .rail-tajuk h4 { display: flex; align-items: baseline; gap: 8px; border-bottom-color: #7c5cbf; margin-bottom: 14px; }
+  .rail-tajuk .tajuk-sub { font-size: .74rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #7c5cbf; }
+  .rail-tajuk .ncard { border-color: color-mix(in srgb, #7c5cbf 30%, var(--line)); }
   .pop { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--line); cursor: pointer; align-items: flex-start; }
   .pop:last-child { border-bottom: none; }
   .pop .n { font-size: 1.5rem; font-weight: 800; color: var(--accent); min-width: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -833,7 +836,7 @@ const SECTION_TAGS = {
 };
 const SECTION_COLOR = { News:"#0fa958", Neraca:"#2f7bf0", SHEroes:"#e0518c", HALALive:"#12a594" };
 const TAG_SECTION = {}; Object.entries(SECTION_TAGS).forEach(([s,ts])=>ts.forEach(t=>TAG_SECTION[t]=s));
-function tagColor(t){ return SECTION_COLOR[TAG_SECTION[t]] || "#0fa958"; }
+function tagColor(t){ return SECTION_COLOR[TAG_SECTION[t]] || (t==="Tajuk" ? "#7c5cbf" : "#0fa958"); }
 const BREAKING_LABEL = "Breaking News"; // ganti nama di sini bila perlu
 const EDITOR_NAME = "Rheza Alfian"; // di CMS: isi otomatis dari field nama editor
 const SHOW_POLL = false; // jajak pendapat disembunyikan dulu; set true untuk memunculkan lagi
@@ -971,7 +974,12 @@ const RAW = [
   ["Menyikapi Drama Kantor Tanpa Kehilangan Diri","Drama","Siti Nurhaliza","2026-06-30",false,false,
    "Menjaga batasan sehat membantu tetap profesional di tengah dinamika lingkungan kerja.",
    ["Dinamika di tempat kerja tak jarang memunculkan gesekan yang menguras energi.",
-    "Menetapkan batasan yang sehat dan fokus pada tujuan membantu menjaga profesionalisme."]]
+    "Menetapkan batasan yang sehat dan fokus pada tujuan membantu menjaga profesionalisme."]],
+  ["Stimulus Rp50 Triliun: Ujian Sebenarnya Ada di Eksekusi","Tajuk","Redaksi kabar","2026-07-02",false,false,
+   "Angka besar mudah diumumkan. Yang menentukan adalah apakah bantuan benar-benar sampai ke UMKM dan rumah tangga yang paling membutuhkan.",
+   ["Pengumuman paket stimulus Rp50 triliun disambut sebagai sinyal bahwa pemerintah tidak tinggal diam menghadapi tekanan daya beli. Namun sejarah kebijakan fiskal kita mengingatkan satu hal: masalah jarang ada pada besaran anggaran, melainkan pada bagaimana ia dieksekusi.",
+    "Keringanan pajak dan subsidi bunga kredit hanya bermakna bila menjangkau pelaku usaha kecil yang selama ini terbentur akses. Bantuan sosial hanya adil bila datanya rapi dan penyalurannya bersih dari kebocoran. Di titik inilah kredibilitas sebuah program diuji — bukan di podium konferensi pers.",
+    "Redaksi menilai transparansi realisasi menjadi kunci. Publik berhak tahu ke mana dana mengalir, siapa yang menerima, dan sejauh mana dampaknya terasa di lapangan. Tanpa itu, stimulus hanya akan menjadi angka besar yang bagus di atas kertas, tetapi kehilangan makna di dapur rumah tangga yang paling membutuhkan."]]
 ];
 // Tag/kata kunci spesifik per artikel (untuk topik yang sedang hangat)
 const KW = {
@@ -1026,7 +1034,8 @@ const AUTHORS = {
   "Andi Saputra":{role:"Jurnalis Politik & Hukum",bio:"Mengulas dinamika politik, hukum, dan keamanan dalam negeri."},
   "Dewi Lestari":{role:"Jurnalis Bisnis & Industri",bio:"Fokus pada bisnis, startup, industri, dan tren gaya hidup digital."},
   "Siti Nurhaliza":{role:"Jurnalis SHEroes",bio:"Menulis kisah perempuan, karier, relasi, dan budaya."},
-  "Dr. Budi Santoso":{role:"Kontributor Kesehatan",bio:"Dokter sekaligus penulis lepas untuk isu kesehatan dan gaya hidup sehat."}
+  "Dr. Budi Santoso":{role:"Kontributor Kesehatan",bio:"Dokter sekaligus penulis lepas untuk isu kesehatan dan gaya hidup sehat."},
+  "Redaksi kabar":{role:"Tajuk — Pandangan Redaksi",bio:"Sikap resmi redaksi kabar atas isu yang sedang menjadi perhatian publik."}
 };
 function authorMeta(name){ return AUTHORS[name] || {role:"Jurnalis kabar", bio:"Kontributor kabar."}; }
 function authorPhoto(name){
@@ -1122,7 +1131,10 @@ function ad(cls, dim){ return `<div class="ad ${cls}"><span class="ad-tag">Iklan
 function feedRows(list){ const items=list.map(listItem); if(items.length>3) items.splice(3,0,ad("ad-feed","In-feed")); if(items.length>7) items.splice(7,0,ad("ad-feed","In-feed")); return items.join(""); }
 function adParallax(n){ const im=imgParallax(n?n.id:7); return `<div class="ad-parallax"><div class="px-layer" data-parallax style="background-image:url('${im}')"></div><div class="px-scrim"></div><div class="px-cap"><span class="px-badge"><span class="ad-tag">Iklan</span><span class="ad-dim">Parallax · 970×300</span></span></div></div>`; }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
+  const ed=NEWS.find(n=>n.tag==="Tajuk");
+  const tajuk=ed?`<div class="rail-box rail-tajuk"><h4>Tajuk <span class="tajuk-sub">Pandangan Redaksi</span></h4>${card(ed)}</div>`:"";
   return `<aside><div class="rail"><div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
+    ${tajuk}
     ${ad("ad-rail","Sidebar · 300×250")}
     <div class="nl"><h4>Ringkasan pagi</h4><p>Lima berita penting tiap hari, langsung ke inbox. Gratis.</p><form id="nl"><input type="email" placeholder="email kamu…" required><button>Ikutan</button></form></div></div></aside>`; }
 
@@ -1322,6 +1334,7 @@ function renderSaved(){
 let idxState={page:1,cat:"",from:"",to:""};
 function idxFiltered(){
   return NEWS.filter(n=>{
+    if(n.tag==="Tajuk") return false;
     if(idxState.cat && n.tag!==idxState.cat && n.section!==idxState.cat) return false;
     if(idxState.from && n.date < idxState.from) return false;
     if(idxState.to && n.date > idxState.to) return false;
