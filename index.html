@@ -1235,7 +1235,7 @@ function agendaCard(){
       <div class="ag-tabs"><button class="ag-tab on" data-agtab="0">Hari Ini</button><button class="ag-tab" data-agtab="1">Akan Datang</button></div></div>
     <div class="ag-pager" id="ag-pager">
       <div class="ag-page"><div class="ag-psub">${dateStr} · ${AGENDA.length} acara</div><div class="ag-card">${today}</div></div>
-      <div class="ag-page"><div class="ag-psub">${AGENDA_SOON.length} agenda mendatang · geser →</div><div class="ag-card">${soon}</div></div>
+      <div class="ag-page"><div class="ag-psub">${AGENDA_SOON.length} agenda mendatang</div><div class="ag-card">${soon}</div></div>
     </div></div>`;
 }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
