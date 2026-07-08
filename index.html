@@ -265,6 +265,24 @@
   .rail-tajuk h4 { display: flex; align-items: baseline; gap: 8px; border-bottom-color: #7c5cbf; margin-bottom: 14px; }
   .rail-tajuk .tajuk-sub { font-size: .74rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #7c5cbf; }
   .rail-tajuk .ncard { border-color: color-mix(in srgb, #7c5cbf 30%, var(--line)); }
+  /* Agenda Hari Ini */
+  .rail-agenda h4 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; border-bottom-color: #e0891e; margin-bottom: 14px; }
+  .rail-agenda .agenda-sub { font-size: .74rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: #e0891e; }
+  .ag-card { border: 1px solid color-mix(in srgb, #e0891e 30%, var(--line)); border-radius: 3px; background: var(--surface); padding: 2px 14px; }
+  .ag-item { display: grid; grid-template-columns: 50px 1fr; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+  .ag-item:last-child { border-bottom: none; }
+  .ag-time { text-align: center; height: fit-content; padding: 6px 4px; border-radius: 3px; background: color-mix(in srgb, #e0891e 12%, var(--surface)); border: 1px solid color-mix(in srgb, #e0891e 24%, var(--line)); }
+  .ag-h { display: block; font-size: 1.02rem; font-weight: 800; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.05; }
+  .ag-wib { font-size: .58rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+  .ag-title { font-size: .96rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; }
+  .ag-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .ag-chip { display: inline-flex; align-items: center; gap: 5px; font-size: .72rem; font-weight: 600; color: var(--ink-soft); background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px; }
+  .ag-chip svg { width: 11px; height: 11px; flex-shrink: 0; color: var(--muted); }
+  .ag-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .ag-live { display: inline-flex; align-items: center; gap: 4px; font-size: .68rem; font-weight: 800; letter-spacing: .01em; color: #d9403a; background: color-mix(in srgb, #d9403a 12%, var(--surface)); border-radius: 3px; padding: 3px 7px; }
+  .ag-next { font-size: .68rem; font-weight: 700; color: #c9770f; background: color-mix(in srgb, #e0891e 14%, var(--surface)); border-radius: 3px; padding: 3px 7px; }
+  .ag-done { font-size: .68rem; font-weight: 700; color: var(--muted); background: var(--panel); border-radius: 3px; padding: 3px 7px; }
+  .ag-who { margin-top: 7px; font-size: .74rem; color: var(--muted); }
   .pop { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--line); cursor: pointer; align-items: flex-start; }
   .pop:last-child { border-bottom: none; }
   .pop .n { font-size: 1.5rem; font-weight: 800; color: var(--accent); min-width: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -1158,11 +1176,37 @@ function ad(cls, dim){ return `<div class="ad ${cls}"><span class="ad-tag">Iklan
 // Susun daftar berita + iklan in-feed di baris ke-4 & ke-8 (dipakai beranda & indeks)
 function feedRows(list){ const items=list.map(listItem); if(items.length>3) items.splice(3,0,ad("ad-feed","In-feed")); if(items.length>7) items.splice(7,0,ad("ad-feed","In-feed")); return items.join(""); }
 function adParallax(n){ const im=imgParallax(n?n.id:7); return `<div class="ad-parallax"><div class="px-layer" data-parallax style="background-image:url('${im}')"></div><div class="px-scrim"></div><div class="px-cap"><span class="px-badge"><span class="ad-tag">Iklan</span><span class="ad-dim">Parallax · 970×300</span></span></div></div>`; }
+// Agenda / peristiwa hari ini — tiap acara punya kotak kecil: waktu, tempat, rubrik, status.
+const AGENDA = [
+  { time:"09.00", title:"Sidang Kabinet Paripurna", place:"Istana Negara, Jakarta", cat:"News", who:"Presiden & para menteri", status:"live" },
+  { time:"13.30", title:"Rilis Data Inflasi & Neraca Dagang", place:"Kantor Pusat BPS", cat:"Neraca", who:"BPS", status:"next" },
+  { time:"19.30", title:"Malam Anugerah Perempuan Inspiratif", place:"Istora Senayan", cat:"SHEroes", who:"Yayasan Peduli", status:"next" }
+];
+const PIN_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="2.6"/></svg>`;
+function agendaCard(){
+  const d=new Date(); const dateStr=`${hari[d.getDay()]}, ${d.getDate()} ${bulanF[d.getMonth()]}`;
+  const items=AGENDA.map(a=>{
+    const col=SECTION_COLOR[a.cat]||"#0fa958";
+    const st=a.status==="live"?`<span class="ag-live">● Berlangsung</span>`:a.status==="done"?`<span class="ag-done">Selesai</span>`:`<span class="ag-next">Akan datang</span>`;
+    return `<div class="ag-item">
+      <div class="ag-time"><span class="ag-h">${a.time}</span><span class="ag-wib">WIB</span></div>
+      <div class="ag-main"><div class="ag-title">${a.title}</div>
+        <div class="ag-chips">
+          <span class="ag-chip">${PIN_SVG}${a.place}</span>
+          <span class="ag-chip"><span class="ag-dot" style="background:${col}"></span>${a.cat}</span>
+          ${st}
+        </div>
+        <div class="ag-who">${a.who}</div>
+      </div></div>`;
+  }).join("");
+  return `<div class="rail-box rail-agenda"><h4>Agenda Hari Ini <span class="agenda-sub">${dateStr}</span></h4><div class="ag-card">${items}</div></div>`;
+}
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
   const ed=NEWS.find(n=>n.tag==="Editorial");
   const tajuk=ed?`<div class="rail-box rail-tajuk"><h4>Editorial <span class="tajuk-sub">Pandangan Redaksi</span></h4>${card(ed)}</div>`:"";
   return `<aside><div class="rail"><div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
     ${tajuk}
+    ${agendaCard()}
     ${ad("ad-rail","Sidebar · 300×250")}
     <div class="nl"><h4>Ringkasan pagi</h4><p>Lima berita penting tiap hari, langsung ke inbox. Gratis.</p><form id="nl"><input type="email" placeholder="email kamu…" required><button>Ikutan</button></form></div></div></aside>`; }
 
