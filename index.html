@@ -231,8 +231,8 @@
   .carousel::-webkit-scrollbar { display: none; }
   .carousel .ncard { min-width: 300px; max-width: 300px; scroll-snap-align: start; }
 
-  .loadmore { display: block; margin: 26px auto 0; padding: 11px 26px; border: 1px solid var(--line); background: var(--surface);
-    color: var(--ink); border-radius: 999px; font-weight: 600; font-size: .9rem; cursor: pointer; font-family: inherit; transition: .16s; }
+  .loadmore { display: block; width: fit-content; margin: 26px auto 0; padding: 11px 26px; border: 1px solid var(--line); background: var(--surface);
+    color: var(--ink); border-radius: 999px; font-weight: 600; font-size: .9rem; cursor: pointer; font-family: inherit; transition: .16s; text-align: center; white-space: nowrap; }
   .loadmore:hover { border-color: var(--accent); color: var(--accent-dark); }
 
   .layout { display: grid; grid-template-columns: 1fr 320px; gap: 46px; margin-top: 34px; align-items: start; }
@@ -1370,7 +1370,7 @@ function renderHome(){
     ${(()=>{ if(!user) return ""; const rr=recentRead(); return rr.length?`<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow">Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`:""; })()}
     <div class="layout"><main><div class="sec-head"><h2>Terbaru</h2><span class="eyebrow">Update harian</span></div>
       <div class="list">${feedRows(feed.slice(0,8))}</div>
-      <a class="loadmore" href="#/indeks" data-nav="index">Berita lainnya →</a>
+      <a class="loadmore" href="#/indeks" data-nav="index">Indeks →</a>
       ${videoShelf()}</main>${railHtml()}</div>
     <section class="home-foto"><div class="sec-head"><h2>📷 Esai Foto</h2><a class="eyebrow foto-more" href="#/foto" data-nav="foto">Lihat semua →</a></div>
       <div class="fe-grid">${PHOTO_ESSAYS.map(feCard).join("")}</div></section>`;
