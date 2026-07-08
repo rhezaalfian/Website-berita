@@ -489,6 +489,14 @@
   .ad-tag { font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; }
   .ad-dim { font-size: .72rem; }
   .ad-leaderboard { height: 96px; margin: 18px 0 2px; }
+  /* Iklan billboard atas (gaya detik) — di paling atas, ikut menggulir */
+  .top-bb-wrap { padding: 12px 0 6px; background: var(--panel); border-bottom: 1px solid var(--line); }
+  .top-bb-wrap.hide { display: none; }
+  .ad-topbb { position: relative; height: 250px; margin: 0; }
+  .topbb-x { position: absolute; top: -6px; right: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+    font-size: .66rem; font-weight: 700; letter-spacing: .02em; padding: 3px 9px; border-radius: 999px; cursor: pointer; font-family: inherit; transition: background .16s, color .16s; }
+  .topbb-x:hover { background: var(--panel); color: var(--ink); }
+  @media (max-width: 640px) { .ad-topbb { height: 110px; } .top-bb-wrap { padding: 8px 0 6px; } }
   .ad-infeed { height: 108px; margin: 6px 0; }
   .ad-feed { height: 126px; margin: 10px 0; }
   /* Iklan sticky bawah (gaya detik) — bisa ditutup */
@@ -899,9 +907,9 @@
   .vl-playbtn { position: absolute; inset: 0; margin: auto; width: 60px; height: 60px; border-radius: 50%; border: none; background: rgba(255,255,255,.16); color: #fff; font-size: 1.4rem; cursor: pointer; display: grid; place-items: center; padding-left: 4px; z-index: 3; transition: opacity .16s, background .16s; }
   .vl-playbtn:hover { background: rgba(255,255,255,.28); }
   .vl-playbtn.hide { opacity: 0; pointer-events: none; }
-  .vl-share { position: absolute; top: 58px; right: 12px; width: 38px; height: 38px; border-radius: 50%; border: none; background: rgba(255,255,255,.16); color: #fff; cursor: pointer; z-index: 6; display: grid; place-items: center; transition: background .16s; }
-  .vl-share:hover { background: rgba(255,255,255,.28); }
-  .vl-share svg { width: 18px; height: 18px; }
+  .vl-share { position: absolute; right: 14px; bottom: 40%; width: 46px; height: 46px; border-radius: 50%; border: none; background: rgba(0,0,0,.4); color: #fff; cursor: pointer; z-index: 7; display: grid; place-items: center; backdrop-filter: blur(2px); box-shadow: 0 4px 14px -4px rgba(0,0,0,.5); transition: background .16s, transform .16s; }
+  .vl-share:hover { background: rgba(0,0,0,.6); transform: scale(1.06); }
+  .vl-share svg { width: 20px; height: 20px; }
   .vl-sheet { position: absolute; inset: 0; z-index: 8; display: flex; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.5); opacity: 0; pointer-events: none; transition: opacity .22s; }
   .vl-sheet.show { opacity: 1; pointer-events: auto; }
   .vl-sheet-card { width: 100%; background: var(--surface); color: var(--ink); border-radius: 14px 14px 3px 3px; padding: 10px 18px 20px; transform: translateY(18px); transition: transform .24s cubic-bezier(.22,.61,.36,1); }
@@ -1044,6 +1052,7 @@
   @media (max-width: 900px) { .pe-layout { grid-template-columns: 1fr; gap: 24px; } .pe-photo { max-height: 58vh; } }
 </style>
 
+<div class="top-bb-wrap" id="top-bb"><div class="wrap"><div class="ad ad-topbb"><button class="topbb-x" id="top-bb-x" aria-label="Tutup iklan">Tutup Iklan ✕</button><span class="ad-tag">Iklan</span><span class="ad-dim">Billboard · 970×250</span></div></div></div>
 <header class="site-top" id="site-top">
 <div id="breaking-slot"></div>
 
@@ -1887,7 +1896,8 @@ function renderArticle(id){
   if(rel.length<6) rel=rel.concat(NEWS.filter(x=>x.id!==n.id));
   rel=rel.filter((v,i,a)=>a.indexOf(v)===i).slice(0,6);
   const content=fullBody(n); const parts=[]; const bjIdx=content.length-4; // Baca Juga: 3 paragraf sebelum selesai
-  content.forEach((p,idx)=>{ const body=idx===0?`<b class="dateline">Jakarta, kabar —</b> ${p}`:p; parts.push(`<p>${linkifyEntities(body)}</p>`);
+  const seenTags=new Set(); // tautan internal (entitas) hanya sekali per artikel
+  content.forEach((p,idx)=>{ const body=idx===0?`<b class="dateline">Jakarta, kabar —</b> ${p}`:p; parts.push(`<p>${linkifyEntities(body,seenTags)}</p>`);
     if(idx===3) parts.push(adParallax(n));                                  // iklan parallax antara paragraf 4–5
     if(idx===bjIdx&&bjIdx>3&&rel[0]) parts.push(inlineRead(rel[0])); });     // Baca Juga inline
   const secCrumb=n.section?`<a data-section="${n.section}">${n.section}</a> &nbsp;/&nbsp; `:"";
@@ -2227,8 +2237,11 @@ const ENTITIES={
   "Ramadan":{kind:"topik",desc:"Persiapan ibadah, kesehatan, dan gaya hidup selama bulan suci Ramadan."},
   "Investasi Syariah":{kind:"topik",desc:"Perkembangan instrumen dan literasi keuangan berbasis prinsip syariah."}
 };
-function linkifyEntities(html){ if(!html) return html; const names=Object.keys(ENTITIES).sort((a,b)=>b.length-a.length);
-  for(const nm of names){ if(html.indexOf(nm)<0) continue; const re=new RegExp("\\b"+nm.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","g"); html=html.replace(re,`<a class="ntag" href="#/tags/${slugify(nm)}" data-tag="${nm}">${nm}</a>`); }
+function linkifyEntities(html, seen){ if(!html) return html; const names=Object.keys(ENTITIES).sort((a,b)=>b.length-a.length);
+  for(const nm of names){ if(seen&&seen.has(nm)) continue; if(html.indexOf(nm)<0) continue;
+    const re=new RegExp("\\b"+nm.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b"); // tanpa flag 'g' → hanya tautkan kemunculan pertama
+    const before=html; html=html.replace(re,`<a class="ntag" href="#/tags/${slugify(nm)}" data-tag="${nm}">${nm}</a>`);
+    if(seen&&html!==before) seen.add(nm); }
   return html; }
 function entityCard(tag,ent){ const orang=ent.kind==="orang";
   const ava=orang?`<span class="ec-ava orang"><img src="${authorPhoto(tag)}" alt="${tag}"></span>`:`<span class="ec-ava lembaga">${initials(tag)}</span>`;
@@ -2372,6 +2385,7 @@ document.addEventListener("click", e=>{
     document.querySelectorAll('[data-fs="dec"]').forEach(x=>x.disabled=fsLevel===0);
     document.querySelectorAll('[data-fs="inc"]').forEach(x=>x.disabled=fsLevel===FS_SIZES.length-1); return; }
   if(e.target.closest("#sticky-ad-x")){ hideStickyAd(); sessionStorage.setItem("kabar_stickyad_closed","1"); return; }
+  if(e.target.closest("#top-bb-x")){ const t=document.getElementById("top-bb"); if(t) t.classList.add("hide"); sessionStorage.setItem("kabar_topbb_closed","1"); return; }
   if(e.target.closest("#login-btn")){ openAuthModal(); return; }
   const acc=e.target.closest("[data-acc]"); if(acc){ login(DEMO_ACCOUNTS[+acc.dataset.acc]); return; }
   if(e.target.closest("#use-other")){ document.getElementById("auth-body").innerHTML=authFormHTML(); return; }
@@ -2482,4 +2496,5 @@ const _stickyAd=document.getElementById("sticky-ad");
 function showStickyAd(){ if(sessionStorage.getItem("kabar_stickyad_closed")) return; _stickyAd.classList.add("show"); _stickyAd.setAttribute("aria-hidden","false"); document.body.classList.add("has-sticky-ad"); }
 function hideStickyAd(){ _stickyAd.classList.remove("show"); _stickyAd.setAttribute("aria-hidden","true"); document.body.classList.remove("has-sticky-ad"); }
 setTimeout(showStickyAd, 1600);
+if(sessionStorage.getItem("kabar_topbb_closed")){ const _t=document.getElementById("top-bb"); if(_t) _t.classList.add("hide"); }
 </script>
