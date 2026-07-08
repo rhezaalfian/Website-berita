@@ -820,6 +820,21 @@
   .home-foto .sec-head h2 { display: inline-flex; align-items: center; gap: 9px; }
   .foto-more { color: #c24e26; }
   .foto-more:hover { color: #a8401e; }
+  /* Video vertikal (9:16) */
+  .vid-shelf { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--line); }
+  .vid-row { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; scrollbar-width: none; }
+  .vid-row::-webkit-scrollbar { display: none; }
+  .vid-card { min-width: 160px; max-width: 160px; scroll-snap-align: start; cursor: pointer; }
+  .vid-ph { position: relative; aspect-ratio: 9/16; border-radius: 3px; overflow: hidden; background: var(--panel); }
+  .vid-ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.22,.61,.36,1); }
+  .vid-card:hover .vid-ph img { transform: scale(1.05); }
+  .vid-play { position: absolute; inset: 0; margin: auto; width: 46px; height: 46px; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; display: grid; place-items: center; font-size: .95rem; padding-left: 3px; backdrop-filter: blur(2px); transition: background .16s, transform .16s; }
+  .vid-card:hover .vid-play { background: rgba(0,0,0,.72); transform: scale(1.08); }
+  .vid-dur { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.72); color: #fff; font-size: .68rem; font-weight: 700; padding: 2px 6px; border-radius: 3px; font-variant-numeric: tabular-nums; }
+  .vid-body { padding: 9px 2px 0; }
+  .vid-body h3 { font-size: .86rem; font-weight: 700; line-height: 1.3; letter-spacing: -.01em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .vid-card:hover h3 { color: var(--accent-dark); }
+  .vid-meta { font-size: .72rem; color: var(--muted); margin-top: 5px; }
   @media (max-width: 560px) { .home-foto { padding: 18px 16px 22px; border-radius: 3px; } }
   /* Di HP, esai foto di beranda digeser ke samping (bukan menumpuk ke bawah) */
   @media (max-width: 640px) {
@@ -1191,6 +1206,21 @@ function ad(cls, dim){ return `<div class="ad ${cls}"><span class="ad-tag">Iklan
 // Susun daftar berita + iklan in-feed di baris ke-4 & ke-8 (dipakai beranda & indeks)
 function feedRows(list){ const items=list.map(listItem); if(items.length>3) items.splice(3,0,ad("ad-feed","In-feed")); if(items.length>7) items.splice(7,0,ad("ad-feed","In-feed")); return items.join(""); }
 function adParallax(n){ const im=imgParallax(n?n.id:7); return `<div class="ad-parallax"><div class="px-layer" data-parallax style="background-image:url('${im}')"></div><div class="px-scrim"></div><div class="px-cap"><span class="px-badge"><span class="ad-tag">Iklan</span><span class="ad-dim">Parallax · 970×300</span></span></div></div>`; }
+// Video vertikal (format 9:16) — geser horizontal. Ganti thumbnail/URL saat sudah ada video asli.
+const VIDEOS = [
+  { id:1, title:"Detik-detik gol kemenangan Timnas di menit akhir", dur:"0:45", views:"1,2 jt", tag:"Peristiwa" },
+  { id:2, title:"Ringkas: isi paket stimulus Rp50 triliun", dur:"1:12", views:"540 rb", tag:"Ekonomi" },
+  { id:3, title:"Suasana sidang kabinet paripurna pagi ini", dur:"0:38", views:"320 rb", tag:"Politik" },
+  { id:4, title:"Cara UMKM manfaatkan program digital baru", dur:"1:30", views:"210 rb", tag:"Bisnis" },
+  { id:5, title:"Highlight malam anugerah perempuan inspiratif", dur:"0:55", views:"180 rb", tag:"SHEroes" }
+];
+function videoShelf(){
+  const items=VIDEOS.map(v=>`<article class="vid-card" data-video="${v.id}">
+    <div class="vid-ph"><img src="${img("video-"+v.id, v.tag)}" alt="${v.title}" loading="lazy"><span class="vid-play">▶</span><span class="vid-dur">${v.dur}</span></div>
+    <div class="vid-body"><h3>${v.title}</h3><div class="vid-meta">${v.views}× ditonton</div></div></article>`).join("");
+  return `<section class="vid-shelf"><div class="sec-head"><h2>▶ Video</h2><span class="eyebrow">Tonton vertikal · geser →</span></div>
+    <div class="vid-row">${items}</div></section>`;
+}
 // Agenda / peristiwa hari ini — tiap acara punya kotak kecil: waktu, tempat, rubrik, status.
 const AGENDA = [
   { time:"08.00", title:"Upacara Penyambutan Kenegaraan PM India", place:"Halaman Istana Merdeka, Jakarta", cat:"News", who:"Presiden & PM India", status:"done", topic:"Politik" },
@@ -1300,7 +1330,8 @@ function renderHome(){
     ${(()=>{ if(!user) return ""; const rr=recentRead(); return rr.length?`<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow">Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`:""; })()}
     <div class="layout"><main><div class="sec-head"><h2>Terbaru</h2><span class="eyebrow">Update harian</span></div>
       <div class="list">${feedRows(feed.slice(0,8))}</div>
-      <a class="loadmore" href="#/indeks" data-nav="index">Berita lainnya →</a></main>${railHtml()}</div>
+      <a class="loadmore" href="#/indeks" data-nav="index">Berita lainnya →</a>
+      ${videoShelf()}</main>${railHtml()}</div>
     <section class="home-foto"><div class="sec-head"><h2>📷 Esai Foto</h2><a class="eyebrow foto-more" href="#/foto" data-nav="foto">Lihat semua →</a></div>
       <div class="fe-grid">${PHOTO_ESSAYS.map(feCard).join("")}</div></section>`;
   heroCount=heroItems.length; heroSetup();
@@ -1984,6 +2015,7 @@ document.addEventListener("click", e=>{
   const au=e.target.closest("[data-author]"); if(au){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"author", author:au.dataset.author}); return; }
   const ext=e.target.closest("[data-ext]"); if(ext){ e.preventDefault(); showToast(ext.dataset.ext==="gnews"?"Membuka Google News… (demo)":"kabar dijadikan sumber pilihan di Google ✓ (demo)"); return; }
   const agt=e.target.closest("[data-agtab]"); if(agt){ const box=agt.closest(".rail-agenda"); const pg=box&&box.querySelector(".ag-pager"); const i=+agt.dataset.agtab; if(pg){ pg.scrollTo({left:i*pg.clientWidth, behavior:"smooth"}); box.querySelectorAll(".ag-tab").forEach((btn,k)=>btn.classList.toggle("on",k===i)); } return; }
+  const vid=e.target.closest("[data-video]"); if(vid){ showToast("Pemutar video vertikal (demo) ▶"); return; }
   const kw=e.target.closest("[data-kw]"); if(kw){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"tag", tag:kw.dataset.kw}); return; }
   const sec=e.target.closest("[data-section]"); const tg=e.target.closest("[data-tag]"); const a2=e.target.closest("[data-article]"); const nv=e.target.closest("[data-nav]");
   if(sec){ closeMega(); window.scrollTo(0,0); go({page:"section", section:sec.dataset.section}); }
