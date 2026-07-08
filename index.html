@@ -538,7 +538,8 @@
   @media (max-width: 560px) { .idx-field, .idx-field select { min-width: 0; width: 100%; } .idx-filter { gap: 10px; } .idx-field { flex: 1 1 42%; } }
   .ad-inarticle { height: 118px; margin: 28px 0; }
   .ad-rail { height: 250px; }
-  .ad-sky { position: fixed; top: 118px; width: 160px; height: 600px; z-index: 40; display: none; }
+  .ad-sky { position: fixed; top: 50%; transform: translateY(-50%); width: 160px; height: 600px; z-index: 40; display: none; transition: opacity .25s; }
+  .ad-sky.sky-hide { opacity: 0; pointer-events: none; }
   @media (min-width: 1400px) {
     .ad-sky.left { display: flex; left: calc(((100vw - var(--maxw))/2 - 160px)/2); }
     .ad-sky.right { display: flex; right: calc(((100vw - var(--maxw))/2 - 160px)/2); }
@@ -2567,7 +2568,12 @@ function toggleTheme(){ const r=document.documentElement; const cur=r.getAttribu
 
 const progress=document.getElementById("progress"), totop=document.getElementById("totop");
 function onScroll(){ const top=window.scrollY||document.documentElement.scrollTop||0; const doc=document.documentElement; const full=Math.max(doc.scrollHeight,document.body.scrollHeight); const max=full-(window.innerHeight||doc.clientHeight); const pct=max>0?top/max:0;
-  progress.style.width=(route.page==="article"?Math.min(100,pct*100):0)+"%"; totop.classList.toggle("show", top>500); updateParallax(); }
+  progress.style.width=(route.page==="article"?Math.min(100,pct*100):0)+"%"; totop.classList.toggle("show", top>500); updateParallax(); updateSkyAds(); }
+// Iklan skyscraper samping (160×600): tampil di tengah gutter, sembunyi saat footer terlihat agar tak menimpa footer.
+function updateSkyAds(){ const foot=document.querySelector("footer"); if(!foot) return; const vh=window.innerHeight||document.documentElement.clientHeight;
+  const hide = foot.getBoundingClientRect().top < vh - 20;
+  document.querySelectorAll(".ad-sky").forEach(a=>a.classList.toggle("sky-hide", hide)); }
+window.addEventListener("resize", updateSkyAds);
 const REDUCE_MOTION=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function updateParallax(){ if(REDUCE_MOTION) return; const vh=window.innerHeight||document.documentElement.clientHeight;
   document.querySelectorAll("[data-parallax]").forEach(layer=>{ const b=layer.parentElement.getBoundingClientRect();
