@@ -422,6 +422,7 @@
   .modal-overlay.show { opacity: 1; pointer-events: auto; }
   .modal { background: var(--bg); border: 1px solid var(--line); border-radius: 3px; max-width: 520px; width: 100%; max-height: 88vh; overflow: auto; position: relative; box-shadow: 0 24px 70px rgba(0,0,0,.4); transform: translateY(16px) scale(.98); transition: transform .3s cubic-bezier(.22,.61,.36,1); }
   .modal-overlay.show .modal { transform: none; }
+  #auth-modal { z-index: 210; }
   #auth-modal .modal { max-width: 420px; }
   .modal-close { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--panel); color: var(--ink); font-size: .95rem; cursor: pointer; z-index: 2; }
   .modal-close:hover { background: var(--line); }
@@ -507,11 +508,15 @@
   .sticky-ad-in { width: 100%; max-width: 970px; height: 90px; border: 1px dashed color-mix(in srgb, var(--muted) 50%, transparent); border-radius: 3px;
     color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center;
     background: repeating-linear-gradient(45deg, transparent, transparent 9px, color-mix(in srgb, var(--muted) 7%, transparent) 9px, color-mix(in srgb, var(--muted) 7%, transparent) 18px); }
-  .sticky-ad-x { position: absolute; top: -13px; right: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
-    font-size: .68rem; font-weight: 700; letter-spacing: .02em; padding: 4px 10px; border-radius: 999px; cursor: pointer; font-family: inherit;
+  .sticky-ad-toggle { position: absolute; top: -13px; right: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+    font-size: .68rem; font-weight: 700; letter-spacing: .02em; padding: 4px 11px; border-radius: 999px; cursor: pointer; font-family: inherit;
     box-shadow: 0 2px 8px -2px rgba(0,0,0,.2); transition: background .16s, color .16s; }
-  .sticky-ad-x:hover { background: var(--panel); color: var(--ink); }
+  .sticky-ad-toggle:hover { background: var(--panel); color: var(--ink); }
+  .sticky-ad.collapsed { padding-top: 0; padding-bottom: 0; background: transparent; backdrop-filter: none; border-top: none; box-shadow: none; pointer-events: none; }
+  .sticky-ad.collapsed .sticky-ad-in { display: none; }
+  .sticky-ad.collapsed .sticky-ad-toggle { pointer-events: auto; top: auto; bottom: 8px; }
   .has-sticky-ad .totop { bottom: 124px; }
+  body.sticky-collapsed .totop { bottom: 20px; }
   @media (max-width: 640px) { .sticky-ad-in { height: 60px; } .sticky-ad { padding: 7px 10px 8px; } .has-sticky-ad .totop { bottom: 92px; } }
   /* Indeks: filter + paginasi */
   .idx-filter { display: flex; flex-wrap: wrap; gap: 12px 14px; align-items: flex-end; margin: 2px 0 24px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
@@ -576,17 +581,52 @@
   .faq-share .fs-t { font-weight: 800; font-size: 1.05rem; letter-spacing: -.02em; margin-top: 6px; }
   .faq-share .fs-s { color: var(--muted); font-size: .88rem; margin-top: 4px; line-height: 1.45; }
   .faq-share .fs-row { display: flex; justify-content: center; gap: 10px; margin: 14px 0 12px; }
+  .faq-share .fs-save { display: flex; width: fit-content; margin: 0 auto 10px; background: var(--surface); }
   .faq-share .fs-pref { display: inline-flex; }
 
-  footer { margin-top: 64px; border-top: 1px solid var(--line); background: var(--surface); padding: 44px 0 38px; }
-  .foot { display: flex; justify-content: space-between; gap: 34px; flex-wrap: wrap; }
-  .foot .big { font-size: 2.2rem; cursor: pointer; } .foot .big b { color: var(--accent); }
-  .foot p { color: var(--muted); font-size: .9rem; margin-top: 10px; max-width: 32ch; }
-  .foot-links { display: flex; gap: 46px; flex-wrap: wrap; }
-  .foot-col a { display: block; color: var(--muted); font-size: .88rem; padding: 5px 0; cursor: pointer; }
-  .foot-col a:first-child { color: var(--ink); font-weight: 700; cursor: pointer; margin-bottom: 3px; }
-  .foot-col a:not(:first-child):hover { color: var(--accent-dark); }
-  .foot-base { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); font-size: .8rem; color: var(--muted); display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  /* ===== Footer (terinspirasi tirto) ===== */
+  footer { margin-top: 64px; border-top: 1px solid var(--line); background: var(--surface); padding: 40px 0 34px; }
+  .foot-follow-row { display: flex; flex-wrap: wrap; gap: 14px 40px; padding-bottom: 26px; border-bottom: 1px solid var(--line); }
+  .ff-item { display: inline-flex; align-items: center; gap: 12px; cursor: pointer; }
+  .ff-item svg { width: 30px; height: 30px; flex: none; }
+  .ff-item.wa svg { color: #25D366; }
+  .ff-txt { display: flex; flex-direction: column; line-height: 1.15; }
+  .ff-sub { font-size: .74rem; color: var(--muted); }
+  .ff-main { font-size: 1.02rem; font-weight: 800; letter-spacing: -.01em; color: var(--ink); }
+  .ff-item:hover .ff-main { color: var(--accent-dark); }
+  .foot-social { display: flex; flex-wrap: wrap; gap: 12px 26px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+  .soc-item { display: inline-flex; align-items: center; gap: 8px; color: var(--ink-soft); font-size: .92rem; font-weight: 600; cursor: pointer; transition: color .16s; }
+  .soc-item svg { width: 20px; height: 20px; }
+  .soc-item:hover { color: var(--accent-dark); }
+  .foot-main { display: grid; grid-template-columns: 1.4fr .9fr .9fr .9fr 1.15fr; gap: 30px 38px; padding: 30px 0; }
+  .foot-brandcol .big { font-size: 2rem; cursor: pointer; } .foot-brandcol .big b { color: var(--accent); }
+  .foot-tagline { color: var(--muted); font-size: .9rem; margin-top: 8px; line-height: 1.5; max-width: 34ch; }
+  .foot-badges { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .fb-badge { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; font-size: .74rem; font-weight: 700; color: var(--ink-soft);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; }
+  .foot-links { display: contents; }
+  .foot-col { min-width: 0; }
+  .fc-h { display: block; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 12px; }
+  .foot-col a { display: block; color: var(--ink-soft); font-size: .88rem; padding: 5px 0; cursor: pointer; transition: color .16s; }
+  .foot-col a:hover { color: var(--accent-dark); }
+  .foot-addr { font-size: .84rem; color: var(--muted); line-height: 1.55; }
+  .fa-name { font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .fa-contact { margin-top: 12px; }
+  .fa-contact a { color: var(--ink-soft); cursor: pointer; }
+  .fa-contact a:hover { color: var(--accent-dark); }
+  .foot-base { margin-top: 8px; padding-top: 22px; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; }
+  .foot-motto { font-weight: 700; color: var(--ink-soft); }
+  .foot-copy { flex: 1; min-width: 200px; }
+  .foot-totop { color: var(--accent-dark); font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .foot-totop:hover { text-decoration: underline; }
+  @media (max-width: 820px) {
+    .foot-main { grid-template-columns: 1fr 1fr; gap: 26px 30px; }
+    .foot-brandcol { grid-column: 1 / -1; }
+  }
+  @media (max-width: 520px) {
+    .foot-main { grid-template-columns: 1fr; }
+    .foot-base { flex-direction: column; align-items: flex-start; }
+  }
 
   @media (max-width: 900px) {
     .hero { grid-template-columns: 1fr; gap: 18px; padding-bottom: 26px; margin-bottom: 26px; }
@@ -1047,6 +1087,20 @@
   .af-more { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 11px; font-size: .8rem; font-weight: 800;
     color: #e0201b; border-top: 1px solid var(--line); cursor: pointer; }
   .af-more span { transition: transform .16s; } .af-more:hover span { transform: translateX(3px); }
+  /* Affiliate — tombol geser gaya hero */
+  .af-viewport { position: relative; }
+  .af-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 92%, transparent); color: var(--ink); font-size: 1.25rem; line-height: 1;
+    cursor: pointer; display: grid; place-items: center; box-shadow: 0 4px 12px -4px rgba(0,0,0,.28); opacity: 0; transition: opacity .16s, background .16s, border-color .16s; z-index: 3; }
+  .af-viewport:hover .af-arrow { opacity: 1; }
+  .af-arrow:hover { border-color: #e0201b; color: #e0201b; }
+  .af-arrow.prev { left: 6px; } .af-arrow.next { right: 6px; }
+  @media (hover: none) { .af-arrow { opacity: 1; background: var(--surface); } }
+  /* Label "geser" bisa diklik untuk menggeser sendiri */
+  [data-geser] { cursor: pointer; -webkit-user-select: none; user-select: none; transition: color .16s, opacity .16s; }
+  [data-geser]:hover { color: var(--accent-dark); }
+  .vid-eyebrow[data-geser]:hover { color: #fff; opacity: 1; }
+  .af-slogan[data-geser]:hover { color: #fff; opacity: .85; }
   @media (max-width: 560px) { .home-foto { padding: 18px 16px 22px; border-radius: 3px; } }
   @media (max-width: 820px) { .lb-essay { display: none; } }
   @media (max-width: 900px) { .pe-layout { grid-template-columns: 1fr; gap: 24px; } .pe-photo { max-height: 58vh; } }
@@ -1088,21 +1142,32 @@
 
 <footer>
   <div class="wrap">
-    <div class="foot">
-      <div>
+    <div class="foot-follow-row" id="foot-follow"></div>
+    <div class="foot-social" id="foot-social"></div>
+    <div class="foot-main">
+      <div class="foot-brandcol">
         <div class="big" data-nav="home">kabar<b>.</b></div>
-        <p>Feed berita ringkas dengan liputan yang enak dibaca — dari kabar utama, cerita perempuan, sampai gaya hidup halal.</p>
-        <div class="foot-follow" id="foot-follow"></div>
+        <p class="foot-tagline">Ringkas, jelas, tepercaya — dari kabar utama, cerita perempuan, sampai gaya hidup halal.</p>
+        <div class="foot-badges"><span class="fb-badge">✓ Terverifikasi Dewan Pers</span><span class="fb-badge">🛡️ Cek Fakta · IFCN</span></div>
       </div>
       <div class="foot-links" id="foot-links"></div>
+      <div class="foot-addr">
+        <div class="fa-name">PT Kabar Media Nusantara</div>
+        <div class="fa-line">Menara Kabar Lt. 12, Jl. Merdeka No. 10,<br>Gambir, Jakarta Pusat, DKI Jakarta 10110</div>
+        <div class="fa-contact"><a data-ext="page">redaksi@kabar.id</a><br><a data-ext="page">+62 21 555 0100</a></div>
+      </div>
     </div>
-    <div class="foot-base"><span>© <span id="year"></span> kabar. Pratinjau statis.</span><span id="today"></span></div>
+    <div class="foot-base">
+      <span class="foot-motto">Ringkas. Jelas. Tepercaya.</span>
+      <span class="foot-copy">© <span id="year"></span> PT Kabar Media Nusantara · <span id="today"></span></span>
+      <a class="foot-totop" data-totop>Ke atas ↑</a>
+    </div>
   </div>
 </footer>
 
 <div class="toast" id="toast"></div>
 <div class="sticky-ad" id="sticky-ad" aria-hidden="true">
-  <button class="sticky-ad-x" id="sticky-ad-x" aria-label="Tutup iklan">Tutup Iklan ✕</button>
+  <button class="sticky-ad-toggle" id="sticky-ad-toggle" aria-label="Sembunyikan iklan">Sembunyikan ▾</button>
   <div class="sticky-ad-in"><span class="ad-tag">Iklan</span><span class="ad-dim">Sticky Bottom · 970×90</span></div>
 </div>
 <div class="modal-overlay" id="quiz-modal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-label="Kuis"><button class="modal-close" id="modal-close" aria-label="Tutup">✕</button><div id="modal-body"></div></div></div>
@@ -1457,7 +1522,7 @@ function videoShelf(){
     <div class="vid-ph"><img src="${img("video-"+v.id, v.tag)}" alt="${v.title}" loading="lazy"><span class="vid-play">▶</span><span class="vid-dur">${v.dur}</span></div>
     <div class="vid-body"><h3>${v.title}</h3><div class="vid-meta">${v.views}× ditonton</div></div></article>`).join("");
   return `<section class="vid-shelf"><div class="vid-glow"></div>
-    <div class="vid-headrow"><span class="vid-badge">▶</span><div class="vid-htext"><h2>Video</h2><span class="vid-eyebrow">Tonton vertikal · geser →</span></div></div>
+    <div class="vid-headrow"><span class="vid-badge">▶</span><div class="vid-htext"><h2>Video</h2><span class="vid-eyebrow" data-geser>Tonton vertikal · geser →</span></div></div>
     <div class="vid-row">${items}</div></section>`;
 }
 // Pemutar video vertikal: panel naik dari bawah (bottom-sheet), poster dulu, main saat diklik (hemat data).
@@ -1615,11 +1680,11 @@ function agendaBand(){
   const soon=AGENDA_SOON.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(agnCardSoon).join("");
   return `<section class="agenda-band">
     <div class="agn-col">
-      <div class="agn-head"><span class="agn-ic">📅</span><div class="agn-htext"><h3>Agenda Hari Ini</h3><span class="agn-sub">${dateStr} · ${AGENDA.length} acara</span></div><span class="agn-hint">geser →</span></div>
+      <div class="agn-head"><span class="agn-ic">📅</span><div class="agn-htext"><h3>Agenda Hari Ini</h3><span class="agn-sub">${dateStr} · ${AGENDA.length} acara</span></div><span class="agn-hint" data-geser>geser →</span></div>
       <div class="agn-scroll">${today}</div>
     </div>
     <div class="agn-col">
-      <div class="agn-head"><span class="agn-ic">🗓️</span><div class="agn-htext"><h3>Akan Datang</h3><span class="agn-sub">${AGENDA_SOON.length} agenda mendatang</span></div><span class="agn-hint">geser →</span></div>
+      <div class="agn-head"><span class="agn-ic">🗓️</span><div class="agn-htext"><h3>Akan Datang</h3><span class="agn-sub">${AGENDA_SOON.length} agenda mendatang</span></div><span class="agn-hint" data-geser>geser →</span></div>
       <div class="agn-scroll">${soon}</div>
     </div>
   </section>`;
@@ -1639,8 +1704,12 @@ function affiliateBox(){
     <div class="af-seller">🏪 ${a.seller}</div>
     <span class="af-buy">Beli Sekarang</span></div>`).join("");
   return `<div class="rail-box af-box">
-    <div class="af-head"><div><span class="af-brand">🛍️ Lagi Diskon</span><span class="af-slogan">Belanja hemat · geser →</span></div><span class="af-badge">Ad · Affiliate</span></div>
-    <div class="af-scroll">${items}</div>
+    <div class="af-head"><div><span class="af-brand">🛍️ Lagi Diskon</span><span class="af-slogan" data-geser>Belanja hemat · geser →</span></div><span class="af-badge">Ad · Affiliate</span></div>
+    <div class="af-viewport">
+      <div class="af-scroll">${items}</div>
+      <button class="af-arrow prev" data-afscroll="prev" aria-label="Sebelumnya">‹</button>
+      <button class="af-arrow next" data-afscroll="next" aria-label="Berikutnya">›</button>
+    </div>
     <a class="af-more" data-af="all">Lihat semua promo <span>→</span></a></div>`;
 }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
@@ -1702,7 +1771,7 @@ function renderHome(){
     </section>
     ${editorialHome}
     </div>
-    <section><div class="sec-head"><h2>Berita utama</h2><span class="eyebrow">Geser untuk lihat →</span></div>
+    <section><div class="sec-head"><h2>Berita utama</h2><span class="eyebrow" data-geser>Geser untuk lihat →</span></div>
       <div class="carousel sm-cards">${utama.map(card).join("")}</div></section>
     ${agendaBand()}
     ${(()=>{ if(!user) return ""; const fy=forYou(); return fy.length?`<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow">Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`:""; })()}
@@ -1924,7 +1993,7 @@ function renderArticle(id){
       </div>
       ${ad("ad-inarticle","In-article · 300×250")}
       ${SHOW_POLL?pollWidget(n.id):""}
-      ${rel.length?`<section class="rec-reads"><div class="sec-head"><h2>Rekomendasi untukmu</h2><span class="eyebrow">Geser →</span></div>
+      ${rel.length?`<section class="rec-reads"><div class="sec-head"><h2>Rekomendasi untukmu</h2><span class="eyebrow" data-geser>Geser →</span></div>
         <div class="carousel">${rel.slice(0,4).map(card).join("")}</div></section>`:""}
       ${commentsBox(n.id)}</article></main>${railHtml()}</div>`;
   window.scrollTo(0,0); animatePolls(); setupFaqTrigger(n.id);
@@ -1966,11 +2035,20 @@ function renderTrending(){
 }
 function renderFooter(){
   const ff=document.getElementById("foot-follow");
-  if(ff) ff.innerHTML=`<a class="follow-btn" data-ext="gnews">${GNEWS_SVG}<span>Ikuti di Google News</span></a>`;
-  document.getElementById("foot-links").innerHTML=SECTIONS.map(s=>{
-    const tags=SECTION_TAGS[s].map(t=>`<a href="#/tags/${slugify(t)}" data-tag="${t}">${t}</a>`).join("");
-    return `<div class="foot-col"><a href="#/${slugify(s)}" data-section="${s}">${s}</a>${tags}</div>`;
-  }).join("");
+  if(ff) ff.innerHTML=`
+    <a class="ff-item" data-ext="gnews">${GNEWS_SVG}<span class="ff-txt"><span class="ff-sub">Ikuti kabar di</span><span class="ff-main">Google News</span></span></a>
+    <a class="ff-item wa" data-ext="wa">${WA_SVG}<span class="ff-txt"><span class="ff-sub">Ikuti WA Channel</span><span class="ff-main">kabar</span></span></a>
+    <a class="ff-item wa" data-ext="wacekfakta">${WA_SVG}<span class="ff-txt"><span class="ff-sub">Ikuti WA Channel</span><span class="ff-main">Cek Fakta</span></span></a>`;
+  const fs=document.getElementById("foot-social");
+  if(fs) fs.innerHTML=[["ig","Instagram"],["yt","YouTube"],["x","Twitter"],["tiktok","TikTok"],["fb","Facebook"],["li","LinkedIn"]]
+    .map(([k,label])=>`<a class="soc-item" data-ext="soc-${k}">${SOC[k]}<span>${label}</span></a>`).join("");
+  const fl=document.getElementById("foot-links");
+  if(fl){
+    const secCol=`<div class="foot-col"><span class="fc-h">Kanal</span>${SECTIONS.map(s=>`<a href="#/${slugify(s)}" data-section="${s}">${s}</a>`).join("")}</div>`;
+    const compCol=`<div class="foot-col"><span class="fc-h">Perusahaan</span>${["Tentang Kami","Redaksi","Pedoman Media Siber","Kontak","Iklan &amp; Kerja Sama"].map(t=>`<a data-ext="page">${t}</a>`).join("")}</div>`;
+    const helpCol=`<div class="foot-col"><span class="fc-h">Bantuan</span>${["Kebijakan Privasi","Kebijakan Cookies","Kirim Artikel","Peta Situs","Aksesibilitas"].map(t=>`<a data-ext="page">${t}</a>`).join("")}</div>`;
+    fl.innerHTML=secCol+compCol+helpCol;
+  }
 }
 function openMega(){ renderMega(); document.getElementById("mega-overlay").classList.add("open"); document.getElementById("mega").classList.add("open"); document.body.style.overflow="hidden"; }
 function closeMega(){ document.getElementById("mega-overlay").classList.remove("open"); document.getElementById("mega").classList.remove("open"); document.body.style.overflow=""; }
@@ -2079,6 +2157,7 @@ function shareBlockHtml(withX){ return `<div class="faq-share"${withX?` id="faq-
   <p class="fs-t">Kalau tulisan ini bermanfaat…</p>
   <p class="fs-s">Bagikan ke temanmu, atau jadikan <b>kabar</b> sumber pilihanmu di Google.</p>
   <div class="fs-row">${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
+  ${(()=>{ const sid=(route&&route.page==="article")?route.id:faqArtId; return sid?`<button class="save-pill fs-save ${isSaved(sid)?'saved':''}" data-bm="${sid}">${BM_SVG}<span class="bmlabel">${isSaved(sid)?'Tersimpan':'Simpan artikel'}</span></button>`:""; })()}
   <a class="follow-link fs-pref" data-ext="pref">${G_SVG}<span>Jadikan sumber pilihan di Google</span></a>
 </div>`; }
 function quizBest(){ return LS.get("kabar_quizbest",0); }
@@ -2115,6 +2194,15 @@ const AV=["#0fa958","#2f7bf0","#f0872f","#b34fe0","#0fb0a5","#e0524f"];
 function avColor(s){ let h=0; for(const c of (s||"x")) h=(h*31+c.charCodeAt(0))>>>0; return AV[h%AV.length]; }
 const G_SVG=`<svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.9 0 6.6 1.7 8.1 3.1l5.9-5.8C34.6 3.2 29.8 1 24 1 14.6 1 6.5 6.4 2.6 14.3l6.9 5.4C11.4 13.6 17.2 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-2.8-.4-4H24v7.6h12.7c-.3 2.1-1.6 5.2-4.6 7.3l7.1 5.5c4.2-3.9 7.3-9.6 7.3-16.4z"/><path fill="#FBBC05" d="M9.5 28.3c-.5-1.4-.8-2.9-.8-4.3s.3-3 .7-4.3l-6.9-5.4C1 17.1 0 20.4 0 24s1 6.9 2.6 9.7l6.9-5.4z"/><path fill="#34A853" d="M24 47c6.5 0 11.9-2.1 15.9-5.8l-7.1-5.5c-1.9 1.3-4.5 2.3-8.8 2.3-6.8 0-12.6-4.1-14.5-9.9l-6.9 5.4C6.5 41.6 14.6 47 24 47z"/></svg>`;
 const GNEWS_SVG=`<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="7.5" y="2.8" width="9" height="9" rx="1.2" fill="#34A853" transform="rotate(-3 12 7.3)"/><rect x="4.4" y="5" width="9" height="9.6" rx="1.2" fill="#FBBC05" transform="rotate(-18 9 10)"/><rect x="11" y="4.2" width="9" height="10" rx="1.2" fill="#EA4335" transform="rotate(14 15.5 9)"/><rect x="5.4" y="9" width="13.6" height="9.6" rx="1.5" fill="#4285F4"/><circle cx="9.5" cy="13.8" r="3.3" fill="#fff"/><circle cx="9.5" cy="13.8" r="1.75" fill="#4285F4"/><rect x="9.5" y="9.9" width="3.7" height="3.9" fill="#4285F4"/><rect x="9.3" y="13" width="3.5" height="1.7" fill="#fff"/><rect x="13.1" y="11.6" width="4.4" height="1.2" rx=".55" fill="#fff"/><rect x="13.1" y="13.6" width="4.4" height="1.2" rx=".55" fill="#fff"/><rect x="13.1" y="15.6" width="4.4" height="1.2" rx=".55" fill="#fff"/></svg>`;
+const WA_SVG=`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${SH.wa.p}</svg>`;
+const SOC={
+  ig:`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.9c2.97 0 3.32.01 4.49.06 1.08.05 1.67.23 2.06.38.52.2.89.44 1.28.83.39.39.63.76.83 1.28.15.39.33.98.38 2.06.05 1.17.06 1.52.06 4.49s-.01 3.32-.06 4.49c-.05 1.08-.23 1.67-.38 2.06-.2.52-.44.89-.83 1.28-.39.39-.76.63-1.28.83-.39.15-.98.33-2.06.38-1.17.05-1.52.06-4.49.06s-3.32-.01-4.49-.06c-1.08-.05-1.67-.23-2.06-.38-.52-.2-.89-.44-1.28-.83-.39-.39-.63-.76-.83-1.28-.15-.39-.33-.98-.38-2.06-.05-1.17-.06-1.52-.06-4.49s.01-3.32.06-4.49c.05-1.08.23-1.67.38-2.06.2-.52.44-.89.83-1.28.39-.39.76-.63 1.28-.83.39-.15.98-.33 2.06-.38C8.68 2.91 9.03 2.9 12 2.9zM12 1C8.98 1 8.6 1.01 7.42 1.07 6.24 1.12 5.43 1.31 4.73 1.58c-.73.28-1.35.66-1.96 1.27-.61.61-.99 1.23-1.27 1.96-.27.7-.46 1.51-.51 2.69C.93 8.6.92 8.98.92 12s.01 3.4.07 4.58c.05 1.18.24 1.99.51 2.69.28.73.66 1.35 1.27 1.96.61.61 1.23.99 1.96 1.27.7.27 1.51.46 2.69.51 1.18.06 1.56.07 4.58.07s3.4-.01 4.58-.07c1.18-.05 1.99-.24 2.69-.51.73-.28 1.35-.66 1.96-1.27.61-.61.99-1.23 1.27-1.96.27-.7.46-1.51.51-2.69.06-1.18.07-1.56.07-4.58s-.01-3.4-.07-4.58c-.05-1.18-.24-1.99-.51-2.69-.28-.73-.66-1.35-1.27-1.96-.61-.61-1.23-.99-1.96-1.27-.7-.27-1.51-.46-2.69-.51C15.4 1.01 15.02 1 12 1zm0 5.35A5.65 5.65 0 1 0 17.65 12 5.65 5.65 0 0 0 12 6.35zm0 9.32A3.67 3.67 0 1 1 15.67 12 3.67 3.67 0 0 1 12 15.67zM17.87 4.9a1.32 1.32 0 1 0 1.32 1.32 1.32 1.32 0 0 0-1.32-1.32z"/></svg>`,
+  yt:`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.5a3 3 0 0 0-2.1-2.1C19.5 3.9 12 3.9 12 3.9s-7.5 0-9.4.5A3 3 0 0 0 .5 6.5 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.5 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.5zM9.6 15.6V8.4l6.3 3.6z"/></svg>`,
+  tiktok:`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 5.8c-.9-.6-1.5-1.6-1.7-2.7h-3v12c0 1.4-1.1 2.6-2.6 2.6a2.6 2.6 0 0 1 0-5.2c.3 0 .5 0 .8.1V9.5a5.7 5.7 0 0 0-.8-.1 5.6 5.6 0 1 0 5.6 5.6V9.3a7 7 0 0 0 4 1.3V7.6c-.9 0-1.7-.3-2.3-.8z"/></svg>`,
+  li:`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.3c0-1.3 0-2.9-1.8-2.9s-2 1.4-2 2.8V21H9z"/></svg>`,
+  x:`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${SH.x.p}</svg>`,
+  fb:`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${SH.fb.p}</svg>`
+};
 const DEMO_ACCOUNTS=[{name:"Rheza Alfian",email:"rhezaalfian18@gmail.com"},{name:"Sinta Dewi",email:"sinta.demo@gmail.com"}];
 function renderAuthSlot(){ const slot=document.getElementById("auth-slot"); if(!slot) return;
   if(user){ slot.innerHTML=`<div class="user-wrap"><button class="user-btn" id="user-btn" aria-label="Akun"><span class="avatar" style="background:${avColor(user.email)}">${initials(user.name)}</span></button><div class="user-menu" id="user-menu"><div class="user-info"><span class="avatar" style="background:${avColor(user.email)}">${initials(user.name)}</span><div><div class="un">${user.name}</div><div class="ue">${user.email}</div></div></div><button class="um-item" data-nav="saved">🔖 Tersimpan</button><button class="um-item" id="um-stats">📊 Aktivitas baca</button><button class="um-item" id="um-push">🔔 Notifikasi</button><button class="um-item" id="logout">↩ Keluar</button></div></div>`; }
@@ -2384,7 +2472,9 @@ document.addEventListener("click", e=>{
     const nm=document.getElementById("fs-name"); if(nm) nm.textContent=FS_NAMES[fsLevel];
     document.querySelectorAll('[data-fs="dec"]').forEach(x=>x.disabled=fsLevel===0);
     document.querySelectorAll('[data-fs="inc"]').forEach(x=>x.disabled=fsLevel===FS_SIZES.length-1); return; }
-  if(e.target.closest("#sticky-ad-x")){ hideStickyAd(); sessionStorage.setItem("kabar_stickyad_closed","1"); return; }
+  if(e.target.closest("#sticky-ad-toggle")){ const c=!_stickyAd.classList.contains("collapsed"); _stickyAd.classList.toggle("collapsed",c); document.body.classList.toggle("sticky-collapsed",c); e.target.closest("#sticky-ad-toggle").textContent=c?"Tampilkan iklan ▴":"Sembunyikan ▾"; sessionStorage.setItem("kabar_stickyad_collapsed",c?"1":"0"); return; }
+  const afs=e.target.closest("[data-afscroll]"); if(afs){ const vp=afs.closest(".af-viewport"); const sc=vp&&vp.querySelector(".af-scroll"); if(sc){ const dir=afs.dataset.afscroll==="next"?1:-1; sc.scrollBy({left:dir*Math.round(sc.clientWidth*0.9), behavior:"smooth"}); } return; }
+  const gsr=e.target.closest("[data-geser]"); if(gsr){ const root=gsr.closest("section,.af-box,.agn-col,.vid-shelf")||document; const sc=root.querySelector(".carousel,.vid-row,.af-scroll,.agn-scroll"); if(sc){ const atEnd=sc.scrollLeft+sc.clientWidth>=sc.scrollWidth-4; sc.scrollTo({left:atEnd?0:sc.scrollLeft+Math.round(sc.clientWidth*0.85), behavior:"smooth"}); } return; }
   if(e.target.closest("#top-bb-x")){ const t=document.getElementById("top-bb"); if(t) t.classList.add("hide"); sessionStorage.setItem("kabar_topbb_closed","1"); return; }
   if(e.target.closest("#login-btn")){ openAuthModal(); return; }
   const acc=e.target.closest("[data-acc]"); if(acc){ login(DEMO_ACCOUNTS[+acc.dataset.acc]); return; }
@@ -2407,7 +2497,11 @@ document.addEventListener("click", e=>{
   const hsd=e.target.closest("[data-hs-dot]"); if(hsd){ heroStop(); heroGoTo(+hsd.dataset.hsDot); heroStart(); return; }
   const hsa=e.target.closest("[data-hs]"); if(hsa){ heroStop(); hsa.dataset.hs==="next"?heroNext():heroGoTo(heroIdx-1); heroStart(); return; }
   const au=e.target.closest("[data-author]"); if(au){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"author", author:au.dataset.author}); return; }
-  const ext=e.target.closest("[data-ext]"); if(ext){ e.preventDefault(); showToast(ext.dataset.ext==="gnews"?"Membuka Google News… (demo)":"kabar dijadikan sumber pilihan di Google ✓ (demo)"); return; }
+  if(e.target.closest("[data-totop]")){ e.preventDefault(); window.scrollTo({top:0,behavior:"smooth"}); return; }
+  const ext=e.target.closest("[data-ext]"); if(ext){ e.preventDefault(); const v=ext.dataset.ext;
+    const MAP={gnews:"Membuka Google News… (demo)", pref:"kabar dijadikan sumber pilihan di Google ✓ (demo)", wa:"Membuka WA Channel kabar… (demo)", wacekfakta:"Membuka WA Channel Cek Fakta… (demo)", page:"Halaman ini bagian dari pratinjau (demo)"};
+    let msg=MAP[v]; if(!msg&&v&&v.indexOf("soc-")===0){ const n={ig:"Instagram",yt:"YouTube",x:"Twitter/X",tiktok:"TikTok",fb:"Facebook",li:"LinkedIn"}[v.slice(4)]||"media sosial"; msg=`Membuka ${n} kabar… (demo)`; }
+    showToast(msg||"Tautan demo"); return; }
   const agt=e.target.closest("[data-agtab]"); if(agt){ const box=agt.closest(".rail-agenda"); const pg=box&&box.querySelector(".ag-pager"); const i=+agt.dataset.agtab; if(pg){ pg.scrollTo({left:i*pg.clientWidth, behavior:"smooth"}); box.querySelectorAll(".ag-tab").forEach((btn,k)=>btn.classList.toggle("on",k===i)); } return; }
   if(e.target.closest("[data-vlclose]")||e.target.id==="vid-lightbox"){ vlClose(); return; }
   if(e.target.closest("[data-vlshare]")){ const sh=document.querySelector("[data-vlsheet]"); if(sh) sh.classList.add("show"); return; }
@@ -2493,8 +2587,8 @@ window.addEventListener("hashchange", ()=>{ if(_suppressHash) return; go(parsePa
 go(parsePath(location.hash));
 // Iklan sticky bawah (gaya detik) — muncul setelah beberapa detik, bisa ditutup sekali per sesi.
 const _stickyAd=document.getElementById("sticky-ad");
-function showStickyAd(){ if(sessionStorage.getItem("kabar_stickyad_closed")) return; _stickyAd.classList.add("show"); _stickyAd.setAttribute("aria-hidden","false"); document.body.classList.add("has-sticky-ad"); }
-function hideStickyAd(){ _stickyAd.classList.remove("show"); _stickyAd.setAttribute("aria-hidden","true"); document.body.classList.remove("has-sticky-ad"); }
+function applyStickyCollapse(){ const c=sessionStorage.getItem("kabar_stickyad_collapsed")==="1"; _stickyAd.classList.toggle("collapsed",c); document.body.classList.toggle("sticky-collapsed",c); const btn=document.getElementById("sticky-ad-toggle"); if(btn) btn.textContent=c?"Tampilkan iklan ▴":"Sembunyikan ▾"; }
+function showStickyAd(){ _stickyAd.classList.add("show"); _stickyAd.setAttribute("aria-hidden","false"); document.body.classList.add("has-sticky-ad"); applyStickyCollapse(); }
 setTimeout(showStickyAd, 1600);
 if(sessionStorage.getItem("kabar_topbb_closed")){ const _t=document.getElementById("top-bb"); if(_t) _t.classList.add("hide"); }
 </script>
