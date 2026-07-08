@@ -36,7 +36,7 @@
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto; } }
 
   /* Penajaman tipografi */
-  .brand, .foot .big { font-weight: 800; letter-spacing: -0.04em; }
+  .brand, .foot-brandcol .big { font-weight: 800; letter-spacing: -0.04em; }
   /* Judul editorial pakai serif yang sama dengan badan berita agar menyatu */
   .hero-text h1, .article h1 { font-family: var(--reading); font-weight: 800; letter-spacing: -0.022em; line-height: 1.08; }
   .sec-head h2, .empty h3 { font-weight: 800; letter-spacing: -0.03em; }
@@ -208,15 +208,10 @@
   .follow-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0; }
   .gnews-block { margin-top: 18px; text-align: center; }
   .gnews-label { display: block; font-size: .82rem; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
-  .follow-btn { display: inline-flex; align-items: center; gap: 9px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
-    background: var(--surface); color: var(--ink); font-size: .85rem; font-weight: 600; cursor: pointer; transition: border-color .16s, background .16s; }
-  .follow-btn svg { width: 17px; height: 17px; }
-  .follow-btn:hover { border-color: var(--accent); background: var(--panel); }
   .follow-link { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
     background: transparent; color: var(--muted); font-size: .85rem; font-weight: 600; cursor: pointer; transition: border-color .16s, color .16s; }
   .follow-link:hover { border-color: var(--accent); color: var(--accent-dark); }
   .follow-link svg { width: 16px; height: 16px; }
-  .foot-follow { margin-top: 16px; }
   @media (max-width: 560px) { .artbar-div { display: none; } .share { gap: 8px; } }
 
   /* Halaman penulis */
@@ -466,7 +461,6 @@
   .top-bb-wrap.collapsed .ad-topbb { display: none; }
   .top-bb-wrap.collapsed .topbb-toggle { position: static; display: block; margin-left: auto; }
   @media (max-width: 640px) { .ad-topbb { height: 110px; } .top-bb-wrap { padding: 8px 0 6px; } }
-  .ad-infeed { height: 108px; margin: 6px 0; }
   .ad-feed { height: 126px; margin: 10px 0; }
   /* Iklan sticky bawah (gaya detik) — bisa ditutup */
   .sticky-ad { position: fixed; left: 0; right: 0; bottom: 0; z-index: 130; display: none;
@@ -621,7 +615,6 @@
     /* Iklan ikut diringkas agar sepadan dengan kartu berita ringkas */
     .ad-leaderboard { height: 72px; margin: 12px 0 0; }
     .ad-feed { height: 112px; margin: 10px 0; }
-    .ad-infeed { height: 90px; }
     .ad-inarticle { height: 96px; margin: 22px 0; }
   }
   @media (max-width: 720px) {
