@@ -1038,6 +1038,13 @@
   .agn-htext h3 { font-size: 1.02rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
   .agn-sub { font-size: .75rem; color: var(--muted); font-weight: 500; }
   .agn-hint { font-size: .63rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .agn-toggle { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-left: 2px; border-radius: 50%; border: none; background: none; color: var(--muted); cursor: pointer; flex: none; align-self: center; transition: background .16s, color .16s; }
+  .agn-toggle:hover { background: var(--panel); color: var(--ink); }
+  .agn-toggle .chev { width: 15px; height: 15px; transition: transform .22s; }
+  .agn-col.collapsed .agn-toggle .chev { transform: rotate(180deg); }
+  .agn-col.collapsed .agn-scroll { display: none; }
+  .agn-col.collapsed .agn-hint { display: none; }
+  .agn-col.collapsed .agn-head { margin-bottom: 0; }
   .agn-scroll { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; scrollbar-width: none; }
   .agn-scroll::-webkit-scrollbar { display: none; }
   .agn-card { flex: 0 0 214px; max-width: 214px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 8px;
@@ -1677,13 +1684,14 @@ function agendaBand(){
   const d=new Date(); const dateStr=`${hari[d.getDay()]}, ${d.getDate()} ${bulanF[d.getMonth()]}`;
   const today=AGENDA.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(agnCardToday).join("");
   const soon=AGENDA_SOON.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(agnCardSoon).join("");
+  const CHEV=`<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>`;
   return `<section class="agenda-band">
     <div class="agn-col">
-      <div class="agn-head"><span class="agn-ic">📅</span><div class="agn-htext"><h3>Agenda Hari Ini</h3><span class="agn-sub">${dateStr} · ${AGENDA.length} acara</span></div><span class="agn-hint" data-geser>geser →</span></div>
+      <div class="agn-head"><span class="agn-ic">📅</span><div class="agn-htext"><h3>Agenda Hari Ini</h3><span class="agn-sub">${dateStr} · ${AGENDA.length} acara</span></div><span class="agn-hint" data-geser>geser →</span><button class="agn-toggle" data-agn-toggle aria-label="Ciutkan agenda">${CHEV}</button></div>
       <div class="agn-scroll">${today}</div>
     </div>
     <div class="agn-col">
-      <div class="agn-head"><span class="agn-ic">🗓️</span><div class="agn-htext"><h3>Akan Datang</h3><span class="agn-sub">${AGENDA_SOON.length} agenda mendatang</span></div><span class="agn-hint" data-geser>geser →</span></div>
+      <div class="agn-head"><span class="agn-ic">🗓️</span><div class="agn-htext"><h3>Akan Datang</h3><span class="agn-sub">${AGENDA_SOON.length} agenda mendatang</span></div><span class="agn-hint" data-geser>geser →</span><button class="agn-toggle" data-agn-toggle aria-label="Ciutkan agenda">${CHEV}</button></div>
       <div class="agn-scroll">${soon}</div>
     </div>
   </section>`;
@@ -2102,7 +2110,10 @@ function openFaqModal(id){
 // ajakan berbagi / jadikan sumber pilihan, lalu tautan kuis.
 let faqRevealTimer=null, faqRevealShown=false, faqArtId=null;
 function armFaqReveal(){ if(faqRevealShown) return; const rv=document.getElementById("faq-reveal"); if(!rv) return;
-  clearTimeout(faqRevealTimer); faqRevealTimer=setTimeout(()=>{ faqRevealShown=true; rv.classList.add("show"); }, 1800); }
+  clearTimeout(faqRevealTimer); faqRevealTimer=setTimeout(()=>{ faqRevealShown=true; rv.classList.add("show");
+    // Setelah jeda baca jawaban ke-3, munculkan lalu geser ke ajakan berbagi (penting di mobile).
+    setTimeout(()=>{ try{ rv.scrollIntoView({behavior:"smooth", block:"center"}); }catch(_){ const m=rv.closest(".modal"); if(m) m.scrollTo({top:m.scrollHeight, behavior:"smooth"}); } }, 80);
+  }, 1800); }
 function closeFaqModal(){ const m=document.getElementById("faq-modal"); m.classList.remove("show"); m.setAttribute("aria-hidden","true"); document.body.style.overflow=""; }
 
 // ===== Uji Ingatan / Kuis =====
@@ -2478,6 +2489,7 @@ document.addEventListener("click", e=>{
     document.querySelectorAll('[data-fs="dec"]').forEach(x=>x.disabled=fsLevel===0);
     document.querySelectorAll('[data-fs="inc"]').forEach(x=>x.disabled=fsLevel===FS_SIZES.length-1); return; }
   if(e.target.closest("#sticky-ad-toggle")){ const c=!_stickyAd.classList.contains("collapsed"); _stickyAd.classList.toggle("collapsed",c); document.body.classList.toggle("sticky-collapsed",c); e.target.closest("#sticky-ad-toggle").textContent=c?"Tampilkan iklan ▴":"Sembunyikan ▾"; sessionStorage.setItem("kabar_stickyad_collapsed",c?"1":"0"); return; }
+  const agtg=e.target.closest("[data-agn-toggle]"); if(agtg){ const col=agtg.closest(".agn-col"); if(col){ const c=col.classList.toggle("collapsed"); agtg.setAttribute("aria-label", c?"Tampilkan agenda":"Ciutkan agenda"); } return; }
   const scr=e.target.closest("[data-scroll]"); if(scr){ const vp=scr.closest(".scroll-vp"); const sc=vp&&vp.querySelector(".af-scroll,.vid-row,.carousel,.agn-scroll"); if(sc){ const dir=scr.dataset.scroll==="next"?1:-1; sc.scrollBy({left:dir*Math.round(sc.clientWidth*0.85), behavior:"smooth"}); } return; }
   const gsr=e.target.closest("[data-geser]"); if(gsr){ const root=gsr.closest("section,.af-box,.agn-col,.vid-shelf")||document; const sc=root.querySelector(".carousel,.vid-row,.af-scroll,.agn-scroll"); if(sc){ const atEnd=sc.scrollLeft+sc.clientWidth>=sc.scrollWidth-4; sc.scrollTo({left:atEnd?0:sc.scrollLeft+Math.round(sc.clientWidth*0.85), behavior:"smooth"}); } return; }
   if(e.target.closest("#top-bb-toggle")){ const t=document.getElementById("top-bb"); const c=t.classList.toggle("collapsed"); e.target.closest("#top-bb-toggle").textContent=c?"Tampilkan iklan ▾":"Sembunyikan ▴"; sessionStorage.setItem("kabar_topbb_collapsed",c?"1":"0"); return; }
