@@ -491,6 +491,20 @@
   .ad-leaderboard { height: 96px; margin: 18px 0 2px; }
   .ad-infeed { height: 108px; margin: 6px 0; }
   .ad-feed { height: 126px; margin: 10px 0; }
+  /* Iklan sticky bawah (gaya detik) — bisa ditutup */
+  .sticky-ad { position: fixed; left: 0; right: 0; bottom: 0; z-index: 130; display: none;
+    justify-content: center; padding: 8px 12px 10px; background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px); border-top: 1px solid var(--line); box-shadow: 0 -6px 22px -12px rgba(0,0,0,.35); }
+  .sticky-ad.show { display: flex; }
+  .sticky-ad-in { width: 100%; max-width: 970px; height: 90px; border: 1px dashed color-mix(in srgb, var(--muted) 50%, transparent); border-radius: 3px;
+    color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center;
+    background: repeating-linear-gradient(45deg, transparent, transparent 9px, color-mix(in srgb, var(--muted) 7%, transparent) 9px, color-mix(in srgb, var(--muted) 7%, transparent) 18px); }
+  .sticky-ad-x { position: absolute; top: -13px; right: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+    font-size: .68rem; font-weight: 700; letter-spacing: .02em; padding: 4px 10px; border-radius: 999px; cursor: pointer; font-family: inherit;
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,.2); transition: background .16s, color .16s; }
+  .sticky-ad-x:hover { background: var(--panel); color: var(--ink); }
+  .has-sticky-ad .totop { bottom: 124px; }
+  @media (max-width: 640px) { .sticky-ad-in { height: 60px; } .sticky-ad { padding: 7px 10px 8px; } .has-sticky-ad .totop { bottom: 92px; } }
   /* Indeks: filter + paginasi */
   .idx-filter { display: flex; flex-wrap: wrap; gap: 12px 14px; align-items: flex-end; margin: 2px 0 24px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
   .idx-field { display: flex; flex-direction: column; gap: 6px; }
@@ -1078,6 +1092,10 @@
 </footer>
 
 <div class="toast" id="toast"></div>
+<div class="sticky-ad" id="sticky-ad" aria-hidden="true">
+  <button class="sticky-ad-x" id="sticky-ad-x" aria-label="Tutup iklan">Tutup Iklan ✕</button>
+  <div class="sticky-ad-in"><span class="ad-tag">Iklan</span><span class="ad-dim">Sticky Bottom · 970×90</span></div>
+</div>
 <div class="modal-overlay" id="quiz-modal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-label="Kuis"><button class="modal-close" id="modal-close" aria-label="Tutup">✕</button><div id="modal-body"></div></div></div>
 <div class="modal-overlay" id="auth-modal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-label="Masuk"><button class="modal-close" id="auth-close" aria-label="Tutup">✕</button><div id="auth-body"></div></div></div>
 <div class="modal-overlay" id="faq-modal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-label="Rangkuman"><button class="modal-close" id="faq-close" aria-label="Tutup">✕</button><div id="faq-body"></div></div></div>
@@ -1382,7 +1400,10 @@ function isSaved(id){ return saved.includes(+id); }
 function bmBtn(id){ return `<button class="bm ${isSaved(id)?'saved':''}" data-bm="${id}" aria-label="Simpan" title="Simpan">${BM_SVG}</button>`; }
 function refreshBookmarks(id){ document.querySelectorAll(`[data-bm="${id}"]`).forEach(b=>{ const on=isSaved(id); b.classList.toggle("saved",on); const l=b.querySelector(".bmlabel"); if(l) l.textContent=on?"Tersimpan":"Simpan"; }); }
 function updateSavedBadge(){ const el=document.getElementById("saved-count"); if(el){ el.textContent=saved.length; el.style.display=saved.length?"grid":"none"; } }
-function toggleSave(id){ id=+id; const s=!saved.includes(id); saved=s?[id,...saved]:saved.filter(x=>x!==id); LS.set("kabar_saved",saved); refreshBookmarks(id); updateSavedBadge(); showToast(s?"Disimpan ke bacaan nanti ✓":"Dihapus dari simpanan"); if(route.page==="saved") go({page:"saved"}); }
+let pendingSave=null;
+function toggleSave(id){ id=+id;
+  if(!user){ pendingSave=id; showToast("Masuk dulu untuk menyimpan bacaan"); openAuthModal(); return; }
+  const s=!saved.includes(id); saved=s?[id,...saved]:saved.filter(x=>x!==id); LS.set("kabar_saved",saved); refreshBookmarks(id); updateSavedBadge(); showToast(s?"Disimpan ke bacaan nanti ✓":"Dihapus dari simpanan"); if(route.page==="saved") go({page:"saved"}); }
 
 // ===== Polling =====
 let polls=LS.get("kabar_polls",{});
@@ -1877,6 +1898,7 @@ function renderArticle(id){
       <div class="read-actions"><button class="listen-btn" id="tts-btn" data-tts="${n.id}">🔊 Dengarkan</button></div>
       <div class="article-media"><img src="${n.image}" alt="${n.title}"></div><div class="cap">Ilustrasi: ${n.tag} · kabar</div>
       ${tldrBox(n)}
+      ${ad("ad-feed","In-feed · 336×280")}
       <div class="fs-control"><span class="fs-label">Ukuran teks</span><div class="fs-seg">
         <button class="fs-btn" data-fs="dec" ${fsLevel===0?"disabled":""} aria-label="Perkecil teks"><span class="s">A</span>−</button>
         <button class="fs-btn" data-fs="inc" ${fsLevel===FS_SIZES.length-1?"disabled":""} aria-label="Perbesar teks"><span class="l">A</span>+</button>
@@ -2092,7 +2114,9 @@ function authChooserHTML(){ const a=DEMO_ACCOUNTS.map((x,i)=>`<button class="gsi
 function authFormHTML(){ return `<div class="gsi"><div class="gsi-head">${G_SVG}<span>Gunakan akun lain</span></div><div class="gsi-sub">Masukkan nama & email untuk login demo.</div><form class="gsi-form" id="auth-form"><input name="nm" placeholder="Nama" required><input name="em" type="email" placeholder="Email" required><button type="submit">Masuk</button></form></div>`; }
 function openAuthModal(){ document.getElementById("auth-body").innerHTML=authChooserHTML(); const m=document.getElementById("auth-modal"); m.classList.add("show"); m.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
 function closeAuthModal(){ const m=document.getElementById("auth-modal"); m.classList.remove("show"); m.setAttribute("aria-hidden","true"); document.body.style.overflow=""; }
-function login(u){ user={name:u.name||"Pengguna",email:u.email}; LS.set("kabar_user",user); renderAuthSlot(); closeAuthModal(); showToast(`Masuk sebagai ${user.name} ✓`); if(route.page==="home") go({page:"home"}); }
+function login(u){ user={name:u.name||"Pengguna",email:u.email}; LS.set("kabar_user",user); renderAuthSlot(); closeAuthModal(); showToast(`Masuk sebagai ${user.name} ✓`);
+  if(pendingSave!=null){ const pid=pendingSave; pendingSave=null; setTimeout(()=>toggleSave(pid),350); return; }
+  if(route.page==="home") go({page:"home"}); }
 function logout(){ user=null; LS.set("kabar_user",null); renderAuthSlot(); showToast("Kamu sudah keluar"); if(route.page==="home") go({page:"home"}); }
 
 // ============ Fitur tambahan (Gen Z & milenial) ============
@@ -2347,6 +2371,7 @@ document.addEventListener("click", e=>{
     const nm=document.getElementById("fs-name"); if(nm) nm.textContent=FS_NAMES[fsLevel];
     document.querySelectorAll('[data-fs="dec"]').forEach(x=>x.disabled=fsLevel===0);
     document.querySelectorAll('[data-fs="inc"]').forEach(x=>x.disabled=fsLevel===FS_SIZES.length-1); return; }
+  if(e.target.closest("#sticky-ad-x")){ hideStickyAd(); sessionStorage.setItem("kabar_stickyad_closed","1"); return; }
   if(e.target.closest("#login-btn")){ openAuthModal(); return; }
   const acc=e.target.closest("[data-acc]"); if(acc){ login(DEMO_ACCOUNTS[+acc.dataset.acc]); return; }
   if(e.target.closest("#use-other")){ document.getElementById("auth-body").innerHTML=authFormHTML(); return; }
@@ -2452,4 +2477,9 @@ renderBreaking(); renderTrending(); renderFooter(); updateSavedBadge(); renderAu
 setHeadH(); window.addEventListener("resize", setHeadH);
 window.addEventListener("hashchange", ()=>{ if(_suppressHash) return; go(parsePath(location.hash)); });
 go(parsePath(location.hash));
+// Iklan sticky bawah (gaya detik) — muncul setelah beberapa detik, bisa ditutup sekali per sesi.
+const _stickyAd=document.getElementById("sticky-ad");
+function showStickyAd(){ if(sessionStorage.getItem("kabar_stickyad_closed")) return; _stickyAd.classList.add("show"); _stickyAd.setAttribute("aria-hidden","false"); document.body.classList.add("has-sticky-ad"); }
+function hideStickyAd(){ _stickyAd.classList.remove("show"); _stickyAd.setAttribute("aria-hidden","true"); document.body.classList.remove("has-sticky-ad"); }
+setTimeout(showStickyAd, 1600);
 </script>
