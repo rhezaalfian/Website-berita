@@ -268,15 +268,19 @@
   /* Agenda Hari Ini */
   .rail-agenda h4 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; border-bottom-color: #e0891e; margin-bottom: 14px; }
   .rail-agenda .agenda-sub { font-size: .74rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: #e0891e; }
-  .ag-card { border: 1px solid color-mix(in srgb, #e0891e 30%, var(--line)); border-radius: 3px; background: var(--surface); padding: 2px 14px; }
-  .ag-item { display: grid; grid-template-columns: 50px 1fr; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+  .ag-card { border: 1px solid color-mix(in srgb, #e0891e 30%, var(--line)); border-radius: 3px; background: var(--surface); padding: 2px 14px;
+    max-height: 360px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, #e0891e 45%, var(--line)) transparent; }
+  .ag-card::-webkit-scrollbar { width: 6px; }
+  .ag-card::-webkit-scrollbar-thumb { background: color-mix(in srgb, #e0891e 40%, var(--line)); border-radius: 3px; }
+  .ag-item { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
   .ag-item:last-child { border-bottom: none; }
+  .ag-main { min-width: 0; }
   .ag-time { text-align: center; height: fit-content; padding: 6px 4px; border-radius: 3px; background: color-mix(in srgb, #e0891e 12%, var(--surface)); border: 1px solid color-mix(in srgb, #e0891e 24%, var(--line)); }
   .ag-h { display: block; font-size: 1.02rem; font-weight: 800; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.05; }
   .ag-wib { font-size: .58rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
   .ag-title { font-size: .96rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; }
   .ag-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .ag-chip { display: inline-flex; align-items: center; gap: 5px; font-size: .72rem; font-weight: 600; color: var(--ink-soft); background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px; }
+  .ag-chip { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; font-size: .72rem; font-weight: 600; color: var(--ink-soft); background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px; }
   .ag-chip svg { width: 11px; height: 11px; flex-shrink: 0; color: var(--muted); }
   .ag-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .ag-live { display: inline-flex; align-items: center; gap: 4px; font-size: .68rem; font-weight: 800; letter-spacing: .01em; color: #d9403a; background: color-mix(in srgb, #d9403a 12%, var(--surface)); border-radius: 3px; padding: 3px 7px; }
@@ -1178,14 +1182,19 @@ function feedRows(list){ const items=list.map(listItem); if(items.length>3) item
 function adParallax(n){ const im=imgParallax(n?n.id:7); return `<div class="ad-parallax"><div class="px-layer" data-parallax style="background-image:url('${im}')"></div><div class="px-scrim"></div><div class="px-cap"><span class="px-badge"><span class="ad-tag">Iklan</span><span class="ad-dim">Parallax · 970×300</span></span></div></div>`; }
 // Agenda / peristiwa hari ini — tiap acara punya kotak kecil: waktu, tempat, rubrik, status.
 const AGENDA = [
+  { time:"08.00", title:"Upacara Penyambutan Kenegaraan PM India", place:"Halaman Istana Merdeka, Jakarta", cat:"News", who:"Presiden & PM India", status:"done" },
   { time:"09.00", title:"Sidang Kabinet Paripurna", place:"Istana Negara, Jakarta", cat:"News", who:"Presiden & para menteri", status:"live" },
+  { time:"10.30", title:"Sidang Lanjutan Kasus Impor", place:"PN Jakarta Pusat", cat:"News", who:"Majelis Hakim", status:"next" },
   { time:"13.30", title:"Rilis Data Inflasi & Neraca Dagang", place:"Kantor Pusat BPS", cat:"Neraca", who:"BPS", status:"next" },
+  { time:"15.00", title:"RUPS Tahunan Bank Nusantara", place:"Hotel Indonesia Kempinski", cat:"Neraca", who:"Direksi & pemegang saham", status:"next" },
+  { time:"16.00", title:"Konferensi Pers Timnas Jelang Laga", place:"GBK, Jakarta", cat:"News", who:"Pelatih & kapten", status:"next" },
   { time:"19.30", title:"Malam Anugerah Perempuan Inspiratif", place:"Istora Senayan", cat:"SHEroes", who:"Yayasan Peduli", status:"next" }
 ];
 const PIN_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="2.6"/></svg>`;
 function agendaCard(){
   const d=new Date(); const dateStr=`${hari[d.getDay()]}, ${d.getDate()} ${bulanF[d.getMonth()]}`;
-  const items=AGENDA.map(a=>{
+  const list=AGENDA.slice().sort((a,b)=>a.time.localeCompare(b.time));
+  const items=list.map(a=>{
     const col=SECTION_COLOR[a.cat]||"#0fa958";
     const st=a.status==="live"?`<span class="ag-live">● Berlangsung</span>`:a.status==="done"?`<span class="ag-done">Selesai</span>`:`<span class="ag-next">Akan datang</span>`;
     return `<div class="ag-item">
@@ -1199,7 +1208,7 @@ function agendaCard(){
         <div class="ag-who">${a.who}</div>
       </div></div>`;
   }).join("");
-  return `<div class="rail-box rail-agenda"><h4>Agenda Hari Ini <span class="agenda-sub">${dateStr}</span></h4><div class="ag-card">${items}</div></div>`;
+  return `<div class="rail-box rail-agenda"><h4>Agenda Hari Ini <span class="agenda-sub">${dateStr} · ${list.length} acara</span></h4><div class="ag-card">${items}</div></div>`;
 }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
   const ed=NEWS.find(n=>n.tag==="Editorial");
