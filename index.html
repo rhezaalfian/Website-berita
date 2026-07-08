@@ -265,9 +265,16 @@
   .rail-tajuk h4 { display: flex; align-items: baseline; gap: 8px; border-bottom-color: #7c5cbf; margin-bottom: 14px; }
   .rail-tajuk .tajuk-sub { font-size: .74rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #7c5cbf; }
   .rail-tajuk .ncard { border-color: color-mix(in srgb, #7c5cbf 30%, var(--line)); }
-  /* Agenda Hari Ini */
-  .rail-agenda h4 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; border-bottom-color: #e0891e; margin-bottom: 14px; }
-  .rail-agenda .agenda-sub { font-size: .74rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: #e0891e; }
+  /* Agenda — berhalaman: Hari Ini / Akan Datang (geser horizontal) */
+  .rail-agenda .ag-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; border-bottom: 2px solid #e0891e; padding-bottom: 10px; margin-bottom: 12px; }
+  .rail-agenda .ag-head h4 { border: none; padding: 0; margin: 0; }
+  .ag-tabs { display: inline-flex; gap: 3px; background: var(--panel); border-radius: 3px; padding: 3px; }
+  .ag-tab { border: none; background: none; font-family: inherit; font-size: .74rem; font-weight: 700; color: var(--muted); padding: 4px 9px; border-radius: 3px; cursor: pointer; transition: .16s; white-space: nowrap; }
+  .ag-tab.on { background: var(--surface); color: #c9770f; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .ag-pager { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .ag-pager::-webkit-scrollbar { display: none; }
+  .ag-page { min-width: 100%; scroll-snap-align: start; align-self: flex-start; }
+  .ag-psub { font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #e0891e; margin-bottom: 8px; }
   .ag-card { border: 1px solid color-mix(in srgb, #e0891e 30%, var(--line)); border-radius: 3px; background: var(--surface); padding: 2px 14px;
     max-height: 360px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, #e0891e 45%, var(--line)) transparent; }
   .ag-card::-webkit-scrollbar { width: 6px; }
@@ -288,17 +295,9 @@
   .ag-next { font-size: .68rem; font-weight: 700; color: #c9770f; background: color-mix(in srgb, #e0891e 14%, var(--surface)); border-radius: 3px; padding: 3px 7px; }
   .ag-done { font-size: .68rem; font-weight: 700; color: var(--muted); background: var(--panel); border-radius: 3px; padding: 3px 7px; }
   .ag-who { margin-top: 7px; font-size: .74rem; color: var(--muted); }
-  /* Akan Datang — geser horizontal */
-  .ags-scroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; scrollbar-width: none; }
-  .ags-scroll::-webkit-scrollbar { display: none; }
-  .ags-card { min-width: 80%; box-sizing: border-box; scroll-snap-align: start; display: flex; flex-direction: column; gap: 8px;
-    border: 1px solid color-mix(in srgb, #e0891e 30%, var(--line)); border-radius: 3px; background: var(--surface); padding: 12px 13px; }
-  .ags-when { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-  .ags-date { font-size: .82rem; font-weight: 800; letter-spacing: -.01em; color: var(--ink); }
-  .ags-time { font-size: .72rem; font-weight: 700; color: #c9770f; }
-  .ags-title { display: block; font-size: .98rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; color: var(--ink); cursor: pointer; transition: color .16s; }
-  .ags-title:hover { color: #c9770f; }
-  .ags-card .ag-chips { margin-top: 0; }
+  .ag-date { background: color-mix(in srgb, #7a5cff 12%, var(--surface)); border-color: color-mix(in srgb, #7a5cff 24%, var(--line)); }
+  .ag-date .ag-h { font-size: 1.15rem; }
+  .ag-date .ag-wib { letter-spacing: .06em; }
   .pop { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--line); cursor: pointer; align-items: flex-start; }
   .pop:last-child { border-bottom: none; }
   .pop .n { font-size: 1.5rem; font-weight: 800; color: var(--accent); min-width: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -1211,36 +1210,35 @@ const AGENDA_SOON = [
   { date:"2026-07-18", time:"19.00", title:"Festival Film Perempuan", place:"Taman Ismail Marzuki", cat:"SHEroes", topic:"Perempuan" }
 ];
 const PIN_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="2.6"/></svg>`;
+const CLOCK_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;
+function agendaItemHtml(a, mode){
+  const col=SECTION_COLOR[a.cat]||"#0fa958";
+  let left, badge="";
+  if(mode==="today"){
+    left=`<div class="ag-time"><span class="ag-h">${a.time}</span><span class="ag-wib">WIB</span></div>`;
+    badge=a.status==="live"?`<span class="ag-live">● Berlangsung</span>`:a.status==="done"?`<span class="ag-done">Selesai</span>`:`<span class="ag-next">Akan datang</span>`;
+  } else {
+    const dt=new Date(a.date);
+    left=`<div class="ag-time ag-date"><span class="ag-h">${dt.getDate()}</span><span class="ag-wib">${bulan[dt.getMonth()].toUpperCase()}</span></div>`;
+    badge=`<span class="ag-chip">${CLOCK_SVG}${a.time} WIB</span>`;
+  }
+  const who=a.who?`<div class="ag-who">${a.who}</div>`:"";
+  return `<div class="ag-item">${left}
+    <div class="ag-main"><a class="ag-title" data-kw="${a.topic}" href="#/tags/${slugify(a.topic)}">${a.title}</a>
+      <div class="ag-chips">${mode==="soon"?badge:""}<span class="ag-chip">${PIN_SVG}${a.place}</span><span class="ag-chip"><span class="ag-dot" style="background:${col}"></span>${a.cat}</span>${mode==="today"?badge:""}</div>${who}
+    </div></div>`;
+}
 function agendaCard(){
   const d=new Date(); const dateStr=`${hari[d.getDay()]}, ${d.getDate()} ${bulanF[d.getMonth()]}`;
-  const list=AGENDA.slice().sort((a,b)=>a.time.localeCompare(b.time));
-  const items=list.map(a=>{
-    const col=SECTION_COLOR[a.cat]||"#0fa958";
-    const st=a.status==="live"?`<span class="ag-live">● Berlangsung</span>`:a.status==="done"?`<span class="ag-done">Selesai</span>`:`<span class="ag-next">Akan datang</span>`;
-    return `<div class="ag-item">
-      <div class="ag-time"><span class="ag-h">${a.time}</span><span class="ag-wib">WIB</span></div>
-      <div class="ag-main"><a class="ag-title" data-kw="${a.topic}" href="#/tags/${slugify(a.topic)}">${a.title}</a>
-        <div class="ag-chips">
-          <span class="ag-chip">${PIN_SVG}${a.place}</span>
-          <span class="ag-chip"><span class="ag-dot" style="background:${col}"></span>${a.cat}</span>
-          ${st}
-        </div>
-        <div class="ag-who">${a.who}</div>
-      </div></div>`;
-  }).join("");
-  return `<div class="rail-box rail-agenda"><h4>Agenda Hari Ini <span class="agenda-sub">${dateStr} · ${list.length} acara</span></h4><div class="ag-card">${items}</div></div>`;
-}
-function agendaSoonCard(){
-  const items=AGENDA_SOON.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(a=>{
-    const dt=new Date(a.date); const col=SECTION_COLOR[a.cat]||"#0fa958";
-    const dstr=`${hari[dt.getDay()].slice(0,3)}, ${dt.getDate()} ${bulan[dt.getMonth()]}`;
-    return `<div class="ags-card">
-      <div class="ags-when"><span class="ags-date">${dstr}</span><span class="ags-time">${a.time} WIB</span></div>
-      <a class="ags-title" data-kw="${a.topic}" href="#/tags/${slugify(a.topic)}">${a.title}</a>
-      <div class="ag-chips"><span class="ag-chip">${PIN_SVG}${a.place}</span><span class="ag-chip"><span class="ag-dot" style="background:${col}"></span>${a.cat}</span></div>
-    </div>`;
-  }).join("");
-  return `<div class="rail-box rail-agenda rail-soon"><h4>Akan Datang <span class="agenda-sub">${AGENDA_SOON.length} agenda · geser →</span></h4><div class="ags-scroll">${items}</div></div>`;
+  const today=AGENDA.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(a=>agendaItemHtml(a,"today")).join("");
+  const soon=AGENDA_SOON.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(a=>agendaItemHtml(a,"soon")).join("");
+  return `<div class="rail-box rail-agenda">
+    <div class="ag-head"><h4>Agenda</h4>
+      <div class="ag-tabs"><button class="ag-tab on" data-agtab="0">Hari Ini</button><button class="ag-tab" data-agtab="1">Akan Datang</button></div></div>
+    <div class="ag-pager" id="ag-pager">
+      <div class="ag-page"><div class="ag-psub">${dateStr} · ${AGENDA.length} acara</div><div class="ag-card">${today}</div></div>
+      <div class="ag-page"><div class="ag-psub">${AGENDA_SOON.length} agenda mendatang · geser →</div><div class="ag-card">${soon}</div></div>
+    </div></div>`;
 }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
   const ed=NEWS.find(n=>n.tag==="Editorial");
@@ -1248,7 +1246,6 @@ function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data
   return `<aside><div class="rail"><div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
     ${tajuk}
     ${agendaCard()}
-    ${agendaSoonCard()}
     ${ad("ad-rail","Sidebar · 300×250")}
     <div class="nl"><h4>Ringkasan pagi</h4><p>Lima berita penting tiap hari, langsung ke inbox. Gratis.</p><form id="nl"><input type="email" placeholder="email kamu…" required><button>Ikutan</button></form></div></div></aside>`; }
 
@@ -1987,6 +1984,7 @@ document.addEventListener("click", e=>{
   const hsa=e.target.closest("[data-hs]"); if(hsa){ heroStop(); hsa.dataset.hs==="next"?heroNext():heroGoTo(heroIdx-1); heroStart(); return; }
   const au=e.target.closest("[data-author]"); if(au){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"author", author:au.dataset.author}); return; }
   const ext=e.target.closest("[data-ext]"); if(ext){ e.preventDefault(); showToast(ext.dataset.ext==="gnews"?"Membuka Google News… (demo)":"kabar dijadikan sumber pilihan di Google ✓ (demo)"); return; }
+  const agt=e.target.closest("[data-agtab]"); if(agt){ const box=agt.closest(".rail-agenda"); const pg=box&&box.querySelector(".ag-pager"); const i=+agt.dataset.agtab; if(pg){ pg.scrollTo({left:i*pg.clientWidth, behavior:"smooth"}); box.querySelectorAll(".ag-tab").forEach((btn,k)=>btn.classList.toggle("on",k===i)); } return; }
   const kw=e.target.closest("[data-kw]"); if(kw){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"tag", tag:kw.dataset.kw}); return; }
   const sec=e.target.closest("[data-section]"); const tg=e.target.closest("[data-tag]"); const a2=e.target.closest("[data-article]"); const nv=e.target.closest("[data-nav]");
   if(sec){ closeMega(); window.scrollTo(0,0); go({page:"section", section:sec.dataset.section}); }
@@ -2039,6 +2037,8 @@ function setupFaqTrigger(id){
   faqObserver.observe(s);
 }
 window.addEventListener("scroll", onScroll, {passive:true});
+// Sinkronkan tab Agenda saat digeser (scroll tidak menggelembung, pakai fase capture)
+document.addEventListener("scroll", e=>{ const pg=e.target; if(pg&&pg.classList&&pg.classList.contains("ag-pager")){ const i=Math.round(pg.scrollLeft/Math.max(1,pg.clientWidth)); const box=pg.closest(".rail-agenda"); if(box) box.querySelectorAll(".ag-tab").forEach((b,k)=>b.classList.toggle("on",k===i)); } }, true);
 totop.addEventListener("click", ()=>window.scrollTo({top:0,behavior:"smooth"}));
 
 document.getElementById("year").textContent=new Date().getFullYear();
