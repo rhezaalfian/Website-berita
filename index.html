@@ -147,7 +147,8 @@
   .meta .who { color: var(--ink-soft); font-weight: 600; }
 
   /* Hero slider */
-  .hero-slider { position: relative; overflow: hidden; padding-bottom: 38px; margin-bottom: 30px; border-bottom: 1px solid var(--line); }
+  .hero-row { display: grid; grid-template-columns: 1fr 320px; gap: 32px; align-items: stretch; padding-bottom: 22px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .hero-slider { position: relative; overflow: hidden; min-width: 0; }
   .hs-track { display: flex; transition: transform .55s cubic-bezier(.22,.61,.36,1); }
   .hs-slide { min-width: 100%; }
   .hs-slide .hero { padding-bottom: 0; margin: 26px 0 0; border-bottom: none; }
@@ -263,10 +264,12 @@
   /* Rail */
   .rail { position: sticky; top: calc(var(--head-h, 62px) + 16px); display: flex; flex-direction: column; gap: 30px; }
   .rail-box h4 { font-size: 1.12rem; padding-bottom: 12px; margin-bottom: 4px; border-bottom: 2px solid var(--accent); }
-  /* Editorial — dekat hero di beranda, kartu sm-cards persis Berita utama */
-  .editorial-home { margin-top: 30px; }
-  .editorial-home .sec-head h2 { color: #7c5cbf; }
-  .editorial-home .carousel .ncard { border-color: color-mix(in srgb, #7c5cbf 30%, var(--line)); }
+  /* Editorial — di samping hero di beranda, kartu persis Berita utama tapi mengisi lebar kolomnya */
+  .hero-editorial { display: flex; flex-direction: column; min-width: 0; }
+  .hero-editorial .sec-head { margin-bottom: 12px; }
+  .hero-editorial .sec-head h2 { color: #7c5cbf; font-size: 1.14rem; }
+  .hero-editorial .ncard { flex: 1; border-color: color-mix(in srgb, #7c5cbf 30%, var(--line)); }
+  @media (max-width: 900px) { .hero-row { grid-template-columns: 1fr; } }
   /* Iklan di atas Esai Foto, selebar kolom Esai Foto */
   .ad-esai { height: 220px; margin: 34px 0 0; }
   /* Agenda — berhalaman: Hari Ini / Akan Datang (geser horizontal) */
@@ -1410,10 +1413,11 @@ function renderHome(){
   const slides=heroItems.map(heroSlideHtml).join("");
   const dots=heroItems.map((_,i)=>`<button class="hs-dot ${i===0?"active":""}" data-hs-dot="${i}" aria-label="Slide ${i+1}"></button>`).join("");
   const ed=NEWS.find(n=>n.tag==="Editorial");
-  const editorialHome=ed?`<section class="editorial-home"><div class="sec-head"><h2>Editorial</h2><span class="eyebrow">Pandangan Redaksi</span></div>
-      <div class="carousel sm-cards">${card(ed)}</div></section>`:"";
+  const editorialHome=ed?`<aside class="hero-editorial"><div class="sec-head"><h2>Editorial</h2><span class="eyebrow">Pandangan Redaksi</span></div>
+      ${card(ed)}</aside>`:"";
   view.innerHTML=`
     ${storiesBar()}
+    <div class="hero-row">
     <section class="hero-slider" id="hero-slider">
       <div class="hs-track" id="hs-track">${slides}</div>
       <button class="hs-arrow prev" data-hs="prev" aria-label="Sebelumnya">‹</button>
@@ -1421,6 +1425,7 @@ function renderHome(){
       <div class="hs-dots">${dots}</div>
     </section>
     ${editorialHome}
+    </div>
     <section><div class="sec-head"><h2>Berita utama</h2><span class="eyebrow">Geser untuk lihat →</span></div>
       <div class="carousel sm-cards">${utama.map(card).join("")}</div></section>
     ${(()=>{ if(!user) return ""; const fy=forYou(); return fy.length?`<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow">Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`:""; })()}
