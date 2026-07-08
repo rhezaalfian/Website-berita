@@ -835,6 +835,27 @@
   .vid-body h3 { font-size: .86rem; font-weight: 700; line-height: 1.3; letter-spacing: -.01em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .vid-card:hover h3 { color: var(--accent-dark); }
   .vid-meta { font-size: .72rem; color: var(--muted); margin-top: 5px; }
+  /* Pemutar video vertikal — panel naik dari bawah saat dibuka (bottom-sheet) */
+  .vid-lightbox { position: fixed; inset: 0; z-index: 3000; background: rgba(8,9,11,0); display: none; align-items: center; justify-content: center;
+    transition: background .28s ease; }
+  .vid-lightbox.show { display: flex; background: rgba(8,9,11,.92); }
+  .vl-panel { position: relative; width: min(94vw, 400px); height: min(88vh, 711px); aspect-ratio: 9/16; border-radius: 3px; overflow: hidden;
+    background: #0b0d0f; box-shadow: 0 30px 80px -20px rgba(0,0,0,.6);
+    transform: translateY(100%); opacity: 0; transition: transform .38s cubic-bezier(.22,.61,.36,1), opacity .28s ease; }
+  .vid-lightbox.show .vl-panel { transform: translateY(0); opacity: 1; }
+  .vl-panel video { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
+  .vl-close { position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border-radius: 50%; border: none; background: rgba(255,255,255,.16); color: #fff; font-size: 1rem; cursor: pointer; z-index: 6; display: grid; place-items: center; }
+  .vl-close:hover { background: rgba(255,255,255,.28); }
+  .vl-nav { position: absolute; left: 0; right: 0; width: 44px; height: 44px; margin: 0 auto; border-radius: 50%; border: none; background: rgba(255,255,255,.14); color: #fff; font-size: 1.3rem; cursor: pointer; z-index: 6; display: grid; place-items: center; transition: background .16s; }
+  .vl-nav:hover { background: rgba(255,255,255,.26); }
+  .vl-nav.up { top: 10px; }
+  .vl-nav.down { bottom: 74px; }
+  .vl-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 34px 18px 16px; color: #fff; background: linear-gradient(180deg, transparent, rgba(0,0,0,.75)); }
+  .vl-cap h3 { font-size: .96rem; font-weight: 700; line-height: 1.32; text-wrap: balance; }
+  .vl-cap .vl-meta { font-size: .76rem; color: rgba(255,255,255,.75); margin-top: 6px; }
+  .vl-playbtn { position: absolute; inset: 0; margin: auto; width: 60px; height: 60px; border-radius: 50%; border: none; background: rgba(255,255,255,.16); color: #fff; font-size: 1.4rem; cursor: pointer; display: grid; place-items: center; padding-left: 4px; z-index: 3; transition: opacity .16s, background .16s; }
+  .vl-playbtn:hover { background: rgba(255,255,255,.28); }
+  .vl-playbtn.hide { opacity: 0; pointer-events: none; }
   @media (max-width: 560px) { .home-foto { padding: 18px 16px 22px; border-radius: 3px; } }
   /* Di HP, esai foto di beranda digeser ke samping (bukan menumpuk ke bawah) */
   @media (max-width: 640px) {
@@ -900,6 +921,7 @@
 <div class="modal-overlay" id="gen-modal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true"><button class="modal-close" id="gen-close" aria-label="Tutup">✕</button><div id="gen-body"></div></div></div>
 <div class="stories-modal" id="stories-modal" aria-hidden="true"></div>
 <div class="pe-lightbox" id="pe-lightbox" aria-hidden="true"></div>
+<div class="vid-lightbox" id="vid-lightbox" aria-hidden="true"></div>
 
 <script>
 // ===== Taksonomi: Section -> Tag =====
@@ -1221,6 +1243,24 @@ function videoShelf(){
   return `<section class="vid-shelf"><div class="sec-head"><h2>▶ Video</h2><span class="eyebrow">Tonton vertikal · geser →</span></div>
     <div class="vid-row">${items}</div></section>`;
 }
+// Pemutar video vertikal: panel naik dari bawah (bottom-sheet), poster dulu, main saat diklik (hemat data).
+let vlIdx=0, vlPlaying=false;
+function vlPanelHtml(v){
+  return `<div class="vl-panel" data-vlplaying="${vlPlaying?1:0}">
+    <img src="${img("video-"+v.id, v.tag)}" alt="${v.title}" style="width:100%;height:100%;object-fit:cover">
+    <button class="vl-playbtn ${vlPlaying?"hide":""}" data-vlplay aria-label="Putar">▶</button>
+    <button class="vl-close" data-vlclose aria-label="Tutup">✕</button>
+    <button class="vl-nav up" data-vl="prev" aria-label="Video sebelumnya" ${vlIdx===0?"disabled style='opacity:.3;cursor:default'":""}>‹</button>
+    <button class="vl-nav down" data-vl="next" aria-label="Video berikutnya" ${vlIdx===VIDEOS.length-1?"disabled style='opacity:.3;cursor:default'":""}>›</button>
+    <div class="vl-cap"><h3>${v.title}</h3><div class="vl-meta">${v.views}× ditonton · ${v.dur}</div></div>
+  </div>`;
+}
+function vlRender(){ const box=document.getElementById("vid-lightbox"); if(!box) return; box.innerHTML=vlPanelHtml(VIDEOS[vlIdx]); }
+function vlOpen(id){ vlIdx=Math.max(0,VIDEOS.findIndex(v=>v.id===id)); vlPlaying=false;
+  const box=document.getElementById("vid-lightbox"); vlRender(); box.classList.add("show"); box.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
+function vlClose(){ const box=document.getElementById("vid-lightbox"); box.classList.remove("show"); box.setAttribute("aria-hidden","true"); document.body.style.overflow=""; vlPlaying=false; }
+function vlGo(dir){ const ni=vlIdx+dir; if(ni<0||ni>=VIDEOS.length) return; vlIdx=ni; vlPlaying=false; vlRender(); }
+function vlTogglePlay(){ vlPlaying=!vlPlaying; const btn=document.querySelector("[data-vlplay]"); if(btn) btn.classList.toggle("hide",vlPlaying); if(vlPlaying) showToast("Video diputar ▶ (demo)"); }
 // Agenda / peristiwa hari ini — tiap acara punya kotak kecil: waktu, tempat, rubrik, status.
 const AGENDA = [
   { time:"08.00", title:"Upacara Penyambutan Kenegaraan PM India", place:"Halaman Istana Merdeka, Jakarta", cat:"News", who:"Presiden & PM India", status:"done", topic:"Politik" },
@@ -2015,7 +2055,10 @@ document.addEventListener("click", e=>{
   const au=e.target.closest("[data-author]"); if(au){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"author", author:au.dataset.author}); return; }
   const ext=e.target.closest("[data-ext]"); if(ext){ e.preventDefault(); showToast(ext.dataset.ext==="gnews"?"Membuka Google News… (demo)":"kabar dijadikan sumber pilihan di Google ✓ (demo)"); return; }
   const agt=e.target.closest("[data-agtab]"); if(agt){ const box=agt.closest(".rail-agenda"); const pg=box&&box.querySelector(".ag-pager"); const i=+agt.dataset.agtab; if(pg){ pg.scrollTo({left:i*pg.clientWidth, behavior:"smooth"}); box.querySelectorAll(".ag-tab").forEach((btn,k)=>btn.classList.toggle("on",k===i)); } return; }
-  const vid=e.target.closest("[data-video]"); if(vid){ showToast("Pemutar video vertikal (demo) ▶"); return; }
+  if(e.target.closest("[data-vlclose]")||e.target.id==="vid-lightbox"){ vlClose(); return; }
+  if(e.target.closest("[data-vlplay]")){ vlTogglePlay(); return; }
+  const vln=e.target.closest("[data-vl]"); if(vln){ vlGo(vln.dataset.vl==="next"?1:-1); return; }
+  const vid=e.target.closest("[data-video]"); if(vid){ vlOpen(+vid.dataset.video); return; }
   const kw=e.target.closest("[data-kw]"); if(kw){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"tag", tag:kw.dataset.kw}); return; }
   const sec=e.target.closest("[data-section]"); const tg=e.target.closest("[data-tag]"); const a2=e.target.closest("[data-article]"); const nv=e.target.closest("[data-nav]");
   if(sec){ closeMega(); window.scrollTo(0,0); go({page:"section", section:sec.dataset.section}); }
@@ -2030,6 +2073,16 @@ document.addEventListener("keydown", e=>{
   else if(e.key==="ArrowLeft") peGo(peState.idx-1);
   else if(e.key==="Escape"&&peState.zoom) peZoom(false);
 });
+document.addEventListener("keydown", e=>{
+  const box=document.getElementById("vid-lightbox"); if(!box||!box.classList.contains("show")) return;
+  if(e.key==="Escape") vlClose();
+  else if(e.key==="ArrowUp") vlGo(-1);
+  else if(e.key==="ArrowDown") vlGo(1);
+  else if(e.key===" "){ e.preventDefault(); vlTogglePlay(); }
+});
+(()=>{ const box=document.getElementById("vid-lightbox"); if(!box) return; let sy=0;
+  box.addEventListener("touchstart", e=>{ sy=e.touches[0].clientY; }, {passive:true});
+  box.addEventListener("touchend", e=>{ const dy=e.changedTouches[0].clientY-sy; if(Math.abs(dy)>50) vlGo(dy<0?1:-1); }, {passive:true}); })();
 document.addEventListener("change", e=>{
   if(e.target.id==="idx-cat"){ idxState.cat=e.target.value; idxState.page=1; renderIndex(); }
   else if(e.target.id==="idx-from"){ idxState.from=e.target.value; idxState.page=1; renderIndex(); }
