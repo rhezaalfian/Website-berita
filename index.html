@@ -856,6 +856,41 @@
   .vl-playbtn { position: absolute; inset: 0; margin: auto; width: 60px; height: 60px; border-radius: 50%; border: none; background: rgba(255,255,255,.16); color: #fff; font-size: 1.4rem; cursor: pointer; display: grid; place-items: center; padding-left: 4px; z-index: 3; transition: opacity .16s, background .16s; }
   .vl-playbtn:hover { background: rgba(255,255,255,.28); }
   .vl-playbtn.hide { opacity: 0; pointer-events: none; }
+  /* Cek Fakta — kartu "stempel verifikasi" */
+  .fc-section { margin: 34px 0; }
+  .fc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .fc-card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; padding: 16px 15px 14px;
+    cursor: pointer; overflow: hidden; transition: box-shadow .18s ease, transform .18s ease, border-color .18s; }
+  .fc-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); opacity: .85; }
+  .fc-card:hover { box-shadow: var(--card-shadow); transform: translateY(-2px); border-color: transparent; }
+  .fc-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-right: 74px; }
+  .fc-plat { font-size: .7rem; font-weight: 700; color: var(--ink-soft); }
+  .fc-time { font-size: .7rem; color: var(--muted); flex-shrink: 0; }
+  .fc-claim { margin-top: 10px; font-style: italic; font-size: .92rem; line-height: 1.42; color: var(--ink-soft); font-weight: 500;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .fc-card:hover .fc-claim { color: var(--ink); }
+  .fc-stamp { position: absolute; top: 14px; right: -8px; transform: rotate(9deg); border: 2px solid var(--c); color: var(--c);
+    font-weight: 800; font-size: .62rem; letter-spacing: .04em; padding: 3px 12px 3px 9px; border-radius: 3px;
+    background: color-mix(in srgb, var(--c) 9%, var(--surface)); white-space: nowrap; pointer-events: none; }
+  .fc-foot { margin-top: 12px; font-size: .78rem; font-weight: 700; color: var(--c); display: flex; align-items: center; gap: 5px; }
+  .fc-foot .arw { transition: transform .16s; }
+  .fc-card:hover .fc-foot .arw { transform: translateX(3px); }
+  @media (max-width: 900px) { .fc-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) {
+    .fc-grid { display: flex; grid-template-columns: none; gap: 13px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; scrollbar-width: none; }
+    .fc-grid::-webkit-scrollbar { display: none; }
+    .fc-card { min-width: 78%; scroll-snap-align: start; }
+  }
+  /* Cek Fakta — detail (modal umum) */
+  .fc-detail { padding: 30px 26px 26px; }
+  .fc-detail .fc-stamp-lg { position: static; display: inline-block; transform: rotate(-3deg); font-size: .78rem; padding: 6px 16px 6px 12px; margin-bottom: 14px; }
+  .fc-dsrc { font-size: .78rem; color: var(--muted); margin-bottom: 10px; }
+  .fc-dclaim { font-size: 1.28rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.32; font-style: italic; text-wrap: balance; }
+  .fc-dverdict { margin-top: 12px; font-weight: 700; font-size: .96rem; }
+  .fc-dbody { margin-top: 16px; font-size: .94rem; line-height: 1.6; color: var(--ink-soft); }
+  .fc-dbody p { margin-bottom: 12px; }
+  .fc-dfoot { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .fc-dcheck { font-size: .8rem; font-weight: 600; color: var(--ink-soft); }
   @media (max-width: 560px) { .home-foto { padding: 18px 16px 22px; border-radius: 3px; } }
   /* Di HP, esai foto di beranda digeser ke samping (bukan menumpuk ke bawah) */
   @media (max-width: 640px) {
@@ -1261,6 +1296,63 @@ function vlOpen(id){ vlIdx=Math.max(0,VIDEOS.findIndex(v=>v.id===id)); vlPlaying
 function vlClose(){ const box=document.getElementById("vid-lightbox"); box.classList.remove("show"); box.setAttribute("aria-hidden","true"); document.body.style.overflow=""; vlPlaying=false; }
 function vlGo(dir){ const ni=vlIdx+dir; if(ni<0||ni>=VIDEOS.length) return; vlIdx=ni; vlPlaying=false; vlRender(); }
 function vlTogglePlay(){ vlPlaying=!vlPlaying; const btn=document.querySelector("[data-vlplay]"); if(btn) btn.classList.toggle("hide",vlPlaying); if(vlPlaying) showToast("Video diputar ▶ (demo)"); }
+
+// ===== Cek Fakta — kartu "stempel verifikasi" =====
+const FC_VERDICT = {
+  hoax:        { label:"HOAKS",        c:"#d9403a", ic:"✕", desc:"Klaim ini dibuat-buat dan tidak berdasar." },
+  salah:       { label:"KELIRU",       c:"#e0524f", ic:"✕", desc:"Sebagian atau seluruh klaim ini tidak benar." },
+  benar:       { label:"FAKTA",        c:"#0fa958", ic:"✓", desc:"Klaim ini sesuai dengan data & sumber resmi." },
+  menyesatkan: { label:"MENYESATKAN",  c:"#e0891e", ic:"!", desc:"Klaim memutarbalikkan konteks aslinya." }
+};
+const FACTCHECK = [
+  { id:1, verdict:"hoax", platform:"WhatsApp", mins:95,
+    claim:"Pemerintah akan menghapus seluruh utang UMKM tanpa syarat mulai bulan depan.",
+    body:["Pesan berantai ini menyebut pemerintah akan \"memutihkan\" semua utang UMKM tanpa syarat lewat sebuah program rahasia yang harus didaftar lewat tautan tertentu.",
+      "Penelusuran kami tidak menemukan kebijakan semacam itu di situs resmi Kementerian Keuangan maupun Bank Sentral Nusantara. Yang benar-benar berlaku adalah restrukturisasi kredit bersyarat bagi UMKM terdampak, bukan penghapusan menyeluruh.",
+      "Tautan pendaftaran yang disertakan dalam pesan berantai ini mengarah ke situs phishing yang meminta data pribadi dan nomor rekening. Jangan klik tautan semacam ini."],
+    topic:"UMKM" },
+  { id:2, verdict:"salah", platform:"Facebook", mins:210,
+    claim:"Efek samping serius terjadi pada 1 dari 3 penerima vaksin terbaru.",
+    body:["Klaim ini beredar luas disertai tangkapan layar berita yang sudah disunting agar terkesan resmi.",
+      "Data resmi BPOM dan hasil uji klinis menunjukkan efek samping serius terjadi pada kurang dari 0,01% penerima, jauh dari angka \"1 dari 3\" yang diklaim.",
+      "Tangkapan layar yang beredar terbukti hasil suntingan dari artikel asli yang membahas efek samping ringan (pegal & demam ringan) pada sebagian kecil penerima."],
+    topic:"Kesehatan" },
+  { id:3, verdict:"benar", platform:"Rilis resmi", mins:340,
+    claim:"Bank Sentral Nusantara menaikkan suku bunga acuan menjadi 8% pekan ini.",
+    body:["Klaim ini benar. Dalam Rapat Dewan Gubernur pekan ini, Bank Sentral Nusantara resmi menaikkan suku bunga acuan sebesar 25 basis poin menjadi 8%.",
+      "Kebijakan ini diambil untuk menjaga stabilitas nilai tukar di tengah tekanan inflasi global. Informasi ini sudah dikonfirmasi lewat siaran pers resmi bank sentral."],
+    topic:"Moneter" },
+  { id:4, verdict:"menyesatkan", platform:"TikTok", mins:480,
+    claim:"Video \"kerusuhan pasar\" yang viral terjadi hari ini di Jakarta.",
+    body:["Video yang diklaim menunjukkan kerusuhan pasar hari ini di Jakarta ternyata rekaman lama dari kejadian tahun 2019 di kota yang berbeda.",
+      "Kami menelusuri video asli lewat pencarian gambar terbalik (reverse image search) dan menemukan video identik telah beredar sejak 2019 dengan keterangan lokasi & waktu yang berbeda.",
+      "Pengunggah ulang menambahkan watermark tanggal palsu untuk membuatnya terlihat seperti kejadian terkini."],
+    topic:"Peristiwa" }
+];
+function fcCard(f){ const v=FC_VERDICT[f.verdict];
+  return `<article class="fc-card" data-fc="${f.id}" style="--c:${v.c}">
+    <div class="fc-top"><span class="fc-plat">📢 Beredar di ${f.platform}</span><span class="fc-time">${relTime(f.mins)}</span></div>
+    <div class="fc-claim">“${f.claim}”</div>
+    <div class="fc-stamp">${v.ic} ${v.label}</div>
+    <div class="fc-foot">Baca penelusuran <span class="arw">→</span></div>
+  </article>`; }
+function factCheckSection(){
+  return `<section class="fc-section"><div class="sec-head"><h2>🔍 Cek Fakta</h2><span class="eyebrow">Klarifikasi kabar yang beredar</span></div>
+    <div class="fc-grid">${FACTCHECK.map(fcCard).join("")}</div></section>`;
+}
+function openFactCheck(id){ const f=FACTCHECK.find(x=>x.id===id); if(!f) return; const v=FC_VERDICT[f.verdict];
+  document.getElementById("gen-body").innerHTML=`<div class="fc-detail" style="--c:${v.c}">
+    <div class="fc-stamp fc-stamp-lg">${v.ic} ${v.label}</div>
+    <div class="fc-dsrc">📢 Beredar di ${f.platform} · ${relTime(f.mins)}</div>
+    <h2 class="fc-dclaim">“${f.claim}”</h2>
+    <div class="fc-dverdict" style="color:${v.c}">${v.desc}</div>
+    <div class="fc-dbody">${f.body.map(p=>`<p>${p}</p>`).join("")}</div>
+    <div class="fc-dfoot">
+      <span class="fc-dcheck">Diverifikasi Tim Cek Fakta <b>kabar</b></span>
+      <div class="share">${shBtn("wa")}${shBtn("x")}${shBtn("fb")}${shBtn("tg")}${shBtn("link")}</div>
+    </div></div>`;
+  openGen();
+}
 // Agenda / peristiwa hari ini — tiap acara punya kotak kecil: waktu, tempat, rubrik, status.
 const AGENDA = [
   { time:"08.00", title:"Upacara Penyambutan Kenegaraan PM India", place:"Halaman Istana Merdeka, Jakarta", cat:"News", who:"Presiden & PM India", status:"done", topic:"Politik" },
@@ -1366,6 +1458,7 @@ function renderHome(){
     </section>
     <section><div class="sec-head"><h2>Berita utama</h2><span class="eyebrow">Geser untuk lihat →</span></div>
       <div class="carousel sm-cards">${utama.map(card).join("")}</div></section>
+    ${factCheckSection()}
     ${(()=>{ if(!user) return ""; const fy=forYou(); return fy.length?`<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow">Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`:""; })()}
     ${(()=>{ if(!user) return ""; const rr=recentRead(); return rr.length?`<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow">Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`:""; })()}
     <div class="layout"><main><div class="sec-head"><h2>Terbaru</h2><span class="eyebrow">Update harian</span></div>
@@ -2059,6 +2152,7 @@ document.addEventListener("click", e=>{
   if(e.target.closest("[data-vlplay]")){ vlTogglePlay(); return; }
   const vln=e.target.closest("[data-vl]"); if(vln){ vlGo(vln.dataset.vl==="next"?1:-1); return; }
   const vid=e.target.closest("[data-video]"); if(vid){ vlOpen(+vid.dataset.video); return; }
+  const fc=e.target.closest("[data-fc]"); if(fc){ openFactCheck(+fc.dataset.fc); return; }
   const kw=e.target.closest("[data-kw]"); if(kw){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"tag", tag:kw.dataset.kw}); return; }
   const sec=e.target.closest("[data-section]"); const tg=e.target.closest("[data-tag]"); const a2=e.target.closest("[data-article]"); const nv=e.target.closest("[data-nav]");
   if(sec){ closeMega(); window.scrollTo(0,0); go({page:"section", section:sec.dataset.section}); }
