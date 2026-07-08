@@ -270,8 +270,11 @@
   .hero-editorial { display: flex; flex-direction: column; padding-left: 14px; border-left: 1px solid var(--line); }
   .hero-editorial .sec-head { margin-bottom: 12px; }
   .hero-editorial .sec-head h2 { color: #7c5cbf; font-size: 1.14rem; }
-  .hero-editorial .ncard { width: 216px; flex: none; border-color: color-mix(in srgb, #7c5cbf 30%, var(--line)); }
-  @media (max-width: 900px) { .hero-row { grid-template-columns: 1fr; } .hero-editorial { padding-left: 0; border-left: none; margin-top: 24px; } }
+  .hero-editorial .ed-full .ncard { width: 216px; flex: none; border-color: color-mix(in srgb, #7c5cbf 30%, var(--line)); }
+  .hero-editorial .ed-compact { display: none; }
+  @media (max-width: 900px) { .hero-row { grid-template-columns: 1fr; } .hero-editorial { padding-left: 0; border-left: none; margin-top: 24px; }
+    .hero-editorial .ed-full { display: none; } .hero-editorial .ed-compact { display: block; }
+    .hero-editorial .ed-compact .list-item { border-bottom: none; padding: 0; } }
   /* Iklan di atas Esai Foto, selebar kolom Esai Foto */
   .ad-esai { height: 220px; margin: 34px 0 0; }
   /* Agenda — berhalaman: Hari Ini / Akan Datang (geser horizontal) */
@@ -871,11 +874,10 @@
   .fc-ribbon { position: absolute; top: 12px; right: -30px; transform: rotate(38deg); width: 130px; text-align: center;
     background: var(--c); color: #fff; font-weight: 800; font-size: .64rem; letter-spacing: .04em; padding: 4px 0;
     box-shadow: 0 2px 8px rgba(0,0,0,.22); pointer-events: none; }
-  .fc-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+  .fc-section .sec-head h2 { white-space: nowrap; }
+  .fc-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 11px; }
   .fc-plat { font-size: .68rem; font-weight: 700; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fc-time { font-size: .68rem; color: var(--muted); flex-shrink: 0; }
-  .fc-claim { margin-top: 5px; font-size: .82rem; line-height: 1.4; color: var(--ink-soft); font-weight: 450;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .fc-cta { margin-top: auto; padding-top: 13px; border-top: 1px solid var(--line); font-size: .84rem; font-weight: 700; display: flex; align-items: center; gap: 5px; }
   .fc-cta .arw { transition: transform .16s; }
   .fc-carousel .ncard:hover .fc-cta .arw { transform: translateX(3px); }
@@ -1314,7 +1316,6 @@ function fcCard(n){ const v=FC_VERDICT[n.fc.verdict];
     <div class="cbody">
       <div class="fc-top"><span class="fc-plat">📢 Beredar di ${n.fc.platform}</span><span class="fc-time">${relTime(n.mins)}</span></div>
       <h3>${n.title}</h3>
-      <p class="fc-claim">${n.excerpt}</p>
       <div class="fc-cta" style="color:${v.c}">Baca selengkapnya <span class="arw">→</span></div>
     </div></article>`; }
 function factCheckSection(){
@@ -1417,7 +1418,8 @@ function renderHome(){
   const dots=heroItems.map((_,i)=>`<button class="hs-dot ${i===0?"active":""}" data-hs-dot="${i}" aria-label="Slide ${i+1}"></button>`).join("");
   const ed=NEWS.find(n=>n.tag==="Editorial");
   const editorialHome=ed?`<aside class="hero-editorial"><div class="sec-head"><h2>Editorial</h2></div>
-      ${card(ed)}</aside>`:"";
+      <div class="ed-full">${card(ed)}</div>
+      <div class="ed-compact">${listItem(ed)}</div></aside>`:"";
   view.innerHTML=`
     ${storiesBar()}
     <div class="hero-row">
