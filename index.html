@@ -278,7 +278,8 @@
   .ag-time { text-align: center; height: fit-content; padding: 6px 4px; border-radius: 3px; background: color-mix(in srgb, #e0891e 12%, var(--surface)); border: 1px solid color-mix(in srgb, #e0891e 24%, var(--line)); }
   .ag-h { display: block; font-size: 1.02rem; font-weight: 800; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.05; }
   .ag-wib { font-size: .58rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
-  .ag-title { font-size: .96rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; }
+  .ag-title { display: block; font-size: .96rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; color: var(--ink); cursor: pointer; transition: color .16s; }
+  .ag-title:hover { color: #c9770f; }
   .ag-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .ag-chip { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; font-size: .72rem; font-weight: 600; color: var(--ink-soft); background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px; }
   .ag-chip svg { width: 11px; height: 11px; flex-shrink: 0; color: var(--muted); }
@@ -287,6 +288,17 @@
   .ag-next { font-size: .68rem; font-weight: 700; color: #c9770f; background: color-mix(in srgb, #e0891e 14%, var(--surface)); border-radius: 3px; padding: 3px 7px; }
   .ag-done { font-size: .68rem; font-weight: 700; color: var(--muted); background: var(--panel); border-radius: 3px; padding: 3px 7px; }
   .ag-who { margin-top: 7px; font-size: .74rem; color: var(--muted); }
+  /* Akan Datang — geser horizontal */
+  .ags-scroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; scrollbar-width: none; }
+  .ags-scroll::-webkit-scrollbar { display: none; }
+  .ags-card { min-width: 80%; box-sizing: border-box; scroll-snap-align: start; display: flex; flex-direction: column; gap: 8px;
+    border: 1px solid color-mix(in srgb, #e0891e 30%, var(--line)); border-radius: 3px; background: var(--surface); padding: 12px 13px; }
+  .ags-when { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .ags-date { font-size: .82rem; font-weight: 800; letter-spacing: -.01em; color: var(--ink); }
+  .ags-time { font-size: .72rem; font-weight: 700; color: #c9770f; }
+  .ags-title { display: block; font-size: .98rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; color: var(--ink); cursor: pointer; transition: color .16s; }
+  .ags-title:hover { color: #c9770f; }
+  .ags-card .ag-chips { margin-top: 0; }
   .pop { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--line); cursor: pointer; align-items: flex-start; }
   .pop:last-child { border-bottom: none; }
   .pop .n { font-size: 1.5rem; font-weight: 800; color: var(--accent); min-width: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -1182,13 +1194,21 @@ function feedRows(list){ const items=list.map(listItem); if(items.length>3) item
 function adParallax(n){ const im=imgParallax(n?n.id:7); return `<div class="ad-parallax"><div class="px-layer" data-parallax style="background-image:url('${im}')"></div><div class="px-scrim"></div><div class="px-cap"><span class="px-badge"><span class="ad-tag">Iklan</span><span class="ad-dim">Parallax · 970×300</span></span></div></div>`; }
 // Agenda / peristiwa hari ini — tiap acara punya kotak kecil: waktu, tempat, rubrik, status.
 const AGENDA = [
-  { time:"08.00", title:"Upacara Penyambutan Kenegaraan PM India", place:"Halaman Istana Merdeka, Jakarta", cat:"News", who:"Presiden & PM India", status:"done" },
-  { time:"09.00", title:"Sidang Kabinet Paripurna", place:"Istana Negara, Jakarta", cat:"News", who:"Presiden & para menteri", status:"live" },
-  { time:"10.30", title:"Sidang Lanjutan Kasus Impor", place:"PN Jakarta Pusat", cat:"News", who:"Majelis Hakim", status:"next" },
-  { time:"13.30", title:"Rilis Data Inflasi & Neraca Dagang", place:"Kantor Pusat BPS", cat:"Neraca", who:"BPS", status:"next" },
-  { time:"15.00", title:"RUPS Tahunan Bank Nusantara", place:"Hotel Indonesia Kempinski", cat:"Neraca", who:"Direksi & pemegang saham", status:"next" },
-  { time:"16.00", title:"Konferensi Pers Timnas Jelang Laga", place:"GBK, Jakarta", cat:"News", who:"Pelatih & kapten", status:"next" },
-  { time:"19.30", title:"Malam Anugerah Perempuan Inspiratif", place:"Istora Senayan", cat:"SHEroes", who:"Yayasan Peduli", status:"next" }
+  { time:"08.00", title:"Upacara Penyambutan Kenegaraan PM India", place:"Halaman Istana Merdeka, Jakarta", cat:"News", who:"Presiden & PM India", status:"done", topic:"Politik" },
+  { time:"09.00", title:"Sidang Kabinet Paripurna", place:"Istana Negara, Jakarta", cat:"News", who:"Presiden & para menteri", status:"live", topic:"Politik" },
+  { time:"10.30", title:"Sidang Lanjutan Kasus Impor", place:"PN Jakarta Pusat", cat:"News", who:"Majelis Hakim", status:"next", topic:"Hukum" },
+  { time:"13.30", title:"Rilis Data Inflasi & Neraca Dagang", place:"Kantor Pusat BPS", cat:"Neraca", who:"BPS", status:"next", topic:"Ekonomi" },
+  { time:"15.00", title:"RUPS Tahunan Bank Nusantara", place:"Hotel Indonesia Kempinski", cat:"Neraca", who:"Direksi & pemegang saham", status:"next", topic:"Moneter" },
+  { time:"16.00", title:"Konferensi Pers Timnas Jelang Laga", place:"GBK, Jakarta", cat:"News", who:"Pelatih & kapten", status:"next", topic:"Sepak Bola" },
+  { time:"19.30", title:"Malam Anugerah Perempuan Inspiratif", place:"Istora Senayan", cat:"SHEroes", who:"Yayasan Peduli", status:"next", topic:"Perempuan" }
+];
+// Agenda mendatang — kartu geser horizontal.
+const AGENDA_SOON = [
+  { date:"2026-07-10", time:"10.00", title:"KTT Ekonomi ASEAN", place:"Bali Nusa Dua", cat:"Neraca", topic:"Ekonomi" },
+  { date:"2026-07-11", time:"20.00", title:"Final Piala Domestik", place:"Stadion GBK, Jakarta", cat:"News", topic:"Sepak Bola" },
+  { date:"2026-07-13", time:"09.00", title:"Rapat Kerja DPR & Pemerintah", place:"Gedung DPR, Senayan", cat:"News", topic:"DPR" },
+  { date:"2026-07-15", time:"13.00", title:"Peluncuran Program UMKM Digital", place:"JCC Senayan, Jakarta", cat:"Neraca", topic:"UMKM" },
+  { date:"2026-07-18", time:"19.00", title:"Festival Film Perempuan", place:"Taman Ismail Marzuki", cat:"SHEroes", topic:"Perempuan" }
 ];
 const PIN_SVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="2.6"/></svg>`;
 function agendaCard(){
@@ -1199,7 +1219,7 @@ function agendaCard(){
     const st=a.status==="live"?`<span class="ag-live">● Berlangsung</span>`:a.status==="done"?`<span class="ag-done">Selesai</span>`:`<span class="ag-next">Akan datang</span>`;
     return `<div class="ag-item">
       <div class="ag-time"><span class="ag-h">${a.time}</span><span class="ag-wib">WIB</span></div>
-      <div class="ag-main"><div class="ag-title">${a.title}</div>
+      <div class="ag-main"><a class="ag-title" data-kw="${a.topic}" href="#/tags/${slugify(a.topic)}">${a.title}</a>
         <div class="ag-chips">
           <span class="ag-chip">${PIN_SVG}${a.place}</span>
           <span class="ag-chip"><span class="ag-dot" style="background:${col}"></span>${a.cat}</span>
@@ -1210,12 +1230,25 @@ function agendaCard(){
   }).join("");
   return `<div class="rail-box rail-agenda"><h4>Agenda Hari Ini <span class="agenda-sub">${dateStr} · ${list.length} acara</span></h4><div class="ag-card">${items}</div></div>`;
 }
+function agendaSoonCard(){
+  const items=AGENDA_SOON.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(a=>{
+    const dt=new Date(a.date); const col=SECTION_COLOR[a.cat]||"#0fa958";
+    const dstr=`${hari[dt.getDay()].slice(0,3)}, ${dt.getDate()} ${bulan[dt.getMonth()]}`;
+    return `<div class="ags-card">
+      <div class="ags-when"><span class="ags-date">${dstr}</span><span class="ags-time">${a.time} WIB</span></div>
+      <a class="ags-title" data-kw="${a.topic}" href="#/tags/${slugify(a.topic)}">${a.title}</a>
+      <div class="ag-chips"><span class="ag-chip">${PIN_SVG}${a.place}</span><span class="ag-chip"><span class="ag-dot" style="background:${col}"></span>${a.cat}</span></div>
+    </div>`;
+  }).join("");
+  return `<div class="rail-box rail-agenda rail-soon"><h4>Akan Datang <span class="agenda-sub">${AGENDA_SOON.length} agenda · geser →</span></h4><div class="ags-scroll">${items}</div></div>`;
+}
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
   const ed=NEWS.find(n=>n.tag==="Editorial");
   const tajuk=ed?`<div class="rail-box rail-tajuk"><h4>Editorial <span class="tajuk-sub">Pandangan Redaksi</span></h4>${card(ed)}</div>`:"";
   return `<aside><div class="rail"><div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
     ${tajuk}
     ${agendaCard()}
+    ${agendaSoonCard()}
     ${ad("ad-rail","Sidebar · 300×250")}
     <div class="nl"><h4>Ringkasan pagi</h4><p>Lima berita penting tiap hari, langsung ke inbox. Gratis.</p><form id="nl"><input type="email" placeholder="email kamu…" required><button>Ikutan</button></form></div></div></aside>`; }
 
