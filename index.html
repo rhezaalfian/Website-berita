@@ -492,11 +492,14 @@
   .ad-leaderboard { height: 96px; margin: 18px 0 2px; }
   /* Iklan billboard atas (gaya detik) — di paling atas, ikut menggulir */
   .top-bb-wrap { padding: 12px 0 6px; background: var(--panel); border-bottom: 1px solid var(--line); }
-  .top-bb-wrap.hide { display: none; }
-  .ad-topbb { position: relative; height: 250px; margin: 0; }
-  .topbb-x { position: absolute; top: -6px; right: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
-    font-size: .66rem; font-weight: 700; letter-spacing: .02em; padding: 3px 9px; border-radius: 999px; cursor: pointer; font-family: inherit; transition: background .16s, color .16s; }
-  .topbb-x:hover { background: var(--panel); color: var(--ink); }
+  .top-bb-wrap .wrap { position: relative; }
+  .ad-topbb { height: 250px; margin: 0; transition: height .18s; }
+  .topbb-toggle { position: absolute; top: -6px; right: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+    font-size: .66rem; font-weight: 700; letter-spacing: .02em; padding: 3px 10px; border-radius: 999px; cursor: pointer; font-family: inherit; transition: background .16s, color .16s; z-index: 2; }
+  .topbb-toggle:hover { background: var(--panel); color: var(--ink); }
+  .top-bb-wrap.collapsed { padding-top: 6px; padding-bottom: 6px; }
+  .top-bb-wrap.collapsed .ad-topbb { display: none; }
+  .top-bb-wrap.collapsed .topbb-toggle { position: static; display: block; margin-left: auto; }
   @media (max-width: 640px) { .ad-topbb { height: 110px; } .top-bb-wrap { padding: 8px 0 6px; } }
   .ad-infeed { height: 108px; margin: 6px 0; }
   .ad-feed { height: 126px; margin: 10px 0; }
@@ -1022,7 +1025,7 @@
   @media (max-width: 760px) {
     .feat-block { grid-template-columns: 1fr; gap: 18px; padding: 22px 16px 24px; }
     .feat-sub { max-width: none; }
-    .feat-cards { margin: 0 -16px; } .feat-cards .carousel { padding-left: 16px; padding-right: 16px; }
+    .feat-cards { margin: 0 -16px; } .feat-cards .carousel { padding-left: 16px; padding-right: 16px; scroll-padding-left: 16px; }
   }
   /* ===== Agenda band — dua kolom geser horizontal (bawah Berita utama) ===== */
   .agenda-band { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin: 32px 0; }
@@ -1087,15 +1090,16 @@
   .af-more { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 11px; font-size: .8rem; font-weight: 800;
     color: #e0201b; border-top: 1px solid var(--line); cursor: pointer; }
   .af-more span { transition: transform .16s; } .af-more:hover span { transform: translateX(3px); }
-  /* Affiliate — tombol geser gaya hero */
-  .af-viewport { position: relative; }
-  .af-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%;
-    border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 92%, transparent); color: var(--ink); font-size: 1.25rem; line-height: 1;
-    cursor: pointer; display: grid; place-items: center; box-shadow: 0 4px 12px -4px rgba(0,0,0,.28); opacity: 0; transition: opacity .16s, background .16s, border-color .16s; z-index: 3; }
-  .af-viewport:hover .af-arrow { opacity: 1; }
-  .af-arrow:hover { border-color: #e0201b; color: #e0201b; }
-  .af-arrow.prev { left: 6px; } .af-arrow.next { right: 6px; }
-  @media (hover: none) { .af-arrow { opacity: 1; background: var(--surface); } }
+  /* Tombol panah geser transparan — dipakai di affiliate, video, esai, cek fakta */
+  .scroll-vp { position: relative; min-width: 0; }
+  .scroll-vp.no-scroll .sc-arrow { display: none; }
+  .sc-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; border: none;
+    background: rgba(18,20,24,.32); color: #fff; font-size: 1.35rem; line-height: 1; cursor: pointer; display: grid; place-items: center;
+    -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); opacity: 0; transition: opacity .16s, background .16s; z-index: 4; }
+  .scroll-vp:hover .sc-arrow { opacity: 1; }
+  .sc-arrow:hover { background: rgba(18,20,24,.55); }
+  .sc-arrow.prev { left: 6px; } .sc-arrow.next { right: 6px; }
+  @media (hover: none) { .sc-arrow { display: none; } }
   /* Label "geser" bisa diklik untuk menggeser sendiri */
   [data-geser] { cursor: pointer; -webkit-user-select: none; user-select: none; transition: color .16s, opacity .16s; }
   [data-geser]:hover { color: var(--accent-dark); }
@@ -1106,7 +1110,7 @@
   @media (max-width: 900px) { .pe-layout { grid-template-columns: 1fr; gap: 24px; } .pe-photo { max-height: 58vh; } }
 </style>
 
-<div class="top-bb-wrap" id="top-bb"><div class="wrap"><div class="ad ad-topbb"><button class="topbb-x" id="top-bb-x" aria-label="Tutup iklan">Tutup Iklan ✕</button><span class="ad-tag">Iklan</span><span class="ad-dim">Billboard · 970×250</span></div></div></div>
+<div class="top-bb-wrap" id="top-bb"><div class="wrap"><div class="ad ad-topbb"><span class="ad-tag">Iklan</span><span class="ad-dim">Billboard · 970×250</span></div><button class="topbb-toggle" id="top-bb-toggle" aria-label="Sembunyikan iklan">Sembunyikan ▴</button></div></div>
 <header class="site-top" id="site-top">
 <div id="breaking-slot"></div>
 
@@ -1523,7 +1527,7 @@ function videoShelf(){
     <div class="vid-body"><h3>${v.title}</h3><div class="vid-meta">${v.views}× ditonton</div></div></article>`).join("");
   return `<section class="vid-shelf"><div class="vid-glow"></div>
     <div class="vid-headrow"><span class="vid-badge">▶</span><div class="vid-htext"><h2>Video</h2><span class="vid-eyebrow" data-geser>Tonton vertikal · geser →</span></div></div>
-    <div class="vid-row">${items}</div></section>`;
+    <div class="scroll-vp"><div class="vid-row">${items}</div>${scrollArrows()}</div></section>`;
 }
 // Pemutar video vertikal: panel naik dari bawah (bottom-sheet), poster dulu, main saat diklik (hemat data).
 let vlIdx=0, vlPlaying=false;
@@ -1580,7 +1584,7 @@ function factCheckSection(){
       <a class="feat-cta" href="#/indeks" data-nav="index">Semua klarifikasi <span>→</span></a>
       <div class="feat-tags"><span class="ft-chip">✕ HOAKS</span><span class="ft-chip">✕ KELIRU</span><span class="ft-chip">! MENYESATKAN</span></div>
     </div>
-    <div class="feat-cards"><div class="carousel sm-cards fc-carousel">${items.map(fcCard).join("")}</div></div>
+    <div class="feat-cards"><div class="scroll-vp"><div class="carousel sm-cards fc-carousel">${items.map(fcCard).join("")}</div>${scrollArrows()}</div></div>
   </section>`;
 }
 // Blok Esai Foto bertema sinematik
@@ -1594,7 +1598,7 @@ function fotoBlock(){
       <a class="feat-cta" href="#/foto" data-nav="foto">Lihat galeri <span>→</span></a>
       <div class="feat-count">${PHOTO_ESSAYS.length} esai · ${PHOTO_ESSAYS.reduce((a,e)=>a+e.photos.length,0)}+ foto</div>
     </div>
-    <div class="feat-cards"><div class="carousel sm-cards">${PHOTO_ESSAYS.map(feCardHome).join("")}</div></div>
+    <div class="feat-cards"><div class="scroll-vp"><div class="carousel sm-cards">${PHOTO_ESSAYS.map(feCardHome).join("")}</div>${scrollArrows()}</div></div>
   </section>`;
 }
 // Kartu ringkasan (muncul saat kartu Cek Fakta diklik)
@@ -1705,13 +1709,14 @@ function affiliateBox(){
     <span class="af-buy">Beli Sekarang</span></div>`).join("");
   return `<div class="rail-box af-box">
     <div class="af-head"><div><span class="af-brand">🛍️ Lagi Diskon</span><span class="af-slogan" data-geser>Belanja hemat · geser →</span></div><span class="af-badge">Ad · Affiliate</span></div>
-    <div class="af-viewport">
+    <div class="scroll-vp">
       <div class="af-scroll">${items}</div>
-      <button class="af-arrow prev" data-afscroll="prev" aria-label="Sebelumnya">‹</button>
-      <button class="af-arrow next" data-afscroll="next" aria-label="Berikutnya">›</button>
+      ${scrollArrows()}
     </div>
     <a class="af-more" data-af="all">Lihat semua promo <span>→</span></a></div>`;
 }
+// Tombol panah geser (transparan) — dipakai di affiliate, video, esai, & cek fakta.
+function scrollArrows(){ return `<button class="sc-arrow prev" data-scroll="prev" aria-label="Sebelumnya">‹</button><button class="sc-arrow next" data-scroll="next" aria-label="Berikutnya">›</button>`; }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
   return `<aside><div class="rail"><div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
     ${affiliateBox()}
@@ -2067,7 +2072,11 @@ function go(r){ route=r; updateHead(r); syncHash(r); renderNav(); heroStop(); tt
   else if(r.page==="article") renderArticle(r.id);
   view.classList.remove("in"); void view.offsetWidth; view.classList.add("in");
   if(typeof onScroll==="function") onScroll();
+  requestAnimationFrame(updateScrollArrows);
 }
+// Sembunyikan panah geser bila isi carousel sudah muat (tak perlu digeser).
+function updateScrollArrows(){ document.querySelectorAll(".scroll-vp").forEach(vp=>{ const sc=vp.querySelector(".af-scroll,.vid-row,.carousel,.agn-scroll"); if(!sc) return; vp.classList.toggle("no-scroll", sc.scrollWidth<=sc.clientWidth+4); }); }
+window.addEventListener("resize", ()=>requestAnimationFrame(updateScrollArrows));
 
 // ===== FAQ rangkuman (pop-up setelah selesai baca) =====
 function faqFor(n){
@@ -2214,6 +2223,7 @@ function openAuthModal(){ document.getElementById("auth-body").innerHTML=authCho
 function closeAuthModal(){ const m=document.getElementById("auth-modal"); m.classList.remove("show"); m.setAttribute("aria-hidden","true"); document.body.style.overflow=""; }
 function login(u){ user={name:u.name||"Pengguna",email:u.email}; LS.set("kabar_user",user); renderAuthSlot(); closeAuthModal(); showToast(`Masuk sebagai ${user.name} ✓`);
   if(pendingSave!=null){ const pid=pendingSave; pendingSave=null; setTimeout(()=>toggleSave(pid),350); return; }
+  if(pendingComment){ const pc=pendingComment; pendingComment=null; setTimeout(()=>postComment(pc.id,pc.txt),350); return; }
   if(route.page==="home") go({page:"home"}); }
 function logout(){ user=null; LS.set("kabar_user",null); renderAuthSlot(); showToast("Kamu sudah keluar"); if(route.page==="home") go({page:"home"}); }
 
@@ -2473,9 +2483,9 @@ document.addEventListener("click", e=>{
     document.querySelectorAll('[data-fs="dec"]').forEach(x=>x.disabled=fsLevel===0);
     document.querySelectorAll('[data-fs="inc"]').forEach(x=>x.disabled=fsLevel===FS_SIZES.length-1); return; }
   if(e.target.closest("#sticky-ad-toggle")){ const c=!_stickyAd.classList.contains("collapsed"); _stickyAd.classList.toggle("collapsed",c); document.body.classList.toggle("sticky-collapsed",c); e.target.closest("#sticky-ad-toggle").textContent=c?"Tampilkan iklan ▴":"Sembunyikan ▾"; sessionStorage.setItem("kabar_stickyad_collapsed",c?"1":"0"); return; }
-  const afs=e.target.closest("[data-afscroll]"); if(afs){ const vp=afs.closest(".af-viewport"); const sc=vp&&vp.querySelector(".af-scroll"); if(sc){ const dir=afs.dataset.afscroll==="next"?1:-1; sc.scrollBy({left:dir*Math.round(sc.clientWidth*0.9), behavior:"smooth"}); } return; }
+  const scr=e.target.closest("[data-scroll]"); if(scr){ const vp=scr.closest(".scroll-vp"); const sc=vp&&vp.querySelector(".af-scroll,.vid-row,.carousel,.agn-scroll"); if(sc){ const dir=scr.dataset.scroll==="next"?1:-1; sc.scrollBy({left:dir*Math.round(sc.clientWidth*0.85), behavior:"smooth"}); } return; }
   const gsr=e.target.closest("[data-geser]"); if(gsr){ const root=gsr.closest("section,.af-box,.agn-col,.vid-shelf")||document; const sc=root.querySelector(".carousel,.vid-row,.af-scroll,.agn-scroll"); if(sc){ const atEnd=sc.scrollLeft+sc.clientWidth>=sc.scrollWidth-4; sc.scrollTo({left:atEnd?0:sc.scrollLeft+Math.round(sc.clientWidth*0.85), behavior:"smooth"}); } return; }
-  if(e.target.closest("#top-bb-x")){ const t=document.getElementById("top-bb"); if(t) t.classList.add("hide"); sessionStorage.setItem("kabar_topbb_closed","1"); return; }
+  if(e.target.closest("#top-bb-toggle")){ const t=document.getElementById("top-bb"); const c=t.classList.toggle("collapsed"); e.target.closest("#top-bb-toggle").textContent=c?"Tampilkan iklan ▾":"Sembunyikan ▴"; sessionStorage.setItem("kabar_topbb_collapsed",c?"1":"0"); return; }
   if(e.target.closest("#login-btn")){ openAuthModal(); return; }
   const acc=e.target.closest("[data-acc]"); if(acc){ login(DEMO_ACCOUNTS[+acc.dataset.acc]); return; }
   if(e.target.closest("#use-other")){ document.getElementById("auth-body").innerHTML=authFormHTML(); return; }
@@ -2546,8 +2556,13 @@ document.addEventListener("submit", e=>{ e.preventDefault();
   if(e.target.id==="search-form"||e.target.id==="mega-search-form"){ const q=e.target.querySelector("input").value.trim(); if(q){ closeMega(); window.scrollTo(0,0); go({page:"search", q}); } }
   else if(e.target.id==="nl"){ const b=e.target.querySelector("button"); b.textContent="Sip! ✓"; setTimeout(()=>b.textContent="Ikutan",1600); e.target.reset(); }
   else if(e.target.id==="auth-form"){ const f=e.target; login({name:f.nm.value.trim(),email:f.em.value.trim()}); }
-  else if(e.target.dataset&&e.target.dataset.cm){ const id=+e.target.dataset.cm; const inp=e.target.querySelector("input"); const txt=(inp.value||"").trim(); if(txt){ if(!comments[id])comments[id]=[]; comments[id].unshift([user?user.name:"Kamu",txt,"baru saja"]); LS.set("kabar_comments",comments); const box=e.target.closest(".comments"); if(box) box.outerHTML=commentsBox(id); showToast("Komentar terkirim ✓"); } }
+  else if(e.target.dataset&&e.target.dataset.cm){ const id=+e.target.dataset.cm; const inp=e.target.querySelector("input"); const txt=(inp.value||"").trim(); if(!txt) return;
+    if(!user){ pendingComment={id,txt}; showToast("Masuk dulu untuk mengirim komentar"); openAuthModal(); return; }
+    postComment(id,txt); }
 });
+let pendingComment=null;
+function postComment(id,txt){ id=+id; if(!comments[id])comments[id]=[]; comments[id].unshift([user?user.name:"Kamu",txt,"baru saja"]); LS.set("kabar_comments",comments);
+  const form=document.querySelector(`.cm-form[data-cm="${id}"]`); const box=form&&form.closest(".comments"); if(box) box.outerHTML=commentsBox(id); showToast("Komentar terkirim ✓"); }
 function toggleTheme(){ const r=document.documentElement; const cur=r.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"); r.setAttribute("data-theme", cur==="dark"?"light":"dark"); }
 
 const progress=document.getElementById("progress"), totop=document.getElementById("totop");
@@ -2590,5 +2605,5 @@ const _stickyAd=document.getElementById("sticky-ad");
 function applyStickyCollapse(){ const c=sessionStorage.getItem("kabar_stickyad_collapsed")==="1"; _stickyAd.classList.toggle("collapsed",c); document.body.classList.toggle("sticky-collapsed",c); const btn=document.getElementById("sticky-ad-toggle"); if(btn) btn.textContent=c?"Tampilkan iklan ▴":"Sembunyikan ▾"; }
 function showStickyAd(){ _stickyAd.classList.add("show"); _stickyAd.setAttribute("aria-hidden","false"); document.body.classList.add("has-sticky-ad"); applyStickyCollapse(); }
 setTimeout(showStickyAd, 1600);
-if(sessionStorage.getItem("kabar_topbb_closed")){ const _t=document.getElementById("top-bb"); if(_t) _t.classList.add("hide"); }
+if(sessionStorage.getItem("kabar_topbb_collapsed")==="1"){ const _t=document.getElementById("top-bb"); if(_t){ _t.classList.add("collapsed"); const _b=document.getElementById("top-bb-toggle"); if(_b) _b.textContent="Tampilkan iklan ▾"; } }
 </script>
