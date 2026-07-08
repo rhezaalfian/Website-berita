@@ -833,20 +833,37 @@
   .foto-more { color: #c24e26; }
   .foto-more:hover { color: #a8401e; }
   /* Video vertikal (9:16) */
-  .vid-shelf { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--line); }
-  .vid-row { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; scrollbar-width: none; }
+  /* Video — blok sinematik gelap (tidak polos) */
+  .vid-shelf { position: relative; margin: 34px 0; padding: 26px 26px 22px; border-radius: 3px; overflow: hidden; isolation: isolate;
+    background: linear-gradient(125deg, #16182b 0%, #2a2350 54%, #4a2d63 100%); }
+  .vid-shelf > .vid-headrow, .vid-shelf > .vid-row { position: relative; z-index: 2; }
+  .vid-glow { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(52% 70% at 88% 10%, rgba(150,128,255,.30), transparent 60%),
+      radial-gradient(46% 64% at 4% 102%, rgba(0,0,0,.32), transparent 55%); }
+  .vid-glow::before { content: "▶"; position: absolute; right: -4px; bottom: -46px; font-size: 190px; line-height: 1; opacity: .06; color: #fff; transform: rotate(-8deg); }
+  .vid-headrow { display: flex; align-items: center; gap: 13px; margin-bottom: 20px; }
+  .vid-badge { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 3px; font-size: 1.05rem; color: #fff; padding-left: 3px;
+    background: rgba(255,255,255,.14); box-shadow: inset 0 0 0 1px rgba(255,255,255,.26); }
+  .vid-htext { min-width: 0; }
+  .vid-htext h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.03em; color: #fff; line-height: 1; }
+  .vid-htext .vid-eyebrow { display: block; margin-top: 6px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.62); }
+  .vid-row { display: flex; gap: 15px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; scrollbar-width: none; }
   .vid-row::-webkit-scrollbar { display: none; }
-  .vid-card { min-width: 160px; max-width: 160px; scroll-snap-align: start; cursor: pointer; }
-  .vid-ph { position: relative; aspect-ratio: 9/16; border-radius: 3px; overflow: hidden; background: var(--panel); }
+  .vid-card { min-width: 158px; max-width: 158px; scroll-snap-align: start; cursor: pointer; }
+  .vid-ph { position: relative; aspect-ratio: 9/16; border-radius: 3px; overflow: hidden; background: rgba(255,255,255,.06); box-shadow: 0 8px 22px -10px rgba(0,0,0,.5); }
   .vid-ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.22,.61,.36,1); }
   .vid-card:hover .vid-ph img { transform: scale(1.05); }
   .vid-play { position: absolute; inset: 0; margin: auto; width: 46px; height: 46px; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; display: grid; place-items: center; font-size: .95rem; padding-left: 3px; backdrop-filter: blur(2px); transition: background .16s, transform .16s; }
   .vid-card:hover .vid-play { background: rgba(0,0,0,.72); transform: scale(1.08); }
   .vid-dur { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.72); color: #fff; font-size: .68rem; font-weight: 700; padding: 2px 6px; border-radius: 3px; font-variant-numeric: tabular-nums; }
-  .vid-body { padding: 9px 2px 0; }
-  .vid-body h3 { font-size: .86rem; font-weight: 700; line-height: 1.3; letter-spacing: -.01em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-  .vid-card:hover h3 { color: var(--accent-dark); }
-  .vid-meta { font-size: .72rem; color: var(--muted); margin-top: 5px; }
+  .vid-body { padding: 12px 2px 0; }
+  .vid-body h3 { font-size: .86rem; font-weight: 700; line-height: 1.34; letter-spacing: -.01em; color: #fff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .vid-card:hover h3 { color: #cdbcff; }
+  .vid-meta { font-size: .72rem; color: rgba(255,255,255,.6); margin-top: 7px; }
+  @media (max-width: 760px) {
+    .vid-shelf { margin: 26px 0; padding: 20px 16px 18px; }
+    .vid-glow::before { font-size: 130px; bottom: -30px; }
+  }
   /* Pemutar video vertikal — panel naik dari bawah saat dibuka (bottom-sheet) */
   .vid-lightbox { position: fixed; inset: 0; z-index: 3000; background: rgba(8,9,11,0); display: none; align-items: center; justify-content: center;
     transition: background .28s ease; }
@@ -933,6 +950,42 @@
     .feat-block { grid-template-columns: 1fr; gap: 18px; padding: 22px 16px 24px; }
     .feat-sub { max-width: none; }
     .feat-cards { margin: 0 -16px; } .feat-cards .carousel { padding-left: 16px; padding-right: 16px; }
+  }
+  /* ===== Agenda band — dua kolom geser horizontal (bawah Berita utama) ===== */
+  .agenda-band { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin: 32px 0; }
+  .agn-col { min-width: 0; }
+  .agn-head { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; padding-bottom: 11px; border-bottom: 2px solid var(--ink); }
+  .agn-ic { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 3px; font-size: 1rem; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
+  .agn-htext { flex: 1; min-width: 0; }
+  .agn-htext h3 { font-size: 1.14rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+  .agn-sub { font-size: .74rem; color: var(--muted); font-weight: 600; }
+  .agn-hint { font-size: .66rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .agn-scroll { display: flex; gap: 13px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; scrollbar-width: none; }
+  .agn-scroll::-webkit-scrollbar { display: none; }
+  .agn-card { flex: 0 0 234px; max-width: 234px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 9px;
+    padding: 14px 15px 15px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 3px;
+    background: var(--surface); box-shadow: var(--card-rest); transition: border-color .16s, box-shadow .16s, transform .16s; }
+  .agn-card:hover { box-shadow: 0 10px 22px -12px rgba(0,0,0,.32); transform: translateY(-2px); }
+  .agn-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 22px; }
+  .agn-time { font-size: .92rem; font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .agn-time em { font-size: .6rem; font-weight: 700; color: var(--muted); font-style: normal; margin-left: 2px; }
+  .agn-title { font-size: .93rem; font-weight: 700; line-height: 1.34; letter-spacing: -.01em; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .agn-card:hover .agn-title { color: var(--accent-dark); }
+  .agn-place { display: flex; align-items: center; gap: 6px; font-size: .76rem; color: var(--muted); }
+  .agn-place svg { width: 13px; height: 13px; flex: none; }
+  .agn-place span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .agn-card.st-live { border-left-color: var(--breaking); }
+  .agn-card.st-done { border-left-color: var(--line); opacity: .74; }
+  .agn-card.st-soon { border-left-color: #2f8ad4; }
+  .agn-live { display: inline-flex; align-items: center; gap: 4px; font-size: .66rem; font-weight: 800; color: var(--breaking); letter-spacing: .02em; white-space: nowrap; }
+  .agn-st { font-size: .63rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .agn-st.done { background: var(--panel); color: var(--muted); }
+  .agn-st.next { background: var(--accent-tint); color: var(--accent-dark); }
+  .agn-chip { display: inline-flex; align-items: center; gap: 4px; font-size: .68rem; font-weight: 700; color: var(--muted); background: var(--panel); padding: 3px 8px; border-radius: 3px; white-space: nowrap; }
+  .agn-chip svg { width: 11px; height: 11px; }
+  @media (max-width: 760px) {
+    .agenda-band { grid-template-columns: 1fr; gap: 24px; margin: 24px 0; }
   }
   /* ===== Affiliate / belanja (rail) ===== */
   .af-box { padding: 0; overflow: hidden; border: 1px solid color-mix(in srgb, #ff3d78 26%, var(--line)); border-radius: 3px; }
@@ -1362,7 +1415,8 @@ function videoShelf(){
   const items=VIDEOS.map(v=>`<article class="vid-card" data-video="${v.id}">
     <div class="vid-ph"><img src="${img("video-"+v.id, v.tag)}" alt="${v.title}" loading="lazy"><span class="vid-play">▶</span><span class="vid-dur">${v.dur}</span></div>
     <div class="vid-body"><h3>${v.title}</h3><div class="vid-meta">${v.views}× ditonton</div></div></article>`).join("");
-  return `<section class="vid-shelf"><div class="sec-head"><h2>▶ Video</h2><span class="eyebrow">Tonton vertikal · geser →</span></div>
+  return `<section class="vid-shelf"><div class="vid-glow"></div>
+    <div class="vid-headrow"><span class="vid-badge">▶</span><div class="vid-htext"><h2>Video</h2><span class="vid-eyebrow">Tonton vertikal · geser →</span></div></div>
     <div class="vid-row">${items}</div></section>`;
 }
 // Pemutar video vertikal: panel naik dari bawah (bottom-sheet), poster dulu, main saat diklik (hemat data).
@@ -1489,6 +1543,36 @@ function agendaCard(){
       <div class="ag-page"><div class="ag-psub">${AGENDA_SOON.length} agenda mendatang</div><div class="ag-card">${soon}</div></div>
     </div></div>`;
 }
+// Agenda band — dua kolom (Hari Ini + Akan Datang), masing-masing geser horizontal. Tampil di bawah Berita utama.
+function agnCardToday(a){
+  const badge=a.status==="live"?`<span class="agn-live">● Berlangsung</span>`:a.status==="done"?`<span class="agn-st done">Selesai</span>`:`<span class="agn-st next">Akan datang</span>`;
+  return `<a class="agn-card st-${a.status}" data-kw="${a.topic}" href="#/tags/${slugify(a.topic)}">
+    <div class="agn-row"><span class="agn-time">${a.time}<em>WIB</em></span>${badge}</div>
+    <div class="agn-title">${a.title}</div>
+    <div class="agn-place">${PIN_SVG}<span>${a.place}</span></div></a>`;
+}
+function agnCardSoon(a){
+  const dt=new Date(a.date);
+  return `<a class="agn-card st-soon" data-kw="${a.topic}" href="#/tags/${slugify(a.topic)}">
+    <div class="agn-row"><span class="agn-time">${dt.getDate()} ${bulan[dt.getMonth()]}</span><span class="agn-chip">${CLOCK_SVG}${a.time} WIB</span></div>
+    <div class="agn-title">${a.title}</div>
+    <div class="agn-place">${PIN_SVG}<span>${a.place}</span></div></a>`;
+}
+function agendaBand(){
+  const d=new Date(); const dateStr=`${hari[d.getDay()]}, ${d.getDate()} ${bulanF[d.getMonth()]}`;
+  const today=AGENDA.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(agnCardToday).join("");
+  const soon=AGENDA_SOON.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(agnCardSoon).join("");
+  return `<section class="agenda-band">
+    <div class="agn-col">
+      <div class="agn-head"><span class="agn-ic">📅</span><div class="agn-htext"><h3>Agenda Hari Ini</h3><span class="agn-sub">${dateStr} · ${AGENDA.length} acara</span></div><span class="agn-hint">geser →</span></div>
+      <div class="agn-scroll">${today}</div>
+    </div>
+    <div class="agn-col">
+      <div class="agn-head"><span class="agn-ic">🗓️</span><div class="agn-htext"><h3>Akan Datang</h3><span class="agn-sub">${AGENDA_SOON.length} agenda mendatang</span></div><span class="agn-hint">geser →</span></div>
+      <div class="agn-scroll">${soon}</div>
+    </div>
+  </section>`;
+}
 // Affiliate / belanja — muncul setelah Agenda di rail.
 const AFFILIATE = [
   { name:"Siku Rak Besi L Ambalan Dinding (Set isi 4)", price:3000, old:12000, disc:75, seller:"Readystock.id" },
@@ -1510,7 +1594,6 @@ function affiliateBox(){
 }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
   return `<aside><div class="rail"><div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
-    ${agendaCard()}
     ${affiliateBox()}
     ${ad("ad-rail","Sidebar · 300×250")}
     <div class="nl"><h4>Ringkasan pagi</h4><p>Lima berita penting tiap hari, langsung ke inbox. Gratis.</p><form id="nl"><input type="email" placeholder="email kamu…" required><button>Ikutan</button></form></div></div></aside>`; }
@@ -1570,6 +1653,7 @@ function renderHome(){
     </div>
     <section><div class="sec-head"><h2>Berita utama</h2><span class="eyebrow">Geser untuk lihat →</span></div>
       <div class="carousel sm-cards">${utama.map(card).join("")}</div></section>
+    ${agendaBand()}
     ${(()=>{ if(!user) return ""; const fy=forYou(); return fy.length?`<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow">Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`:""; })()}
     ${(()=>{ if(!user) return ""; const rr=recentRead(); return rr.length?`<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow">Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`:""; })()}
     <div class="layout"><main><div class="sec-head"><h2>Terbaru</h2><span class="eyebrow">Update harian</span></div>
