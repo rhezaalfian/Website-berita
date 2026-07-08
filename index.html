@@ -279,18 +279,18 @@
     max-height: 360px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, #e0891e 45%, var(--line)) transparent; }
   .ag-card::-webkit-scrollbar { width: 6px; }
   .ag-card::-webkit-scrollbar-thumb { background: color-mix(in srgb, #e0891e 40%, var(--line)); border-radius: 3px; }
-  .ag-item { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+  .ag-item { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
   .ag-item:last-child { border-bottom: none; }
   .ag-main { min-width: 0; }
   .ag-time { text-align: center; height: fit-content; padding: 6px 4px; border-radius: 3px; background: color-mix(in srgb, #e0891e 12%, var(--surface)); border: 1px solid color-mix(in srgb, #e0891e 24%, var(--line)); }
-  .ag-h { display: block; font-size: 1.02rem; font-weight: 800; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.05; }
+  .ag-h { display: block; font-size: .95rem; font-weight: 800; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.05; }
   .ag-wib { font-size: .58rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
   .ag-title { display: block; font-size: .96rem; font-weight: 700; line-height: 1.28; letter-spacing: -.01em; color: var(--ink); cursor: pointer; transition: color .16s; }
   .ag-title:hover { color: #c9770f; }
   .ag-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .ag-chip { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; font-size: .72rem; font-weight: 600; color: var(--ink-soft); background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px; }
   .ag-chip svg { width: 11px; height: 11px; flex-shrink: 0; color: var(--muted); }
-  .ag-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .ag-cat { color: var(--c); }
   .ag-live { display: inline-flex; align-items: center; gap: 4px; font-size: .68rem; font-weight: 800; letter-spacing: .01em; color: #d9403a; background: color-mix(in srgb, #d9403a 12%, var(--surface)); border-radius: 3px; padding: 3px 7px; }
   .ag-next { font-size: .68rem; font-weight: 700; color: #c9770f; background: color-mix(in srgb, #e0891e 14%, var(--surface)); border-radius: 3px; padding: 3px 7px; }
   .ag-done { font-size: .68rem; font-weight: 700; color: var(--muted); background: var(--panel); border-radius: 3px; padding: 3px 7px; }
@@ -1225,7 +1225,7 @@ function agendaItemHtml(a, mode){
   const who=a.who?`<div class="ag-who">${a.who}</div>`:"";
   return `<div class="ag-item">${left}
     <div class="ag-main"><a class="ag-title" data-kw="${a.topic}" href="#/tags/${slugify(a.topic)}">${a.title}</a>
-      <div class="ag-chips">${mode==="soon"?badge:""}<span class="ag-chip">${PIN_SVG}${a.place}</span><span class="ag-chip"><span class="ag-dot" style="background:${col}"></span>${a.cat}</span>${mode==="today"?badge:""}</div>${who}
+      <div class="ag-chips">${mode==="soon"?badge:""}<span class="ag-chip">${PIN_SVG}${a.place}</span><span class="ag-chip ag-cat" style="--c:${col}">${a.cat}</span>${mode==="today"?badge:""}</div>${who}
     </div></div>`;
 }
 function agendaCard(){
