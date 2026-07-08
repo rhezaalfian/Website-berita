@@ -237,6 +237,7 @@
 
   .layout { display: grid; grid-template-columns: 1fr 320px; gap: 46px; margin-top: 34px; align-items: start; }
   .layout > * { min-width: 0; }  /* cegah carousel di dalam artikel memaksa kolom melebar (overflow horizontal) */
+  .layout main { padding-top: 0; }  /* sejajarkan judul kolom kiri (Terbaru) dengan rail (Terpopuler) */
 
   /* Feed list */
   .list-item { display: grid; grid-template-columns: 1fr 124px; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--line); cursor: pointer; align-items: center; }
