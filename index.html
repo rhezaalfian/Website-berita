@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%93%B0%3C/text%3E%3C/svg%3E">
 <title>kabar — portal berita</title>
 <style>
 /* ==== Embedded font: Plus Jakarta Sans (variable 200-800). Deploy: <link>. ==== */
@@ -479,7 +485,10 @@
   .sticky-ad.collapsed .sticky-ad-toggle { pointer-events: auto; top: auto; bottom: 8px; }
   .has-sticky-ad .totop { bottom: 124px; }
   body.sticky-collapsed .totop { bottom: 20px; }
-  @media (max-width: 640px) { .sticky-ad-in { height: 60px; } .sticky-ad { padding: 7px 10px 8px; } .has-sticky-ad .totop { bottom: 92px; } }
+  /* Beri ruang aman di dasar footer saat iklan sticky terbuka agar "Ke atas ↑" tak tertutup */
+  body.has-sticky-ad:not(.sticky-collapsed) footer { padding-bottom: 120px; }
+  @media (max-width: 640px) { .sticky-ad-in { height: 60px; } .sticky-ad { padding: 7px 10px 8px; } .has-sticky-ad .totop { bottom: 92px; }
+    body.has-sticky-ad:not(.sticky-collapsed) footer { padding-bottom: 86px; } }
   /* Indeks: filter + paginasi */
   .idx-filter { display: flex; flex-wrap: wrap; gap: 12px 14px; align-items: flex-end; margin: 2px 0 24px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
   .idx-field { display: flex; flex-direction: column; gap: 6px; }
