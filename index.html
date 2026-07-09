@@ -2097,7 +2097,7 @@ function renderFooter(){
     const kanalCol=`<div class="foot-col"><span class="fc-h">Kanal</span>${kanal.map(link).join("")}</div>`;
     const compCol=`<div class="foot-col"><span class="fc-h">Perusahaan</span>${["Tentang Kami","Redaksi","Pedoman Media Siber","Metode Riset","Iklan dan Kerja Sama","Disclaimer","Kebijakan Privasi","Kontak Kami"].map(t=>`<a data-ext="page">${t}</a>`).join("")}</div>`;
     const pilarCol=`<div class="foot-col"><span class="fc-h">Pilar</span>${pilar.map(link).join("")}</div>`;
-    fl.innerHTML=kanalCol+compCol+pilarCol;
+    fl.innerHTML=compCol+kanalCol+pilarCol;
   }
 }
 function openMega(){ renderMega(); document.getElementById("mega-overlay").classList.add("open"); document.getElementById("mega").classList.add("open"); document.body.style.overflow="hidden"; }
