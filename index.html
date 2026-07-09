@@ -874,6 +874,16 @@
   .kpr-break b { font-size: .98rem; font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
   .kpr-note { margin-top: 12px; font-size: .76rem; color: var(--muted); line-height: 1.5; }
   @media (max-width: 560px){ .kpr-grid { grid-template-columns: 1fr; } .kpr-break { grid-template-columns: 1fr; } .ctool { padding: 18px; } }
+  /* Versi ramping untuk sidebar */
+  .ctool-rail { margin: 0; padding: 16px 16px 18px; border-radius: 3px; }
+  .ctool-rail .ctool-ic { width: 38px; height: 38px; font-size: 1.2rem; border-radius: 6px; }
+  .ctool-rail .ctool-title { font-size: 1.08rem; }
+  .ctool-rail .ctool-sub { font-size: .82rem; margin: 10px 0 14px; }
+  .ctool-rail .kpr-grid { grid-template-columns: 1fr; gap: 11px; }
+  .ctool-rail .kpr-break { grid-template-columns: 1fr; gap: 8px; }
+  .ctool-rail .kpr-inp input { font-size: .95rem; padding: 10px 0; }
+  .ctool-rail .kpr-big { font-size: 1.7rem; }
+  .ctool-rail .kpr-btn { margin-top: 14px; padding: 12px; }
   @media (max-width: 900px) {
     .cat-hero { grid-template-columns: 1fr; gap: 26px; }
   }
@@ -1742,10 +1752,16 @@ function affiliateBox(){
 // Tombol panah geser (transparan) — dipakai di affiliate, video, esai, & cek fakta.
 function scrollArrows(){ return `<button class="sc-arrow prev" data-scroll="prev" aria-label="Sebelumnya">‹</button><button class="sc-arrow next" data-scroll="next" aria-label="Berikutnya">›</button>`; }
 function railHtml(){ const pop=NEWS.slice(0,5).map((n,i)=>`<div class="pop" data-article="${n.id}"><span class="n">${i+1}</span><div><div class="t">${n.title}</div><div class="m">${n.tag} · ${relTime(n.mins)}</div></div></div>`).join("");
-  return `<aside><div class="rail"><div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
+  return `<aside><div class="rail">${channelTool(currentSection())}<div class="rail-box"><h4>Terpopuler</h4>${pop}</div>
     ${affiliateBox()}
     ${ad("ad-rail","Sidebar · 300×250")}
     <div class="nl"><h4>Ringkasan pagi</h4><p>Lima berita penting tiap hari, langsung ke inbox. Gratis.</p><form id="nl"><input type="email" placeholder="email kamu…" required><button>Ikutan</button></form></div></div></aside>`; }
+function currentSection(){
+  if(route.page==="section") return route.section;
+  if(route.page==="tag") return TAG_SECTION[route.tag];
+  if(route.page==="article"){ const n=NEWS.find(x=>x.id===route.id); return n?n.section:null; }
+  return null;
+}
 
 // ===== Breaking bar =====
 function renderBreaking(){
@@ -1870,7 +1886,6 @@ function renderCategory(section){
   }).join("");
   view.innerHTML=`<div class="cat-page${section==="SHEroes"?" sheroes-theme":""}">
     <div class="cat-head"><h1><span class="dot" style="background:${SECTION_COLOR[section]}"></span>${section}</h1><p>${SECTION_DESC[section]||""}</p></div>
-    ${channelTool(section)}
     ${hero}${subs||`<div class="empty"><h3>Belum ada berita di kanal ini</h3><p>Coba kanal lain.</p></div>`}
   </div>`;
   window.scrollTo(0,0);
@@ -1878,7 +1893,7 @@ function renderCategory(section){
 // ===== Tool interaktif per kanal =====
 function channelTool(section){ if(section==="Neraca") return kprCalcWidget(); return ""; }
 function kprCalcWidget(){
-  return `<form class="ctool kpr-tool" id="kpr-form" novalidate>
+  return `<form class="ctool ctool-rail kpr-tool" id="kpr-form" novalidate>
     <div class="ctool-head"><span class="ctool-ic">🏠</span><div class="ctool-htext"><span class="ctool-kicker">Kalkulator · Neraca</span><h2 class="ctool-title">Simulasi Cicilan KPR</h2></div></div>
     <p class="ctool-sub">Hitung perkiraan cicilan bulanan rumah impianmu — atur harga, uang muka, tenor, dan bunga.</p>
     <div class="kpr-grid">
