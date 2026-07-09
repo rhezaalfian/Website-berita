@@ -842,6 +842,38 @@
   .cat-sub-head .more { font-size: .84rem; font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
   .cat-sub-head .more:hover { text-decoration: underline; }
   .cat-sub .carousel { margin-top: 2px; }
+  /* Tool interaktif per kanal — Kalkulator KPR (tema Neraca/biru) */
+  .ctool { --kp: #2f7bf0; --kp-dark: #1f5fce; --kp-tint: color-mix(in srgb, #2f7bf0 9%, var(--surface));
+    margin: 4px 0 30px; padding: 22px 22px 24px; border: 1px solid color-mix(in srgb, #2f7bf0 28%, var(--line)); border-radius: 6px;
+    background: linear-gradient(180deg, color-mix(in srgb, #2f7bf0 8%, var(--surface)), var(--surface)); }
+  .ctool-head { display: flex; align-items: center; gap: 12px; }
+  .ctool-ic { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 8px; font-size: 1.4rem; background: color-mix(in srgb, #2f7bf0 14%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, #2f7bf0 24%, transparent); }
+  .ctool-kicker { display: block; font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--kp-dark); }
+  .ctool-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; margin: 2px 0 0; }
+  .ctool-sub { margin: 12px 0 16px; font-size: .9rem; color: var(--ink-soft); line-height: 1.5; max-width: 60ch; }
+  .kpr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .kpr-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .kpr-wide { grid-column: 1 / -1; }
+  .kpr-lab { font-size: .78rem; font-weight: 700; color: var(--ink-soft); }
+  .kpr-inp { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 5px; padding: 0 12px; transition: border-color .16s, box-shadow .16s; }
+  .kpr-inp:focus-within { border-color: var(--kp); box-shadow: 0 0 0 3px color-mix(in srgb, #2f7bf0 16%, transparent); }
+  .kpr-inp i { font-style: normal; font-size: .85rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .kpr-inp input { flex: 1; min-width: 0; border: none; outline: none; background: none; font-family: inherit; font-size: 1rem; font-weight: 700; color: var(--ink); padding: 11px 0; font-variant-numeric: tabular-nums; }
+  .kpr-hint { font-size: .72rem; color: var(--kp-dark); font-weight: 600; min-height: .9rem; }
+  .kpr-btn { margin-top: 16px; width: 100%; padding: 13px; border: none; border-radius: 5px; background: var(--kp); color: #fff; font-family: inherit; font-size: .95rem; font-weight: 800; letter-spacing: .01em; cursor: pointer; transition: background .16s, transform .12s; }
+  .kpr-btn:hover { background: var(--kp-dark); }
+  .kpr-btn:active { transform: translateY(1px); }
+  .kpr-result[hidden] { display: none; }
+  .kpr-result { margin-top: 18px; padding-top: 18px; border-top: 1px dashed color-mix(in srgb, #2f7bf0 34%, var(--line)); animation: faqUp .35s cubic-bezier(.22,.61,.36,1); }
+  .kpr-main { display: flex; flex-direction: column; gap: 3px; padding: 14px 16px; border-radius: 6px; background: color-mix(in srgb, #2f7bf0 12%, var(--surface)); }
+  .kpr-mlab { font-size: .76rem; font-weight: 700; color: var(--kp-dark); text-transform: uppercase; letter-spacing: .04em; }
+  .kpr-big { font-size: clamp(1.7rem, 4.5vw, 2.3rem); font-weight: 800; letter-spacing: -.02em; color: var(--kp-dark); font-variant-numeric: tabular-nums; }
+  .kpr-break { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .kpr-break > div { display: flex; flex-direction: column; gap: 3px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); }
+  .kpr-break span { font-size: .72rem; color: var(--muted); font-weight: 600; }
+  .kpr-break b { font-size: .98rem; font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .kpr-note { margin-top: 12px; font-size: .76rem; color: var(--muted); line-height: 1.5; }
+  @media (max-width: 560px){ .kpr-grid { grid-template-columns: 1fr; } .kpr-break { grid-template-columns: 1fr; } .ctool { padding: 18px; } }
   @media (max-width: 900px) {
     .cat-hero { grid-template-columns: 1fr; gap: 26px; }
   }
@@ -1838,9 +1870,49 @@ function renderCategory(section){
   }).join("");
   view.innerHTML=`<div class="cat-page${section==="SHEroes"?" sheroes-theme":""}">
     <div class="cat-head"><h1><span class="dot" style="background:${SECTION_COLOR[section]}"></span>${section}</h1><p>${SECTION_DESC[section]||""}</p></div>
+    ${channelTool(section)}
     ${hero}${subs||`<div class="empty"><h3>Belum ada berita di kanal ini</h3><p>Coba kanal lain.</p></div>`}
   </div>`;
   window.scrollTo(0,0);
+}
+// ===== Tool interaktif per kanal =====
+function channelTool(section){ if(section==="Neraca") return kprCalcWidget(); return ""; }
+function kprCalcWidget(){
+  return `<form class="ctool kpr-tool" id="kpr-form" novalidate>
+    <div class="ctool-head"><span class="ctool-ic">🏠</span><div class="ctool-htext"><span class="ctool-kicker">Kalkulator · Neraca</span><h2 class="ctool-title">Simulasi Cicilan KPR</h2></div></div>
+    <p class="ctool-sub">Hitung perkiraan cicilan bulanan rumah impianmu — atur harga, uang muka, tenor, dan bunga.</p>
+    <div class="kpr-grid">
+      <label class="kpr-field kpr-wide"><span class="kpr-lab">Harga rumah</span><div class="kpr-inp"><i>Rp</i><input id="kpr-harga" inputmode="numeric" autocomplete="off" placeholder="500.000.000"></div></label>
+      <label class="kpr-field"><span class="kpr-lab">Uang muka (DP)</span><div class="kpr-inp"><i>Rp</i><input id="kpr-dp" inputmode="numeric" autocomplete="off" placeholder="100.000.000"></div><small class="kpr-hint" id="kpr-dp-pct"></small></label>
+      <label class="kpr-field"><span class="kpr-lab">Jangka waktu</span><div class="kpr-inp"><input id="kpr-tenor" inputmode="numeric" autocomplete="off" placeholder="15"><i>tahun</i></div></label>
+      <label class="kpr-field"><span class="kpr-lab">Suku bunga / tahun</span><div class="kpr-inp"><input id="kpr-bunga" inputmode="decimal" autocomplete="off" placeholder="9"><i>%</i></div></label>
+    </div>
+    <button class="kpr-btn" type="submit">Hitung cicilan</button>
+    <div class="kpr-result" id="kpr-result" hidden>
+      <div class="kpr-main"><span class="kpr-mlab">Perkiraan cicilan per bulan</span><span class="kpr-big" id="kpr-cicilan">Rp0</span></div>
+      <div class="kpr-break">
+        <div><span>Pinjaman pokok</span><b id="kpr-pokok">Rp0</b></div>
+        <div><span>Total bunga</span><b id="kpr-bungatot">Rp0</b></div>
+        <div><span>Total bayar</span><b id="kpr-total">Rp0</b></div>
+      </div>
+      <p class="kpr-note">Estimasi metode anuitas (bunga tetap/flat tahunan). Angka nyata bisa beda tergantung bank & biaya lain. <b>Simulasi — bukan penawaran.</b></p>
+    </div>
+  </form>`;
+}
+function kprFmt(s){ const d=String(s).replace(/\D/g,""); return d?parseInt(d,10).toLocaleString("id-ID"):""; }
+function kprCompute(){
+  const num=id=>parseFloat(String((document.getElementById(id)||{}).value||"").replace(/\./g,"").replace(",","."))||0;
+  const harga=num("kpr-harga"), dp=num("kpr-dp"), tahun=num("kpr-tenor"), bunga=num("kpr-bunga");
+  if(harga<=0||tahun<=0){ showToast("Isi minimal harga rumah & jangka waktu"); return; }
+  const pokok=Math.max(0, harga-dp), n=Math.round(tahun*12), r=bunga/100/12;
+  const cicilan = pokok<=0?0 : (r===0? pokok/n : pokok*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1));
+  const total=cicilan*n, bungaTot=total-pokok;
+  const rp=v=>"Rp"+Math.round(v).toLocaleString("id-ID");
+  document.getElementById("kpr-cicilan").textContent=rp(cicilan);
+  document.getElementById("kpr-pokok").textContent=rp(pokok);
+  document.getElementById("kpr-bungatot").textContent=rp(bungaTot);
+  document.getElementById("kpr-total").textContent=rp(total);
+  document.getElementById("kpr-result").hidden=false;
 }
 // ===== Esai Foto: index, detail (galeri + sidebar), lightbox =====
 function peHref(e){ return `#/foto/${slugify(e.title)}`; }
@@ -2610,8 +2682,14 @@ document.addEventListener("change", e=>{
   else if(e.target.id==="idx-from"){ idxState.from=e.target.value; idxState.page=1; renderIndex(); }
   else if(e.target.id==="idx-to"){ idxState.to=e.target.value; idxState.page=1; renderIndex(); }
 });
+document.addEventListener("input", e=>{
+  if(e.target.id==="kpr-harga"||e.target.id==="kpr-dp"){ e.target.value=kprFmt(e.target.value);
+    const dig=id=>parseInt(String((document.getElementById(id)||{}).value||"").replace(/\D/g,""),10)||0;
+    const h=dig("kpr-harga"), d=dig("kpr-dp"), el=document.getElementById("kpr-dp-pct"); if(el) el.textContent=(h>0&&d>0)?`${Math.round(d/h*100)}% dari harga`:""; }
+});
 document.addEventListener("submit", e=>{ e.preventDefault();
   if(e.target.id==="search-form"||e.target.id==="mega-search-form"){ const q=e.target.querySelector("input").value.trim(); if(q){ closeMega(); window.scrollTo(0,0); go({page:"search", q}); } }
+  else if(e.target.id==="kpr-form"){ kprCompute(); }
   else if(e.target.id==="nl"){ const b=e.target.querySelector("button"); b.textContent="Sip! ✓"; setTimeout(()=>b.textContent="Ikutan",1600); e.target.reset(); }
   else if(e.target.id==="auth-form"){ const f=e.target; login({name:f.nm.value.trim(),email:f.em.value.trim()}); }
   else if(e.target.id==="ugc-form"){ if(!user) return; const t=(document.getElementById("ugc-title").value||"").trim(); const bd=(document.getElementById("ugc-body").value||"").trim();
