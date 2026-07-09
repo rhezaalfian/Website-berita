@@ -2521,8 +2521,6 @@ const SITE_URL="https://kabar.id"; // ganti ke domain asli saat deploy
 function slugify(s){ return (s||"").toString().toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s-]/g,"").trim().replace(/[\s-]+/g,"-").replace(/^-+|-+$/g,""); }
 function artHref(n){ return `#/${slugify(n.tag)}/${(n.date||"").replace(/-/g,"")}/${slugify(n.title)}`; }
 function tagHref(t){ return `#/tags/${slugify(t)}`; }
-function secHref(s){ return `#/${slugify(s)}`; }
-function authorHref(a){ return `#/penulis/${slugify(a)}`; }
 // -- Foto & waktu untuk JSON-LD / share (SEO)
 // Foto asli per artikel. Kosong -> pakai path konvensi (diisi CMS saat deploy). id -> URL .jpg
 const IMG = { /* contoh: 1:"https://kabar.id/img/foto-stimulus.jpg" */ };
