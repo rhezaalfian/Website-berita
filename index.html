@@ -860,9 +860,12 @@
   .kpr-inp i { font-style: normal; font-size: .85rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
   .kpr-inp input { flex: 1; min-width: 0; border: none; outline: none; background: none; font-family: inherit; font-size: 1rem; font-weight: 700; color: var(--ink); padding: 11px 0; font-variant-numeric: tabular-nums; }
   .kpr-hint { font-size: .72rem; color: var(--kp-dark); font-weight: 600; min-height: .9rem; }
-  .kpr-btn { margin-top: 16px; width: 100%; padding: 13px; border: none; border-radius: 5px; background: var(--kp); color: #fff; font-family: inherit; font-size: .95rem; font-weight: 800; letter-spacing: .01em; cursor: pointer; transition: background .16s, transform .12s; }
+  .kpr-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .kpr-btn { flex: 1; padding: 13px; border: none; border-radius: 5px; background: var(--kp); color: #fff; font-family: inherit; font-size: .95rem; font-weight: 800; letter-spacing: .01em; cursor: pointer; transition: background .16s, transform .12s; }
   .kpr-btn:hover { background: var(--kp-dark); }
   .kpr-btn:active { transform: translateY(1px); }
+  .kpr-reset { flex: none; padding: 13px 18px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); color: var(--ink-soft); font-family: inherit; font-size: .9rem; font-weight: 700; cursor: pointer; transition: border-color .16s, color .16s; }
+  .kpr-reset:hover { border-color: var(--kp); color: var(--kp-dark); }
   .kpr-result[hidden] { display: none; }
   .kpr-result { margin-top: 18px; padding-top: 18px; border-top: 1px dashed color-mix(in srgb, #2f7bf0 34%, var(--line)); animation: faqUp .35s cubic-bezier(.22,.61,.36,1); }
   .kpr-main { display: flex; flex-direction: column; gap: 3px; padding: 14px 16px; border-radius: 6px; background: color-mix(in srgb, #2f7bf0 12%, var(--surface)); }
@@ -883,7 +886,8 @@
   .ctool-rail .kpr-break { grid-template-columns: 1fr; gap: 8px; }
   .ctool-rail .kpr-inp input { font-size: .95rem; padding: 10px 0; }
   .ctool-rail .kpr-big { font-size: 1.7rem; }
-  .ctool-rail .kpr-btn { margin-top: 14px; padding: 12px; }
+  .ctool-rail .kpr-actions { margin-top: 14px; }
+  .ctool-rail .kpr-btn { padding: 12px; }
   @media (max-width: 900px) {
     .cat-hero { grid-template-columns: 1fr; gap: 26px; }
   }
@@ -1414,7 +1418,12 @@ const RAW = [
    "Video yang diklaim menunjukkan kerusuhan pasar hari ini ternyata rekaman lama dari 2019 di kota berbeda, disebar ulang dengan watermark tanggal palsu.",
    ["Video yang diklaim menunjukkan kerusuhan pasar hari ini di Jakarta ternyata rekaman lama dari kejadian tahun 2019 di kota yang berbeda.",
     "Kami menelusuri video asli lewat pencarian gambar terbalik (reverse image search) dan menemukan video identik telah beredar sejak 2019 dengan keterangan lokasi & waktu yang berbeda.",
-    "Pengunggah ulang menambahkan watermark tanggal palsu untuk membuatnya terlihat seperti kejadian terkini."]]
+    "Pengunggah ulang menambahkan watermark tanggal palsu untuk membuatnya terlihat seperti kejadian terkini."]],
+  ["Rupiah Menguat Tipis Ditopang Optimisme Data Ekonomi","Ekonomi","Rizky Pratama","2026-06-28",false,false,
+   "Nilai tukar rupiah menguat tipis terhadap dolar AS seiring membaiknya data ekonomi domestik dan kembali masuknya dana asing.",
+   ["Nilai tukar rupiah ditutup menguat tipis terhadap dolar Amerika Serikat pada perdagangan hari ini, ditopang optimisme pelaku pasar atas membaiknya data ekonomi domestik.",
+    "Aliran modal asing yang kembali masuk ke pasar surat utang turut menopang penguatan, meski sejumlah analis mengingatkan potensi volatilitas dari faktor global.",
+    "Bank Sentral Nusantara menegaskan akan menjaga stabilitas nilai tukar lewat bauran kebijakan yang terukur agar momentum pemulihan tetap terjaga."]]
 ];
 // Tag/kata kunci spesifik per artikel (untuk topik yang sedang hangat)
 const KW = {
@@ -1905,7 +1914,7 @@ function kprCalcWidget(){
       <label class="kpr-field"><span class="kpr-lab">Jangka waktu</span><div class="kpr-inp"><input id="kpr-tenor" inputmode="numeric" autocomplete="off" placeholder="15"><i>tahun</i></div></label>
       <label class="kpr-field"><span class="kpr-lab">Suku bunga / tahun</span><div class="kpr-inp"><input id="kpr-bunga" inputmode="decimal" autocomplete="off" placeholder="9"><i>%</i></div></label>
     </div>
-    <button class="kpr-btn" type="submit">Hitung cicilan</button>
+    <div class="kpr-actions"><button class="kpr-btn" type="submit">Hitung cicilan</button><button class="kpr-reset" type="button" id="kpr-reset">Reset</button></div>
     <div class="kpr-result" id="kpr-result" hidden>
       <div class="kpr-main"><span class="kpr-mlab">Perkiraan cicilan per bulan</span><span class="kpr-big" id="kpr-cicilan">Rp0</span></div>
       <div class="kpr-break">
@@ -2625,6 +2634,7 @@ document.addEventListener("click", e=>{
     document.querySelectorAll('[data-fs="dec"]').forEach(x=>x.disabled=fsLevel===0);
     document.querySelectorAll('[data-fs="inc"]').forEach(x=>x.disabled=fsLevel===FS_SIZES.length-1); return; }
   if(e.target.closest("#sticky-ad-toggle")){ const c=!_stickyAd.classList.contains("collapsed"); _stickyAd.classList.toggle("collapsed",c); document.body.classList.toggle("sticky-collapsed",c); e.target.closest("#sticky-ad-toggle").textContent=c?"Tampilkan iklan ▴":"Sembunyikan ▾"; sessionStorage.setItem("kabar_stickyad_collapsed",c?"1":"0"); return; }
+  if(e.target.closest("#kpr-reset")){ ["kpr-harga","kpr-dp","kpr-tenor","kpr-bunga"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; }); const pct=document.getElementById("kpr-dp-pct"); if(pct) pct.textContent=""; const res=document.getElementById("kpr-result"); if(res) res.hidden=true; const h=document.getElementById("kpr-harga"); if(h) h.focus(); return; }
   const agtg=e.target.closest("[data-agn-toggle]"); if(agtg){ const col=agtg.closest(".agn-col"); if(col){ const c=col.classList.toggle("collapsed"); agtg.setAttribute("aria-label", c?"Tampilkan agenda":"Ciutkan agenda"); } return; }
   const scr=e.target.closest("[data-scroll]"); if(scr){ const vp=scr.closest(".scroll-vp"); const sc=vp&&vp.querySelector(".af-scroll,.vid-row,.carousel,.agn-scroll"); if(sc){ const dir=scr.dataset.scroll==="next"?1:-1; sc.scrollBy({left:dir*Math.round(sc.clientWidth*0.85), behavior:"smooth"}); } return; }
   const gsr=e.target.closest("[data-geser]"); if(gsr){ const root=gsr.closest("section,.af-box,.agn-col,.vid-shelf")||document; const sc=root.querySelector(".carousel,.vid-row,.af-scroll,.agn-scroll"); if(sc){ const atEnd=sc.scrollLeft+sc.clientWidth>=sc.scrollWidth-4; sc.scrollTo({left:atEnd?0:sc.scrollLeft+Math.round(sc.clientWidth*0.85), behavior:"smooth"}); } return; }
