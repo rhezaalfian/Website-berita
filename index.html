@@ -1884,9 +1884,12 @@ function renderCategory(section){
     return `<section class="cat-sub"><div class="cat-sub-head"><div class="sub-title"><h2>${tag}</h2>${info}</div><a class="more" href="${tagHref(tag)}" data-tag="${tag}">Lebih banyak →</a></div>
       <div class="carousel">${items.map(card).join("")}</div></section>`;
   }).join("");
+  const tool=channelTool(section);
+  const body=subs||`<div class="empty"><h3>Belum ada berita di kanal ini</h3><p>Coba kanal lain.</p></div>`;
+  const main=tool?`<div class="layout"><main>${body}</main><aside><div class="rail">${tool}</div></aside></div>`:body;
   view.innerHTML=`<div class="cat-page${section==="SHEroes"?" sheroes-theme":""}">
     <div class="cat-head"><h1><span class="dot" style="background:${SECTION_COLOR[section]}"></span>${section}</h1><p>${SECTION_DESC[section]||""}</p></div>
-    ${hero}${subs||`<div class="empty"><h3>Belum ada berita di kanal ini</h3><p>Coba kanal lain.</p></div>`}
+    ${hero}${main}
   </div>`;
   window.scrollTo(0,0);
 }
