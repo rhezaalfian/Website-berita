@@ -430,11 +430,21 @@
   .user-btn:hover .avatar { box-shadow: 0 0 0 3px var(--panel); }
   .user-menu { position: absolute; right: 0; top: 46px; width: 252px; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; box-shadow: var(--card-shadow); padding: 8px; opacity: 0; transform: translateY(-6px); pointer-events: none; transition: .16s; z-index: 120; }
   .user-menu.open { opacity: 1; transform: none; pointer-events: auto; }
-  .user-info { display: flex; gap: 11px; align-items: center; padding: 12px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+  .user-info { display: flex; gap: 11px; align-items: center; width: 100%; padding: 12px; border: none; border-bottom: 1px solid var(--line); margin-bottom: 6px; background: none; font-family: inherit; text-align: left; cursor: pointer; border-radius: 3px 3px 0 0; transition: background .16s; }
+  .user-info:hover { background: var(--panel); }
   .user-info .avatar { width: 38px; height: 38px; }
   .user-info .un { font-weight: 700; font-size: .92rem; } .user-info .ue { font-size: .78rem; color: var(--muted); word-break: break-all; }
   .um-item { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; border: none; background: none; padding: 10px 12px; border-radius: 3px; font-size: .9rem; font-weight: 600; color: var(--ink); cursor: pointer; font-family: inherit; }
   .um-item:hover { background: var(--panel); }
+  /* Halaman Profil */
+  .prof-head { display: flex; align-items: center; gap: 16px; padding: 8px 0 24px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .prof-av { width: 64px; height: 64px; font-size: 1.5rem; flex: none; }
+  .prof-id { min-width: 0; }
+  .prof-name { font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; margin: 0; }
+  .prof-email { font-size: .88rem; color: var(--muted); margin-top: 3px; word-break: break-all; }
+  .prof-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .prof-links a { font-size: .82rem; font-weight: 700; color: var(--ink-soft); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; cursor: pointer; transition: .16s; }
+  .prof-links a:hover { border-color: var(--accent); color: var(--accent-dark); }
   .gsi { padding: 32px 26px 22px; }
   .gsi-head { display: flex; align-items: center; gap: 10px; font-size: 1.08rem; font-weight: 600; }
   .gsi-sub { color: var(--muted); font-size: .9rem; margin: 7px 0 18px; }
@@ -1718,8 +1728,6 @@ function renderHome(){
     <section><div class="sec-head"><h2>Berita utama</h2><span class="eyebrow" data-geser>Geser untuk lihat →</span></div>
       <div class="carousel sm-cards">${utama.map(card).join("")}</div></section>
     ${agendaBand()}
-    ${(()=>{ if(!user) return ""; const fy=forYou(); return fy.length?`<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow">Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`:""; })()}
-    ${(()=>{ if(!user) return ""; const rr=recentRead(); return rr.length?`<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow">Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`:""; })()}
     <div class="layout"><main><div class="sec-head"><h2>Terbaru</h2><span class="eyebrow">Update harian</span></div>
       <div class="list">${feedRows(feed.slice(0,8))}</div>
       <a class="loadmore" href="#/indeks" data-nav="index">Indeks →</a></main>${railHtml()}</div>
@@ -1863,6 +1871,23 @@ function peZoom(open){
     lb.classList.add("show"); lb.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden";
   } else { lb.classList.remove("show"); lb.setAttribute("aria-hidden","true"); document.body.style.overflow=""; lb.innerHTML=""; }
 }
+function renderProfile(){
+  document.title="Profil — kabar"; window.scrollTo(0,0);
+  if(!user){ view.innerHTML=`<div class="empty"><h3>Belum masuk</h3><p>Masuk untuk melihat rekomendasi & riwayat bacamu.</p><p><button class="gbtn-sm" id="login-btn" style="margin:10px auto 0">${G_SVG}<span>Masuk</span></button></p></div>`; return; }
+  const fy=forYou(), rr=recentRead();
+  const fySec = fy.length
+    ? `<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow" data-geser>Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`
+    : `<section><div class="sec-head"><h2>✨ Untukmu</h2></div><div class="empty" style="text-align:left"><p>Ikuti topik atau penulis untuk mendapat rekomendasi personal.</p></div></section>`;
+  const rrSec = rr.length
+    ? `<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow" data-geser>Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`
+    : `<section><div class="sec-head"><h2>🕘 Baru dibaca</h2></div><div class="empty" style="text-align:left"><p>Belum ada riwayat baca. Buka artikel untuk mulai mengisi ini.</p></div></section>`;
+  view.innerHTML=`<div class="prof-head">
+      <span class="avatar prof-av" style="background:${avColor(user.email)}">${initials(user.name)}</span>
+      <div class="prof-id"><h1 class="prof-name">${user.name}</h1><div class="prof-email">${user.email}</div>
+        <div class="prof-links"><a data-nav="saved">🔖 Tersimpan (${saved.length})</a><a id="prof-stats">📊 Aktivitas baca</a></div>
+      </div></div>
+    ${fySec}${rrSec}`;
+}
 function renderSaved(){
   const items=saved.map(id=>NEWS.find(n=>n.id===id)).filter(Boolean);
   const body=items.length?`<div class="list">${items.map(listItem).join("")}</div><button class="loadmore" id="clear-saved" style="margin-top:22px">Hapus semua simpanan</button>`:`<div class="empty"><h3>Belum ada yang disimpan</h3><p>Ketuk ikon 🔖 di kartu atau artikel mana pun untuk menyimpannya.</p></div>`;
@@ -1968,7 +1993,7 @@ function renderMega(){
     return `<div class="mega-sec" style="--sc:${SECTION_COLOR[s]}"><button class="mega-h" data-section="${s}">${s} <span class="arw">→</span></button><div class="mega-tags">${tags}</div></div>`;
   }).join("");
   const dark=(document.documentElement.getAttribute("data-theme")||"light")==="dark";
-  document.getElementById("mega-foot").innerHTML=`<button data-nav="home">🏠 Beranda</button><button data-nav="saved">🔖 Tersimpan${saved.length?` (${saved.length})`:""}</button><button data-nav="quiz">🧠 Main Kuis</button><button id="mega-stats">📊 Aktivitas</button><button id="mega-push">🔔 Notifikasi</button><button id="mega-theme">${dark?"☀️ Mode terang":"🌙 Mode gelap"}</button>`;
+  document.getElementById("mega-foot").innerHTML=`<button data-nav="home">🏠 Beranda</button>${user?`<button data-nav="profile">👤 Profil</button>`:""}<button data-nav="saved">🔖 Tersimpan${saved.length?` (${saved.length})`:""}</button><button data-nav="quiz">🧠 Main Kuis</button><button id="mega-stats">📊 Aktivitas</button><button id="mega-push">🔔 Notifikasi</button><button id="mega-theme">${dark?"☀️ Mode terang":"🌙 Mode gelap"}</button>`;
 }
 function renderTrending(){
   const el=document.getElementById("trending-chips"); if(!el) return;
@@ -2003,6 +2028,7 @@ function go(r){ route=r; updateHead(r); syncHash(r); renderNav(); heroStop(); tt
   else if(r.page==="tag") renderTag(r.tag);
   else if(r.page==="search"){ const q=r.q.toLowerCase(); renderList(`“${r.q}”`,"Hasil pencarian",NEWS.filter(n=>(n.title+n.excerpt+n.tag+n.section).toLowerCase().includes(q)),"Cari — kabar"); }
   else if(r.page==="saved") renderSaved();
+  else if(r.page==="profile") renderProfile();
   else if(r.page==="index"){ idxState={page:1,cat:"",from:"",to:""}; renderIndex(); }
   else if(r.page==="foto") renderFotoIndex();
   else if(r.page==="foto-essay") renderPhotoEssay(r.id);
@@ -2156,7 +2182,7 @@ const SOC={
 };
 const DEMO_ACCOUNTS=[{name:"Rheza Alfian",email:"rhezaalfian18@gmail.com"},{name:"Sinta Dewi",email:"sinta.demo@gmail.com"}];
 function renderAuthSlot(){ const slot=document.getElementById("auth-slot"); if(!slot) return;
-  if(user){ slot.innerHTML=`<div class="user-wrap"><button class="user-btn" id="user-btn" aria-label="Akun"><span class="avatar" style="background:${avColor(user.email)}">${initials(user.name)}</span></button><div class="user-menu" id="user-menu"><div class="user-info"><span class="avatar" style="background:${avColor(user.email)}">${initials(user.name)}</span><div><div class="un">${user.name}</div><div class="ue">${user.email}</div></div></div><button class="um-item" data-nav="saved">🔖 Tersimpan</button><button class="um-item" id="um-stats">📊 Aktivitas baca</button><button class="um-item" id="um-push">🔔 Notifikasi</button><button class="um-item" id="logout">↩ Keluar</button></div></div>`; }
+  if(user){ slot.innerHTML=`<div class="user-wrap"><button class="user-btn" id="user-btn" aria-label="Akun"><span class="avatar" style="background:${avColor(user.email)}">${initials(user.name)}</span></button><div class="user-menu" id="user-menu"><button class="user-info" data-nav="profile"><span class="avatar" style="background:${avColor(user.email)}">${initials(user.name)}</span><div><div class="un">${user.name}</div><div class="ue">${user.email}</div></div></button><button class="um-item" data-nav="profile">👤 Profil</button><button class="um-item" data-nav="saved">🔖 Tersimpan</button><button class="um-item" id="um-stats">📊 Aktivitas baca</button><button class="um-item" id="um-push">🔔 Notifikasi</button><button class="um-item" id="logout">↩ Keluar</button></div></div>`; }
   else { slot.innerHTML=`<button class="gbtn-sm" id="login-btn">${G_SVG}<span>Masuk</span></button>`; } }
 function authChooserHTML(){ const a=DEMO_ACCOUNTS.map((x,i)=>`<button class="gsi-acc" data-acc="${i}"><span class="avatar" style="background:${avColor(x.email)}">${initials(x.name)}</span><span><span class="gn">${x.name}</span><br><span class="ge">${x.email}</span></span></button>`).join("");
   return `<div class="gsi"><div class="gsi-head">${G_SVG}<span>Masuk dengan Google</span></div><div class="gsi-sub">Pilih akun untuk melanjutkan ke <b>kabar</b></div>${a}<button class="gsi-acc gsi-other" id="use-other"><span class="avatar" style="background:var(--panel);color:var(--muted)">+</span><span class="gn">Gunakan akun lain</span></button><div class="gsi-note">Demo antarmuka — belum terhubung ke Google.</div></div>`; }
@@ -2334,6 +2360,7 @@ function routePath(r){
   if(r.page==="author") return `/penulis/${slugify(r.author)}`;
   if(r.page==="search") return `/cari/${slugify(r.q)}`;
   if(r.page==="saved") return "/tersimpan";
+  if(r.page==="profile") return "/profil";
   if(r.page==="quiz") return "/kuis";
   if(r.page==="index") return "/indeks";
   if(r.page==="foto") return "/foto";
@@ -2347,6 +2374,7 @@ function parsePath(hash){ let p=(hash||"").replace(/^#/,"").replace(/^\/+|\/+$/g
   if(g[0]==="penulis"&&g[1]){ const a=findBySlug(NEWS.map(n=>n.author).concat(Object.keys(AUTHORS)),g[1]); return a?{page:"author",author:a}:{page:"home"}; }
   if(g[0]==="cari"&&g[1]) return {page:"search",q:decodeURIComponent(g[1]).replace(/-/g," ")};
   if(g[0]==="tersimpan") return {page:"saved"};
+  if(g[0]==="profil") return {page:"profile"};
   if(g[0]==="kuis") return {page:"quiz"};
   if(g[0]==="indeks") return {page:"index"};
   if(g[0]==="foto"&&g[1]){ const e=peFindSlug(g[1]); return e?{page:"foto-essay",id:e.id}:{page:"foto"}; }
@@ -2376,6 +2404,7 @@ function updateHead(r){ const url=SITE_URL+routePath(r); let title="kabar — po
   else if(r.page==="author"){ const m=AUTHORS[r.author]; title=r.author+" — kabar"; desc=m?m.bio:`Artikel oleh ${r.author}.`; ld={"@context":"https://schema.org","@type":"Person","name":r.author,"jobTitle":(m&&m.role)||"Jurnalis","description":(m&&m.bio)||"","url":url}; }
   else if(r.page==="search"){ title=`Cari “${r.q}” — kabar`; desc=`Hasil pencarian untuk ${r.q}.`; }
   else if(r.page==="saved"){ title="Tersimpan — kabar"; }
+  else if(r.page==="profile"){ title="Profil — kabar"; }
   else if(r.page==="quiz"){ title="Kuis — kabar"; }
   else if(r.page==="index"){ title="Indeks Berita — kabar"; desc="Semua berita terbaru dari kabar."; }
   else if(r.page==="foto"){ title="Esai Foto — kabar"; desc="Liputan foto pilihan redaksi kabar."; }
@@ -2440,7 +2469,7 @@ document.addEventListener("click", e=>{
   const rb=e.target.closest("[data-react]"); if(rb){ setReaction(rb.dataset.rid,rb.dataset.react); return; }
   const fl=e.target.closest("[data-follow]"); if(fl){ toggleFollow(fl.dataset.follow,fl.dataset.fval); const on=isFollowing(fl.dataset.follow,fl.dataset.fval); fl.classList.toggle("on",on); fl.textContent=on?"✓ Diikuti":"+ Ikuti"; return; }
   const ttb=e.target.closest("[data-tts]"); if(ttb){ ttsToggle(ttb.dataset.tts); return; }
-  if(e.target.closest("#um-stats")||e.target.closest("#mega-stats")){ closeMega(); openStats(); return; }
+  if(e.target.closest("#um-stats")||e.target.closest("#mega-stats")||e.target.closest("#prof-stats")){ closeMega(); openStats(); return; }
   if(e.target.closest("#um-push")||e.target.closest("#mega-push")){ togglePush(); return; }
   if(e.target.id==="clear-saved"){ saved=[]; LS.set("kabar_saved",saved); updateSavedBadge(); go({page:"saved"}); return; }
   const bm=e.target.closest("[data-bm]"); if(bm){ e.preventDefault(); e.stopPropagation(); toggleSave(bm.dataset.bm); return; }
@@ -2469,7 +2498,7 @@ document.addEventListener("click", e=>{
   if(sec){ closeMega(); window.scrollTo(0,0); go({page:"section", section:sec.dataset.section}); }
   else if(tg){ e.stopPropagation(); closeMega(); window.scrollTo(0,0); go({page:"tag", tag:tg.dataset.tag}); }
   else if(a2){ closeStories(); closeMega(); go({page:"article", id:+a2.dataset.article}); }
-  else if(nv){ closeMega(); window.scrollTo(0,0); go({page: nv.dataset.nav}); }
+  else if(nv){ closeMega(); const um=document.getElementById("user-menu"); if(um) um.classList.remove("open"); window.scrollTo(0,0); go({page: nv.dataset.nav}); }
   if(!e.target.closest(".user-wrap")){ const um=document.getElementById("user-menu"); if(um) um.classList.remove("open"); }
 });
 document.addEventListener("keydown", e=>{
