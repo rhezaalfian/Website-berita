@@ -1002,7 +1002,7 @@
   .vl-playbtn { position: absolute; inset: 0; margin: auto; width: 60px; height: 60px; border-radius: 50%; border: none; background: rgba(255,255,255,.16); color: #fff; font-size: 1.4rem; cursor: pointer; display: grid; place-items: center; padding-left: 4px; z-index: 3; transition: opacity .16s, background .16s; }
   .vl-playbtn:hover { background: rgba(255,255,255,.28); }
   .vl-playbtn.hide { opacity: 0; pointer-events: none; }
-  .vl-share { position: absolute; right: 14px; bottom: 40%; width: 46px; height: 46px; border-radius: 50%; border: none; background: rgba(0,0,0,.4); color: #fff; cursor: pointer; z-index: 7; display: grid; place-items: center; backdrop-filter: blur(2px); box-shadow: 0 4px 14px -4px rgba(0,0,0,.5); transition: background .16s, transform .16s; }
+  .vl-share { position: absolute; right: 14px; bottom: 20%; width: 46px; height: 46px; border-radius: 50%; border: none; background: rgba(0,0,0,.4); color: #fff; cursor: pointer; z-index: 7; display: grid; place-items: center; backdrop-filter: blur(2px); box-shadow: 0 4px 14px -4px rgba(0,0,0,.5); transition: background .16s, transform .16s; }
   .vl-share:hover { background: rgba(0,0,0,.6); transform: scale(1.06); }
   .vl-share svg { width: 20px; height: 20px; }
   .vl-sheet { position: absolute; inset: 0; z-index: 8; display: flex; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.5); opacity: 0; pointer-events: none; transition: opacity .22s; }
@@ -1819,7 +1819,7 @@ function renderHome(){
     ${editorialHome}
     </div>
     <section><div class="sec-head"><h2>Berita utama</h2><span class="eyebrow" data-geser>Geser untuk lihat →</span></div>
-      <div class="carousel sm-cards">${utama.map(card).join("")}</div></section>
+      <div class="scroll-vp"><div class="carousel sm-cards">${utama.map(card).join("")}</div>${scrollArrows()}</div></section>
     ${agendaBand()}
     <div class="layout"><main><div class="sec-head"><h2>Terbaru</h2><span class="eyebrow">Update harian</span></div>
       <div class="list">${feedRows(feed.slice(0,8))}</div>
@@ -2733,7 +2733,9 @@ function toggleTheme(){ const r=document.documentElement; const next=(r.getAttri
 
 const progress=document.getElementById("progress"), totop=document.getElementById("totop");
 function onScroll(){ const top=window.scrollY||document.documentElement.scrollTop||0; const doc=document.documentElement; const full=Math.max(doc.scrollHeight,document.body.scrollHeight); const max=full-(window.innerHeight||doc.clientHeight); const pct=max>0?top/max:0;
-  progress.style.width=(route.page==="article"?Math.min(100,pct*100):0)+"%"; totop.classList.toggle("show", top>500); updateParallax(); updateSkyAds(); }
+  // Sembunyikan tombol floating ↑ saat footer terlihat — footer sudah punya link "Ke atas ↑" sendiri (hindari tumpang tindih).
+  const foot=document.querySelector("footer"); const footVisible=foot?foot.getBoundingClientRect().top<(window.innerHeight||doc.clientHeight)-20:false;
+  progress.style.width=(route.page==="article"?Math.min(100,pct*100):0)+"%"; totop.classList.toggle("show", top>500 && !footVisible); updateParallax(); updateSkyAds(); }
 // Iklan skyscraper samping (160×600): tampil di tengah gutter, sembunyi saat footer terlihat agar tak menimpa footer.
 function updateSkyAds(){ const foot=document.querySelector("footer"); if(!foot) return; const vh=window.innerHeight||document.documentElement.clientHeight;
   const hide = foot.getBoundingClientRect().top < vh - 20;
