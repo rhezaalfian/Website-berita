@@ -1772,7 +1772,7 @@ function popularBox(){
   return `<div class="rail-box"><h4>${scopeName?`Terpopuler · ${scopeName}`:"Terpopuler"}</h4>${pop}</div>`;
 }
 function railHtml(){
-  return `<aside><div class="rail">${channelTool(currentSection())}${popularBox()}
+  return `<aside><div class="rail">${popularBox()}${channelTool(currentSection())}
     ${affiliateBox()}
     ${ad("ad-rail","Sidebar · 300×250")}
     <div class="nl"><h4>Ringkasan pagi</h4><p>Lima berita penting tiap hari, langsung ke inbox. Gratis.</p><form id="nl"><input type="email" placeholder="email kamu…" required><button>Ikutan</button></form></div></div></aside>`; }
@@ -1906,7 +1906,7 @@ function renderCategory(section){
   }).join("");
   const tool=channelTool(section);
   const body=subs||`<div class="empty"><h3>Belum ada berita di kanal ini</h3><p>Coba kanal lain.</p></div>`;
-  const main=tool?`<div class="layout"><main>${body}</main><aside><div class="rail">${tool}${popularBox()}</div></aside></div>`:body;
+  const main=tool?`<div class="layout"><main>${body}</main><aside><div class="rail">${popularBox()}${tool}</div></aside></div>`:body;
   view.innerHTML=`<div class="cat-page${section==="SHEroes"?" sheroes-theme":""}">
     <div class="cat-head"><h1><span class="dot" style="background:${SECTION_COLOR[section]}"></span>${section}</h1><p>${SECTION_DESC[section]||""}</p></div>
     ${hero}${main}
