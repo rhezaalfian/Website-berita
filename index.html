@@ -480,6 +480,11 @@
   .ugc-body { margin: 8px 0 0; font-size: .9rem; line-height: 1.55; color: var(--ink-soft); white-space: pre-wrap;
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .ugc-meta { margin-top: 10px; font-size: .76rem; color: var(--muted); }
+  .ugc-card.pending { border-left: 3px solid var(--amber, #b8770a); }
+  .ugc-status { margin-top: 7px; }
+  .ugc-badge { display: inline-flex; align-items: center; gap: 5px; font-size: .7rem; font-weight: 800; letter-spacing: .01em; padding: 3px 9px; border-radius: 999px; }
+  .ugc-badge.review { color: #b8770a; background: color-mix(in srgb, #b8770a 13%, transparent); }
+  .ugc-badge.live { color: var(--accent-dark); background: var(--accent-tint); }
   .ugc-read-meta { font-size: .78rem; color: var(--muted); }
   .ugc-read-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; margin: 6px 0 12px; text-wrap: balance; }
   .ugc-read-body { font-size: .95rem; line-height: 1.6; color: var(--ink-soft); white-space: pre-wrap; }
@@ -1928,10 +1933,10 @@ function renderProfile(){
       <div class="ugc-formfoot"><span class="ugc-hint">Tersimpan di perangkat ini · pratinjau</span><button type="submit" class="btn-solid">Terbitkan</button></div>
     </form>${ugcList}</section>`;
   const fySec = fy.length
-    ? `<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow" data-geser>Dari yang kamu ikuti & baca</span></div><div class="carousel">${fy.map(card).join("")}</div></section>`
+    ? `<section><div class="sec-head"><h2>✨ Untukmu</h2><span class="eyebrow" data-geser>Dari yang kamu ikuti & baca</span></div><div class="carousel sm-cards">${fy.map(card).join("")}</div></section>`
     : `<section><div class="sec-head"><h2>✨ Untukmu</h2></div><div class="empty" style="text-align:left"><p>Ikuti topik atau penulis untuk mendapat rekomendasi personal.</p></div></section>`;
   const rrSec = rr.length
-    ? `<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow" data-geser>Lanjutkan bacaanmu</span></div><div class="carousel">${rr.map(card).join("")}</div></section>`
+    ? `<section><div class="sec-head"><h2>🕘 Baru dibaca</h2><span class="eyebrow" data-geser>Lanjutkan bacaanmu</span></div><div class="carousel sm-cards">${rr.map(card).join("")}</div></section>`
     : `<section><div class="sec-head"><h2>🕘 Baru dibaca</h2></div><div class="empty" style="text-align:left"><p>Belum ada riwayat baca. Buka artikel untuk mulai mengisi ini.</p></div></section>`;
   view.innerHTML=`<div class="prof-head">
       <span class="avatar prof-av" style="background:${avColor(user.email)}">${initials(user.name)}</span>
@@ -1940,17 +1945,26 @@ function renderProfile(){
         <div class="prof-links"><a data-nav="saved">🔖 Tersimpan (${saved.length})</a><a id="prof-stats">📊 Aktivitas baca</a></div>
       </div></div>
     ${ugcSec}${fySec}${rrSec}`;
+  posts.forEach(p=>{ if(p.status!=="live") scheduleReview(p.id); });
 }
 function bioKey(){ return "kabar_bio_"+(user?user.email:"anon"); }
 function ugcKey(){ return "kabar_ugc_"+(user?user.email:"anon"); }
 function ugcCard(post){
-  return `<article class="ugc-card">
+  const live=post.status==="live";
+  const badge=live?`<span class="ugc-badge live">✓ Tayang</span>`:`<span class="ugc-badge review">⏳ Sedang diverifikasi</span>`;
+  return `<article class="ugc-card${live?"":" pending"}">
     <div class="ugc-top"><h3 class="ugc-title" data-ugc-view="${post.id}">${esc(post.title)}</h3>
       <button class="ugc-del" data-ugc-del="${post.id}" aria-label="Hapus tulisan">Hapus</button></div>
+    <div class="ugc-status">${badge}</div>
     <p class="ugc-body">${esc(post.body)}</p>
     <div class="ugc-meta">✍️ ${esc(user.name)} · ${relTime(Math.round((Date.now()-post.ts)/60000))}</div>
   </article>`;
 }
+// Simulasi peninjauan tim Periskop: tulisan "Sedang diverifikasi" otomatis "Tayang" setelah ditinjau.
+const _reviewScheduled=new Set();
+function scheduleReview(id){ if(_reviewScheduled.has(id)) return; _reviewScheduled.add(id);
+  setTimeout(()=>{ _reviewScheduled.delete(id); const arr=LS.get(ugcKey(),[]); const post=arr.find(x=>x.id===id);
+    if(post && post.status!=="live"){ post.status="live"; LS.set(ugcKey(),arr); if(route.page==="profile") renderProfile(); showToast(`"${post.title}" disetujui tim Periskop — kini tayang ✓`); } }, 6000); }
 function renderSaved(){
   const items=saved.map(id=>NEWS.find(n=>n.id===id)).filter(Boolean);
   const body=items.length?`<div class="list">${items.map(listItem).join("")}</div><button class="loadmore" id="clear-saved" style="margin-top:22px">Hapus semua simpanan</button>`:`<div class="empty"><h3>Belum ada yang disimpan</h3><p>Ketuk ikon 🔖 di kartu atau artikel mana pun untuk menyimpannya.</p></div>`;
@@ -2076,10 +2090,14 @@ function renderFooter(){
     .map(([k,label])=>`<a class="soc-item" data-ext="soc-${k}">${SOC[k]}<span>${label}</span></a>`).join("");
   const fl=document.getElementById("foot-links");
   if(fl){
-    const secCol=`<div class="foot-col"><span class="fc-h">Kanal</span>${SECTIONS.map(s=>`<a href="#/${slugify(s)}" data-section="${s}">${s}</a>`).join("")}</div>`;
-    const compCol=`<div class="foot-col"><span class="fc-h">Perusahaan</span>${["Tentang Kami","Redaksi","Pedoman Media Siber","Kontak","Iklan &amp; Kerja Sama"].map(t=>`<a data-ext="page">${t}</a>`).join("")}</div>`;
-    const helpCol=`<div class="foot-col"><span class="fc-h">Bantuan</span>${["Kebijakan Privasi","Kebijakan Cookies","Kirim Artikel","Peta Situs","Aksesibilitas"].map(t=>`<a data-ext="page">${t}</a>`).join("")}</div>`;
-    fl.innerHTML=secCol+compCol+helpCol;
+    // [label, section] — jika section ada (kanal nyata) maka bisa dinavigasi; selain itu tautan pratinjau.
+    const link=([label,sec])=> sec ? `<a href="#/${slugify(sec)}" data-section="${sec}">${label}</a>` : `<a data-ext="page">${label}</a>`;
+    const kanal=[["News","News"],["Neraca","Neraca"],["Olahraga",null],["Kesehatan",null],["Gaya Hidup",null]];
+    const pilar=[["SHEroes","SHEroes"],["HALALive","HALALive"],["Saku Pelajar",null]];
+    const kanalCol=`<div class="foot-col"><span class="fc-h">Kanal</span>${kanal.map(link).join("")}</div>`;
+    const compCol=`<div class="foot-col"><span class="fc-h">Perusahaan</span>${["Tentang Kami","Redaksi","Pedoman Media Siber","Metode Riset","Iklan dan Kerja Sama","Disclaimer","Kebijakan Privasi","Kontak Kami"].map(t=>`<a data-ext="page">${t}</a>`).join("")}</div>`;
+    const pilarCol=`<div class="foot-col"><span class="fc-h">Pilar</span>${pilar.map(link).join("")}</div>`;
+    fl.innerHTML=kanalCol+compCol+pilarCol;
   }
 }
 function openMega(){ renderMega(); document.getElementById("mega-overlay").classList.add("open"); document.getElementById("mega").classList.add("open"); document.body.style.overflow="hidden"; }
@@ -2598,7 +2616,7 @@ document.addEventListener("submit", e=>{ e.preventDefault();
   else if(e.target.id==="auth-form"){ const f=e.target; login({name:f.nm.value.trim(),email:f.em.value.trim()}); }
   else if(e.target.id==="ugc-form"){ if(!user) return; const t=(document.getElementById("ugc-title").value||"").trim(); const bd=(document.getElementById("ugc-body").value||"").trim();
     if(!t||!bd){ showToast("Judul & isi tidak boleh kosong"); return; }
-    const arr=LS.get(ugcKey(),[]); arr.unshift({id:Date.now(),title:t,body:bd,ts:Date.now()}); LS.set(ugcKey(),arr); renderProfile(); showToast("Tulisan diterbitkan ✓"); }
+    const arr=LS.get(ugcKey(),[]); arr.unshift({id:Date.now(),title:t,body:bd,ts:Date.now(),status:"review"}); LS.set(ugcKey(),arr); renderProfile(); showToast("Tulisan dikirim — menunggu verifikasi tim Periskop ⏳"); }
   else if(e.target.dataset&&e.target.dataset.cm){ const id=+e.target.dataset.cm; const inp=e.target.querySelector("input"); const txt=(inp.value||"").trim(); if(!txt) return;
     if(!user){ pendingComment={id,txt}; showToast("Masuk dulu untuk mengirim komentar"); openAuthModal(); return; }
     postComment(id,txt); }
