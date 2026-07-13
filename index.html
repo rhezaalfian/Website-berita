@@ -146,7 +146,7 @@
   .meta .who { color: var(--ink-soft); font-weight: 600; }
 
   /* Hero slider */
-  .hero-row { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: stretch; padding-bottom: 22px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .hero-row { padding-bottom: 22px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
   .hero-slider { position: relative; overflow: hidden; min-width: 0; }
   .hs-track { display: flex; transition: transform .55s cubic-bezier(.22,.61,.36,1); }
   .hs-slide { min-width: 100%; }
@@ -259,15 +259,6 @@
   /* Rail */
   .rail { position: sticky; top: calc(var(--head-h, 62px) + 16px); display: flex; flex-direction: column; gap: 30px; }
   .rail-box h4 { font-size: 1.12rem; padding-bottom: 12px; margin-bottom: 4px; border-bottom: 2px solid var(--accent); }
-  /* Editorial — di samping hero di beranda, dipisah garis vertikal; kartu ukuran Berita utama (216px), rata kanan */
-  .hero-editorial { display: flex; flex-direction: column; padding-left: 14px; border-left: 1px solid var(--line); }
-  .hero-editorial .sec-head { margin-bottom: 12px; }
-  .hero-editorial .sec-head h2 { color: #7c5cbf; font-size: 1.14rem; }
-  .hero-editorial .ed-full .ncard { width: 216px; flex: none; border-color: color-mix(in srgb, #7c5cbf 30%, var(--line)); }
-  .hero-editorial .ed-compact { display: none; }
-  @media (max-width: 900px) { .hero-row { grid-template-columns: 1fr; } .hero-editorial { padding-left: 0; border-left: none; margin-top: 22px; border-top: 1px solid var(--line); padding-top: 22px; }
-    .hero-editorial .ed-full { display: none; } .hero-editorial .ed-compact { display: block; }
-    .hero-editorial .ed-compact .list-item { border-bottom: none; padding: 0; } }
   /* Iklan di atas Esai Foto, selebar kolom Esai Foto */
   .ad-esai { height: 220px; margin: 34px 0 0; }
   .pop { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--line); cursor: pointer; align-items: flex-start; }
@@ -1803,10 +1794,6 @@ function renderHome(){
   const feed=NEWS.filter(n=>!heroIds.has(n.id));
   const slides=heroItems.map(heroSlideHtml).join("");
   const dots=heroItems.map((_,i)=>`<button class="hs-dot ${i===0?"active":""}" data-hs-dot="${i}" aria-label="Slide ${i+1}"></button>`).join("");
-  const ed=NEWS.find(n=>n.tag==="Editorial");
-  const editorialHome=ed?`<aside class="hero-editorial"><div class="sec-head"><h2>Editorial</h2></div>
-      <div class="ed-full">${card(ed)}</div>
-      <div class="ed-compact">${listItem(ed)}</div></aside>`:"";
   view.innerHTML=`
     ${storiesBar()}
     <div class="hero-row">
@@ -1816,7 +1803,6 @@ function renderHome(){
       <button class="hs-arrow next" data-hs="next" aria-label="Berikutnya">›</button>
       <div class="hs-dots">${dots}</div>
     </section>
-    ${editorialHome}
     </div>
     <section><div class="sec-head"><h2>Berita utama</h2><span class="eyebrow" data-geser>Geser untuk lihat →</span></div>
       <div class="scroll-vp"><div class="carousel sm-cards">${utama.map(card).join("")}</div>${scrollArrows()}</div></section>
